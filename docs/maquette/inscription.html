@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inscription au service de réception | ENI Colis Services</title>
+<meta name="description" content="Inscrivez-vous en deux minutes et recevez votre numéro client et votre adresse de livraison en France.">
+<meta name="theme-color" content="#0C335E">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon-180x180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<div class="mock"><b>MAQUETTE</b> — ENI Colis Services · v1.3 · di-eureka</div>
+<header class="hdr">
+  <div class="wrap hdr__in">
+    <a href="index.html" class="hdr__logo" aria-label="ENI Colis Services — accueil"><img src="assets/logo-couleur.svg" alt="ENI Colis Services" style="width:100%;height:auto"></a>
+    <nav class="nav" aria-label="Navigation principale"><a href="destinations.html">Destinations</a><a href="recevoir.html">Recevoir mes achats</a><a href="services.html">Services</a><a href="tarifs.html">Tarifs</a><a href="departs.html">Départs</a><a href="suivi.html">Suivi</a><a href="contact.html">Contact</a></nav>
+    <div class="hdr__cta"><a class="btn btn--primary btn--sm" href="devis.html">Demander un devis</a></div>
+    <button class="burger" aria-expanded="false" aria-controls="drawer" aria-label="Ouvrir le menu"><span></span></button>
+  </div>
+  <div class="drawer wrap" id="drawer"><a href="destinations.html">Destinations</a><a href="recevoir.html">Recevoir mes achats</a><a href="services.html">Services</a><a href="tarifs.html">Tarifs</a><a href="departs.html">Départs</a><a href="suivi.html">Suivi</a><a href="contact.html">Contact</a><a class="btn btn--primary btn--block" href="devis.html">Demander un devis</a></div>
+</header>
+<section class="phead"><div class="wrap">
+ <p class="crumb"><a href="index.html">Accueil</a> · <a href="recevoir.html">Recevoir mes achats</a> · Inscription</p>
+ <p class="eyebrow">Deux minutes</p><h1>Obtenez votre adresse<br>de livraison en France</h1>
+ <p class="lede">Renseignez vos coordonnées : nous vous attribuons immédiatement un numéro client et l'adresse à utiliser pour vos commandes en ligne.</p>
+</div></section>
+
+<section class="sec"><div class="wrap" style="max-width:780px">
+ <div class="alert">L'inscription est <b>gratuite et sans engagement</b>. Vous ne payez que l'acheminement de vos colis, au tarif au kilo de votre destination.</div>
+
+ <form class="card" id="fInsc" onsubmit="return false">
+  <fieldset class="fset"><legend>Vos coordonnées</legend>
+   <div class="grid2">
+    <div class="fld"><label for="pn">Prénom</label><input id="pn" type="text" placeholder="Aïcha"></div>
+    <div class="fld"><label for="nn">Nom</label><input id="nn" type="text" placeholder="Koné"></div>
+   </div>
+   <div class="grid2">
+    <div class="fld"><label for="tel">Téléphone</label><input id="tel" type="tel" placeholder="+225 00 00 00 00"><span class="hint">Nous vous prévenons aussi sur WhatsApp</span></div>
+    <div class="fld"><label for="mail">E-mail</label><input id="mail" type="email" placeholder="vous@exemple.com"></div>
+   </div>
+  </fieldset>
+
+  <div class="fsep"></div>
+
+  <fieldset class="fset"><legend>Où récupérerez-vous vos colis&nbsp;?</legend>
+   <div class="grid2">
+    <div class="fld"><label for="pays">Pays</label>
+     <select id="pays"><option>Côte d'Ivoire</option><option>Bénin</option><option>Guinée</option><option>Mali</option><option>Sénégal</option><option>Congo-Brazzaville</option><option>RD Congo</option><option>États-Unis</option></select></div>
+    <div class="fld"><label for="vil">Ville de retrait</label>
+     <select id="vil"><option>Abidjan</option></select></div>
+   </div>
+   <label class="chk"><input type="checkbox"><span>J'accepte que mes informations soient utilisées pour gérer mes envois et me recontacter. Voir la <a href="legal-confidentialite.html" style="color:var(--orange);font-weight:600">politique de confidentialité</a>.</span></label>
+  </fieldset>
+
+  <div style="margin-top:28px"><button class="btn btn--primary btn--block" type="button" onclick="go()">Créer mon compte</button></div>
+ </form>
+
+ <div class="card" id="res" style="display:none;border-left:5px solid var(--orange)">
+  <p class="eyebrow" style="margin-bottom:10px">Compte créé</p>
+  <h2 class="h2" style="font-size:1.5rem;color:var(--navy)">Voici votre adresse de livraison</h2>
+  <p style="color:var(--ink-soft);margin:12px 0 26px;line-height:1.7">Reportez ces informations dans les champs de livraison de vos commandes. Le champ <strong>Nom</strong> est votre identifiant : il est obligatoire et c'est lui qui nous permet de reconnaître votre colis.</p>
+
+  <div style="background:var(--sand);border:1px solid var(--line);border-radius:var(--r-md);padding:22px 24px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.875rem;line-height:1.95;color:var(--navy)">
+   <span style="color:var(--muted)">Nom&nbsp;:</span> <b style="background:var(--sand-deep);padding:2px 7px;border-radius:4px" id="refC">Eni Aïcha 42</b><br>
+   <span style="color:var(--muted)">Prénom&nbsp;:</span> colis service<br>
+   <span style="color:var(--muted)">Adresse&nbsp;:</span> 67 rue Saint-Julien<br>
+   <span style="color:var(--muted)">Code postal&nbsp;:</span> 76100<br>
+   <span style="color:var(--muted)">Ville&nbsp;:</span> Rouen<br>
+   <span style="color:var(--muted)">Département&nbsp;:</span> Seine-Maritime<br>
+   <span style="color:var(--muted)">Téléphone&nbsp;:</span> +33 6 52 70 70 14<br>
+   <span style="color:var(--muted)">E-mail&nbsp;:</span> <span id="mailC">le vôtre</span>
+  </div>
+  <p style="font-size:.875rem;color:var(--ink-soft);margin:14px 0 0;line-height:1.6"><b style="color:var(--navy)">Le téléphone est celui de notre bureau</b>, c'est normal : c'est nous qui réceptionnons. Indiquez en revanche votre propre e-mail pour suivre votre livraison.</p>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px">
+   <button class="btn btn--primary btn--sm" type="button">Copier les informations</button>
+   <a class="btn btn--outline btn--sm" href="recevoir.html">Comment ça marche</a>
+  </div>
+
+  <dl class="kv" style="margin-top:30px">
+   <div class="kv__i"><dt>Votre identifiant</dt><dd id="numC">Eni Aïcha 42</dd></div>
+   <div class="kv__i"><dt>Retrait</dt><dd id="lieuC">Abidjan, Côte d'Ivoire</dd></div>
+   <div class="kv__i"><dt>Tarif applicable</dt><dd class="big" id="tarC">15 €/kg</dd></div>
+   <div class="kv__i"><dt>Paiement</dt><dd>Au retrait, en FCFA</dd></div>
+  </dl>
+
+  <div class="alert" style="margin-top:26px"><b>Prochaine étape —</b> passez votre commande en utilisant cette adresse. Dès réception du colis à notre bureau, nous vous enverrons un devis estimatif et votre code de suivi.</div>
+  <p style="color:var(--muted);font-size:.875rem;margin:16px 0 0">Écran de confirmation — maquette. En production, l'identifiant est attribué automatiquement et l'adresse envoyée par e-mail.</p>
+ </div>
+</div></section>
+
+<script>
+function go(){
+ var p=(document.getElementById('pn').value||'Aïcha').trim(),
+     n=(document.getElementById('nn').value||'Koné').trim(),
+     pay=document.getElementById('pays').value,
+     vil=document.getElementById('vil').value,
+     seq=40+Math.floor(Math.random()*59),
+     num='Eni '+p+' '+seq;
+ var tarifs={"Côte d'Ivoire":"15 €/kg","Bénin":"15 €/kg","Guinée":"15 €/kg","Mali":"15 €/kg","Sénégal":"12 €/kg","Congo-Brazzaville":"20 €/kg","RD Congo":"15 €/kg","États-Unis":"20 €/kg"};
+ document.getElementById('refC').textContent=num;
+ document.getElementById('numC').textContent=num;
+ var mv=document.getElementById('mail').value; if(mv){document.getElementById('mailC').textContent=mv;}
+ document.getElementById('lieuC').textContent=vil+', '+pay;
+ document.getElementById('tarC').textContent=tarifs[pay]||'—';
+ document.getElementById('fInsc').style.display='none';
+ document.getElementById('res').style.display='block';
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+var villes={"Côte d'Ivoire":["Abidjan"],"Bénin":["Cotonou"],"Guinée":["Conakry"],"Mali":["Bamako"],"Sénégal":["Dakar"],"Congo-Brazzaville":["Brazzaville"],"RD Congo":["Kinshasa"],"États-Unis":["New York"]};
+document.getElementById('pays').addEventListener('change',function(){
+ var v=villes[this.value]||[],s=document.getElementById('vil');
+ s.innerHTML=v.map(function(x){return '<option>'+x+'</option>'}).join('');
+});
+</script><footer class="ftr">
+  <div class="wrap">
+    <div class="ftr__grid">
+      <div><div class="ftr__logo"><img src="assets/logo-blanc.svg" alt="ENI Colis Services" style="width:100%;height:auto"></div><p class="ftr__base">Envoi de colis entre la France, l'Afrique et New York.<br><br>67 rue Saint-Julien<br>76100 Rouen<br>+33 6 52 70 70 14</p></div>
+      <div><h4>Destinations</h4><ul><li><a href="destination-abidjan.html">Abidjan</a></li><li><a href="destination-cotonou.html">Cotonou</a></li><li><a href="destination-conakry.html">Conakry</a></li><li><a href="destination-bamako.html">Bamako</a></li><li><a href="destination-dakar.html">Dakar</a></li><li><a href="destination-brazzaville.html">Brazzaville</a></li><li><a href="destination-kinshasa.html">Kinshasa</a></li><li><a href="destination-new-york.html">New York</a></li></ul></div>
+      <div><h4>Informations</h4><ul><li><a href="recevoir.html">Recevoir mes achats</a></li><li><a href="services.html">Nos services</a></li><li><a href="tarifs.html">Tarifs</a></li><li><a href="departs.html">Prochains départs</a></li><li><a href="suivi.html">Suivre un colis</a></li><li><a href="faq.html">FAQ</a></li><li><a href="a-propos.html">À propos</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+      <div><h4>Légal</h4><ul><li><a href="legal-mentions.html">Mentions légales</a></li><li><a href="legal-confidentialite.html">Confidentialité</a></li><li><a href="legal-cgs.html">Conditions générales</a></li><li><a href="legal-cookies.html">Cookies</a></li></ul></div>
+    </div>
+    <div class="ftr__bot"><span>© 2026 ENI Colis Services. Tous droits réservés.</span><span>Conçu par <a href="https://www.di-eureka.com">di-eureka</a></span></div>
+  </div>
+</footer>
+<a class="wa" href="#" aria-label="Nous écrire sur WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.47 14.38c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.64.08-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.75-1.65-2.05-.17-.3-.02-.46.13-.6.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.6-.92-2.2-.24-.58-.48-.5-.67-.5h-.57c-.2 0-.52.07-.79.37s-1.04 1.02-1.04 2.48 1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.7.63.71.23 1.36.19 1.87.12.57-.09 1.75-.72 2-1.41.25-.69.25-1.28.17-1.41-.07-.13-.27-.2-.57-.35zM12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm0 18.15c-1.53 0-3.03-.41-4.34-1.19l-.31-.18-3.23.85.86-3.15-.2-.32a8.2 8.2 0 01-1.26-4.38c0-4.54 3.7-8.23 8.24-8.23 4.54 0 8.23 3.69 8.23 8.23 0 4.54-3.69 8.24-8.23 8.24z"/></svg></a>
+<script>
+(function(){var b=document.querySelector('.burger'),d=document.getElementById('drawer');
+b.addEventListener('click',function(){var o=d.classList.toggle('is-open');b.setAttribute('aria-expanded',o?'true':'false');});
+d.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){d.classList.remove('is-open');b.setAttribute('aria-expanded','false');});});})();
+</script>
+</body></html>

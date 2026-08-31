@@ -1,0 +1,21 @@
+Déposez ici les images du site, avec EXACTEMENT ces noms de fichier.
+Tant qu'un fichier est absent, la maquette affiche un cadre avec son nom.
+
+DESTINATIONS (16/9 ou plus large, 1600x900 minimum)
+  destination-abidjan.jpg
+  destination-cotonou.jpg
+  destination-conakry.jpg
+  destination-bamako.jpg
+  destination-dakar.jpg
+  destination-brazzaville.jpg
+  destination-kinshasa.jpg
+  destination-new-york.jpg
+
+ACTIVITÉ (photos de la cliente)
+  activite-depot.jpg        - un dépôt au comptoir
+  activite-depart.jpg       - colis prêts avant un départ
+  activite-reception.jpg    - cartons marchands reçus au bureau
+  magasin-abidjan.jpg       - le magasin d'Abidjan
+  bureau-rouen.jpg          - la devanture de Rouen
+
+Format JPG, compressé à moins de 300 Ko (squoosh.app, MozJPEG 80%).

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ENI Colis Services — Envoi de colis vers l'Afrique et New York</title>
+<meta name="description" content="Envoi de colis vers l'Afrique et New York. Tarifs affichés de 12 à 20 € le kilo, départs chaque semaine. Devis sur photos pour l'électronique et les articles de valeur.">
+<meta name="theme-color" content="#0C335E">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon-180x180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<div class="mock"><b>MAQUETTE</b> — ENI Colis Services · v1.3 · di-eureka</div>
+<header class="hdr">
+  <div class="wrap hdr__in">
+    <a href="index.html" class="hdr__logo" aria-label="ENI Colis Services — accueil"><img src="assets/logo-couleur.svg" alt="ENI Colis Services" style="width:100%;height:auto"></a>
+    <nav class="nav" aria-label="Navigation principale"><a href="destinations.html">Destinations</a><a href="recevoir.html">Recevoir mes achats</a><a href="services.html">Services</a><a href="tarifs.html">Tarifs</a><a href="departs.html">Départs</a><a href="suivi.html">Suivi</a><a href="contact.html">Contact</a></nav>
+    <div class="hdr__cta"><a class="btn btn--primary btn--sm" href="devis.html">Demander un devis</a></div>
+    <button class="burger" aria-expanded="false" aria-controls="drawer" aria-label="Ouvrir le menu"><span></span></button>
+  </div>
+  <div class="drawer wrap" id="drawer"><a href="destinations.html">Destinations</a><a href="recevoir.html">Recevoir mes achats</a><a href="services.html">Services</a><a href="tarifs.html">Tarifs</a><a href="departs.html">Départs</a><a href="suivi.html">Suivi</a><a href="contact.html">Contact</a><a class="btn btn--primary btn--block" href="devis.html">Demander un devis</a></div>
+</header>
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap hero__grid">
+    <div>
+      <p class="eyebrow">France · Afrique · New York</p>
+      <h1 class="h-display">De 12 à 20 €<br>le kilo.<br>Tarifs affichés.</h1>
+      <p class="lede">Envoyez vos colis vers l'Afrique et New York. Pour un colis ordinaire, le tarif au kilo de votre destination s'applique : vous n'avez qu'à venir le déposer. Pour l'électronique, les articles de valeur ou les colis encombrants, demandez un devis sur photos.</p>
+      <div class="hero__actions">
+        <a class="btn btn--primary" href="tarifs.html">Voir les tarifs par destination</a>
+        <a class="btn btn--outline" href="#chemins">J'ai un cas particulier</a>
+      </div>
+      <p class="hero__note">Départs <b>toutes les semaines</b> sur l'ensemble de nos destinations.</p>
+    </div>
+
+    <!-- SIGNATURE : tableau d'embarquement -->
+    <div class="board" id="departs">
+      <div class="board__top">
+        <h2 class="board__title">Prochains départs</h2>
+        <span class="board__live"><span class="dot"></span>Mis à jour en direct</span>
+      </div>
+
+      <div class="row">
+        <div class="row__dest">Abidjan</div>
+        <div class="row__meta">Départ jeu. 28 août · dépôts jusqu'au 26</div>
+        <div class="row__right">
+          <div class="row__price">15 €</div>
+          <div class="row__unit">par kilo</div>
+          <span class="tag tag--soon">Clôture proche</span>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="row__dest">Dakar</div>
+        <div class="row__meta">Départ ven. 29 août · dépôts jusqu'au 27</div>
+        <div class="row__right">
+          <div class="row__price">12 €</div>
+          <div class="row__unit">par kilo</div>
+          <span class="tag tag--open">Places disponibles</span>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="row__dest">Cotonou</div>
+        <div class="row__meta">Départ lun. 1<sup>er</sup> sept. · dépôts jusqu'au 30</div>
+        <div class="row__right">
+          <div class="row__price">15 €</div>
+          <div class="row__unit">par kilo</div>
+          <span class="tag tag--open">Places disponibles</span>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="row__dest">Kinshasa</div>
+        <div class="row__meta">Départ mer. 3 sept. · dépôts jusqu'au 1<sup>er</sup></div>
+        <div class="row__right">
+          <div class="row__price">15 €</div>
+          <div class="row__unit">par kilo</div>
+          <span class="tag tag--open">Places disponibles</span>
+        </div>
+      </div>
+
+      <div class="board__foot">
+        <p class="board__hint">Un colis déposé après la clôture part au départ suivant.</p>
+        <a href="departs.html">Tous les départs →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEUX CHEMINS -->
+<section class="sec" id="chemins" style="padding-top:8px">
+  <div class="wrap">
+    <div class="sec__head">
+      <p class="eyebrow">Connaître votre prix</p>
+      <h2 class="h2">Deux situations,<br>deux façons de faire</h2>
+    </div>
+    <div class="paths">
+
+      <div class="path">
+        <span class="path__tag path__tag--a">Cas le plus courant</span>
+        <h3 class="path__t">Colis ordinaire</h3>
+        <p class="path__d">Vêtements, produits d'hygiène, denrées non périssables, effets personnels, pièces détachées.</p>
+        <div class="path__price">
+          <b>Le tarif au kilo de votre destination s'applique.</b>
+          <span>Nous pesons votre colis au dépôt, vous réglez sur place. Pas de démarche préalable.</span>
+        </div>
+        <a class="btn btn--primary btn--block" href="tarifs.html">Voir les tarifs</a>
+      </div>
+
+      <div class="path path--b">
+        <span class="path__tag path__tag--b">Devis nécessaire</span>
+        <h3 class="path__t">Cas particulier</h3>
+        <p class="path__d">Matériel électronique, articles de marque et de valeur, colis volumineux ou contenu inhabituel.</p>
+        <div class="path__price">
+          <b>Le prix ne se calcule pas au kilo.</b>
+          <span>Envoyez-nous une à trois photos : nous vous répondons sous 24 heures avec un prix ferme, valable sept jours.</span>
+        </div>
+        <a class="btn btn--outline btn--block" href="devis.html">Demander un devis</a>
+      </div>
+
+    </div>
+    <p class="paths__note">Un doute sur votre colis&nbsp;? Envoyez une photo, nous vous dirons dans quel cas vous êtes.<br><b style="color:var(--navy)">Vous vivez en Afrique et commandez sur les sites français&nbsp;?</b> <a href="recevoir.html" style="color:var(--orange);font-weight:600">Découvrez notre service de réception</a>.</p>
+  </div>
+</section>
+
+<!-- ÉTAPES -->
+<section class="sec sec--white">
+  <div class="wrap">
+    <div class="sec__head">
+      <p class="eyebrow">Le parcours</p>
+      <h2 class="h2">Envoyer un colis ordinaire,<br>en quatre étapes</h2>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="step__n">1</div><h3 class="h3">Je vérifie le tarif</h3><p>Le prix au kilo de chaque destination est affiché. Multipliez-le par le poids approximatif de votre colis : vous savez à quoi vous attendre avant de vous déplacer.</p></div>
+      <div class="step"><div class="step__n">2</div><h3 class="h3">Je prépare mon colis</h3><p>Laissez-le <b>ouvert</b> : nous devons voir le contenu au moment du dépôt. Un carton bien rempli et compact coûte moins cher qu'un carton volumineux à moitié vide.</p></div>
+      <div class="step"><div class="step__n">3</div><h3 class="h3">Je dépose au bureau</h3><p>Pesée sur place, montant confirmé, règlement. Vous repartez avec votre reçu et votre code de suivi. Trop loin pour vous déplacer&nbsp;? Voir juste en dessous.</p></div>
+      <div class="step"><div class="step__n">4</div><h3 class="h3">Le destinataire retire</h3><p>Le colis part au prochain départ hebdomadaire. Votre destinataire est prévenu dès qu'il est disponible au point de retrait.</p></div>
+    </div>
+    <p class="steps__note"><b>Électronique, article de valeur ou colis encombrant&nbsp;?</b> Passez d'abord par une <a href="devis.html">demande de devis</a> : le prix ne se calcule pas au kilo dans ces cas-là.</p>
+  </div>
+</section>
+
+<section class="sec" style="padding-top:0"><div class="wrap">
+ <div style="display:grid;gap:16px" class="grid2">
+  <span class="ph ph--wide" data-file="images/activite-depot.jpg"><img src="images/activite-depot.jpg" alt="Dépôt de colis au bureau" loading="lazy"></span>
+  <span class="ph ph--wide" data-file="images/activite-depart.jpg"><img src="images/activite-depart.jpg" alt="Colis prêts pour le départ" loading="lazy"></span>
+ </div>
+ <p style="margin:14px 0 0;text-align:center;font-size:.875rem;color:var(--muted)">Photos de l'activité — à fournir par la cliente</p>
+</div></section>
+
+<!-- EXPÉDITION À DISTANCE -->
+<section class="sec" style="padding-top:0">
+  <div class="wrap">
+    <div class="remote">
+      <div class="remote__l">
+        <p class="eyebrow">Vous n'êtes pas à proximité ?</p>
+        <h2 class="h2">Expédiez-nous<br>votre colis</h2>
+        <p class="lede">Vous n'avez pas besoin d'habiter près de notre bureau. Demandez un devis avec photos, puis envoyez-nous votre colis par le transporteur de votre choix : nous le prenons en charge à réception et il part au départ suivant.</p>
+        <a class="btn btn--onNavy" href="devis.html" style="margin-top:26px">Demander un devis</a>
+      </div>
+      <div class="remote__r">
+        <div class="rstep"><span class="rstep__n">1</span><div><h3 class="h3">Devis avec photos</h3><p>Obligatoire pour ce mode d'envoi : nous ne pouvons pas peser votre colis nous-mêmes. Le montant est ferme et valable sept jours.</p></div></div>
+        <div class="rstep"><span class="rstep__n">2</span><div><h3 class="h3">Vous nous l'expédiez</h3><p>Par le transporteur de votre choix, à vos frais. Collez votre numéro de devis bien visible sur le colis : c'est ce qui nous permet de l'identifier à l'arrivée.</p></div></div>
+        <div class="rstep"><span class="rstep__n">3</span><div><h3 class="h3">Nous prenons le relais</h3><p>Contrôle du contenu à réception, code de suivi envoyé, embarquement au prochain départ. Vous suivez tout en ligne.</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DESTINATIONS -->
+<section class="sec" id="destinations">
+  <div class="wrap">
+    <div class="sec__head">
+      <p class="eyebrow">Tarifs par destination</p>
+      <h2 class="h2">Nos destinations</h2>
+      <p class="lede">Prix au kilo pour un colis ordinaire, au départ de la France. Nous expédions dans les deux sens : le tarif retour est indiqué sur chaque fiche destination.</p>
+    </div>
+    <div class="dests">
+      <a class="dest" href="destination-abidjan.html"><span class="ph ph--card" data-file="images/destination-abidjan.jpg" style="position:relative"><img src="images/destination-abidjan.jpg" alt="Abidjan" loading="lazy"><span class="dest__flag--over">🇨🇮</span></span><div class="dest__city">Abidjan</div><p class="dest__country">Côte d'Ivoire</p><div class="dest__price"><b>15 €</b><span>/ kg</span></div></a>
+      <a class="dest" href="destination-cotonou.html"><span class="ph ph--card" data-file="images/destination-cotonou.jpg" style="position:relative"><img src="images/destination-cotonou.jpg" alt="Cotonou" loading="lazy"><span class="dest__flag--over">🇧🇯</span></span><div class="dest__city">Cotonou</div><p class="dest__country">Bénin</p><div class="dest__price"><b>15 €</b><span>/ kg</span></div></a>
+      <a class="dest" href="destination-conakry.html"><span class="ph ph--card" data-file="images/destination-conakry.jpg" style="position:relative"><img src="images/destination-conakry.jpg" alt="Conakry" loading="lazy"><span class="dest__flag--over">🇬🇳</span></span><div class="dest__city">Conakry</div><p class="dest__country">Guinée</p><div class="dest__price"><b>15 €</b><span>/ kg</span></div></a>
+      <a class="dest" href="destination-bamako.html"><span class="ph ph--card" data-file="images/destination-bamako.jpg" style="position:relative"><img src="images/destination-bamako.jpg" alt="Bamako" loading="lazy"><span class="dest__flag--over">🇲🇱</span></span><div class="dest__city">Bamako</div><p class="dest__country">Mali</p><div class="dest__price"><b>15 €</b><span>/ kg</span></div></a>
+      <a class="dest" href="destination-dakar.html"><span class="ph ph--card" data-file="images/destination-dakar.jpg" style="position:relative"><img src="images/destination-dakar.jpg" alt="Dakar" loading="lazy"><span class="dest__flag--over">🇸🇳</span></span><div class="dest__city">Dakar</div><p class="dest__country">Sénégal</p><div class="dest__price"><b>12 €</b><span>/ kg</span></div></a>
+      <a class="dest" href="destination-brazzaville.html"><span class="ph ph--card" data-file="images/destination-brazzaville.jpg" style="position:relative"><img src="images/destination-brazzaville.jpg" alt="Brazzaville" loading="lazy"><span class="dest__flag--over">🇨🇬</span></span><div class="dest__city">Brazzaville</div><p class="dest__country">Congo</p><div class="dest__price"><b>20 €</b><span>/ kg</span></div></a>
+      <a class="dest" href="destination-kinshasa.html"><span class="ph ph--card" data-file="images/destination-kinshasa.jpg" style="position:relative"><img src="images/destination-kinshasa.jpg" alt="Kinshasa" loading="lazy"><span class="dest__flag--over">🇨🇩</span></span><div class="dest__city">Kinshasa</div><p class="dest__country">RD Congo</p><div class="dest__price"><b>15 €</b><span>/ kg</span></div></a>
+      <a class="dest dest--ny" href="destination-new-york.html"><span class="ph ph--card" data-file="images/destination-new-york.jpg" style="position:relative"><img src="images/destination-new-york.jpg" alt="New York" loading="lazy"><span class="dest__flag--over">🇺🇸</span></span><div class="dest__city">New York</div><p class="dest__country">Depuis Abidjan · aller-retour</p><div class="dest__price"><b>20 €</b><span>/ kg</span></div></a>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICE RÉCEPTION -->
+<section class="sec sec--white"><div class="wrap">
+ <div class="sec__head"><p class="eyebrow">Vous vivez en Afrique&nbsp;?</p>
+  <h2 class="h2">Commandez en France,<br>récupérez chez nous</h2>
+  <p class="lede">La plupart des marchands français ne livrent pas en Afrique. Nous vous donnons une adresse de livraison en France : vous commandez, nous recevons, nous acheminons. Vous payez au retrait, en monnaie locale.</p></div>
+ <div class="steps" style="grid-template-columns:none">
+  <div class="path" style="border-top-color:var(--orange)">
+   <div style="display:grid;gap:24px" class="grid2">
+    <div>
+     <h3 class="path__t" style="margin-bottom:14px">Votre adresse en France</h3>
+     <div style="background:var(--sand);border:1px solid var(--line);border-radius:var(--r-md);padding:18px 20px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.8125rem;line-height:1.9;color:var(--navy)">
+      <span style="color:var(--muted)">Nom&nbsp;:</span> <b style="background:var(--sand-deep);padding:2px 7px;border-radius:4px">Eni Aïcha 42</b><br>
+      <span style="color:var(--muted)">Prénom&nbsp;:</span> colis service<br>
+      67 rue Saint-Julien<br>76100 Rouen — France
+     </div>
+    </div>
+    <div style="display:flex;flex-direction:column;justify-content:center">
+     <p style="margin:0 0 8px;font-size:.9375rem;color:var(--ink-soft);line-height:1.65">Inscription en deux minutes. Vous recevez votre identifiant et l'adresse exacte à saisir dans vos commandes.</p>
+     <p style="margin:0 0 22px;font-size:.9375rem;color:var(--ink-soft);line-height:1.65">Aucun paiement au départ : vous réglez à l'arrivée, quand vous venez chercher votre colis.</p>
+     <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <a class="btn btn--primary btn--sm" href="inscription.html">Obtenir mon adresse</a>
+      <a class="btn btn--outline btn--sm" href="recevoir.html">En savoir plus</a>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+</div></section>
+
+<!-- SERVICES -->
+<section class="sec sec--white" id="services">
+  <div class="wrap">
+    <div class="sec__head">
+      <p class="eyebrow">Nos services</p>
+      <h2 class="h2">Du carton familial<br>à la pièce détachée</h2>
+    </div>
+    <div class="srv">
+      <div class="srv__i"><h3 class="h3">Colis et cartons familiaux</h3><p>Vêtements, produits d'hygiène, denrées non périssables, effets personnels. Le cœur de notre activité.</p><span class="srv__tarif">Tarif affiché — au kilo selon la destination</span></div>
+      <div class="srv__i"><h3 class="h3">Pièces détachées</h3><p>Pièces automobiles, mécaniques, industrielles. Toutes destinations, dans les deux sens.</p><span class="srv__tarif">Tarif affiché — 20 €/kg</span></div>
+      <div class="srv__i"><h3 class="h3">Matériel électronique</h3><p>Téléphones, ordinateurs, téléviseurs, électroménager. La tarification dépend de l'appareil.</p><span class="srv__tarif srv__tarif--devis">Devis obligatoire — prix à l'unité</span></div>
+      <div class="srv__i"><h3 class="h3">Articles de valeur</h3><p>Manutention renforcée, traçabilité, justificatif d'achat obligatoire.</p><span class="srv__tarif srv__tarif--devis">Devis obligatoire — 15 % de la valeur</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="sec">
+  <div class="wrap">
+    <div class="cta">
+      <h2 class="h2">Un colis à envoyer ?</h2>
+      <p>Colis ordinaire : le tarif de votre destination s'applique, venez le déposer. Cas particulier : envoyez-nous des photos, réponse sous 24 heures.</p>
+      <div class="cta__b">
+        <a class="btn btn--onNavy" href="tarifs.html">Voir les tarifs</a>
+        <a class="btn btn--ghostNavy" href="devis.html">Demander un devis</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="ftr">
+  <div class="wrap">
+    <div class="ftr__grid">
+      <div><div class="ftr__logo"><img src="assets/logo-blanc.svg" alt="ENI Colis Services" style="width:100%;height:auto"></div><p class="ftr__base">Envoi de colis entre la France, l'Afrique et New York.<br><br>67 rue Saint-Julien<br>76100 Rouen<br>+33 6 52 70 70 14</p></div>
+      <div><h4>Destinations</h4><ul><li><a href="destination-abidjan.html">Abidjan</a></li><li><a href="destination-cotonou.html">Cotonou</a></li><li><a href="destination-conakry.html">Conakry</a></li><li><a href="destination-bamako.html">Bamako</a></li><li><a href="destination-dakar.html">Dakar</a></li><li><a href="destination-brazzaville.html">Brazzaville</a></li><li><a href="destination-kinshasa.html">Kinshasa</a></li><li><a href="destination-new-york.html">New York</a></li></ul></div>
+      <div><h4>Informations</h4><ul><li><a href="recevoir.html">Recevoir mes achats</a></li><li><a href="services.html">Nos services</a></li><li><a href="tarifs.html">Tarifs</a></li><li><a href="departs.html">Prochains départs</a></li><li><a href="suivi.html">Suivre un colis</a></li><li><a href="faq.html">FAQ</a></li><li><a href="a-propos.html">À propos</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+      <div><h4>Légal</h4><ul><li><a href="legal-mentions.html">Mentions légales</a></li><li><a href="legal-confidentialite.html">Confidentialité</a></li><li><a href="legal-cgs.html">Conditions générales</a></li><li><a href="legal-cookies.html">Cookies</a></li></ul></div>
+    </div>
+    <div class="ftr__bot"><span>© 2026 ENI Colis Services. Tous droits réservés.</span><span>Conçu par <a href="https://www.di-eureka.com">di-eureka</a></span></div>
+  </div>
+</footer>
+<a class="wa" href="#" aria-label="Nous écrire sur WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.47 14.38c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.64.08-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.75-1.65-2.05-.17-.3-.02-.46.13-.6.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.6-.92-2.2-.24-.58-.48-.5-.67-.5h-.57c-.2 0-.52.07-.79.37s-1.04 1.02-1.04 2.48 1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.7.63.71.23 1.36.19 1.87.12.57-.09 1.75-.72 2-1.41.25-.69.25-1.28.17-1.41-.07-.13-.27-.2-.57-.35zM12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm0 18.15c-1.53 0-3.03-.41-4.34-1.19l-.31-.18-3.23.85.86-3.15-.2-.32a8.2 8.2 0 01-1.26-4.38c0-4.54 3.7-8.23 8.24-8.23 4.54 0 8.23 3.69 8.23 8.23 0 4.54-3.69 8.24-8.23 8.24z"/></svg></a>
+<script>
+(function(){var b=document.querySelector('.burger'),d=document.getElementById('drawer');
+b.addEventListener('click',function(){var o=d.classList.toggle('is-open');b.setAttribute('aria-expanded',o?'true':'false');});
+d.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){d.classList.remove('is-open');b.setAttribute('aria-expanded','false');});});})();
+</script>
+<script>document.querySelectorAll('.ph img').forEach(function(i){i.addEventListener('error',function(){this.style.display='none';this.parentNode.classList.add('ph--empty');});if(!i.complete||i.naturalWidth===0){}});</script>
+</body></html>

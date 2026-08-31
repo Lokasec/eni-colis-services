@@ -1,0 +1,12 @@
+Déposez ici les images du site (voir docs/guide-images.md).
+Tant qu'un fichier est absent, un placeholder SVG est affiché.
+
+destination-abidjan.jpg      destination-cotonou.jpg
+destination-conakry.jpg      destination-bamako.jpg
+destination-dakar.jpg        destination-brazzaville.jpg
+destination-kinshasa.jpg     destination-new-york.jpg
+activite-depot.jpg           activite-depart.jpg
+activite-reception.jpg       magasin-abidjan.jpg
+bureau-rouen.jpg
+
+JPG, 1600px de large max, < 300 Ko (squoosh.app, MozJPEG 80).

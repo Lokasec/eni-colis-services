@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demander un devis | ENI Colis Services</title>
+<meta name="description" content="Décrivez votre colis, joignez des photos : réponse sous 24 heures avec un prix ferme, valable sept jours.">
+<meta name="theme-color" content="#0C335E">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon-180x180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<div class="mock"><b>MAQUETTE</b> — ENI Colis Services · v1.3 · di-eureka</div>
+<header class="hdr">
+  <div class="wrap hdr__in">
+    <a href="index.html" class="hdr__logo" aria-label="ENI Colis Services — accueil"><img src="assets/logo-couleur.svg" alt="ENI Colis Services" style="width:100%;height:auto"></a>
+    <nav class="nav" aria-label="Navigation principale"><a href="destinations.html">Destinations</a><a href="recevoir.html">Recevoir mes achats</a><a href="services.html">Services</a><a href="tarifs.html">Tarifs</a><a href="departs.html">Départs</a><a href="suivi.html">Suivi</a><a href="contact.html">Contact</a></nav>
+    <div class="hdr__cta"><a class="btn btn--primary btn--sm" href="devis.html">Demander un devis</a></div>
+    <button class="burger" aria-expanded="false" aria-controls="drawer" aria-label="Ouvrir le menu"><span></span></button>
+  </div>
+  <div class="drawer wrap" id="drawer"><a href="destinations.html">Destinations</a><a href="recevoir.html">Recevoir mes achats</a><a href="services.html">Services</a><a href="tarifs.html">Tarifs</a><a href="departs.html">Départs</a><a href="suivi.html">Suivi</a><a href="contact.html">Contact</a><a class="btn btn--primary btn--block" href="devis.html">Demander un devis</a></div>
+</header>
+<section class="phead"><div class="wrap"><p class="crumb"><a href="index.html">Accueil</a> · Devis</p><p class="eyebrow">En deux minutes</p><h1>Demandez votre devis</h1><p class="lede">Décrivez votre colis et joignez une à trois photos. Nous vous répondons sous 24 heures avec un prix ferme, valable sept jours.</p></div></section>
+<section class="sec"><div class="wrap" style="max-width:780px">
+ <div class="alert"><b>Un colis ordinaire à déposer au bureau&nbsp;?</b> Vous n'avez pas besoin de devis : le <a href="tarifs.html" style="color:var(--orange);font-weight:600">tarif au kilo de votre destination</a> s'applique, venez simplement le déposer. Ce formulaire est destiné aux cas particuliers et aux envois à distance.</div>
+ <form class="card" onsubmit="return false">
+
+  <fieldset class="fset"><legend>1. Votre envoi</legend>
+   <div class="grid2">
+    <div class="fld"><label for="o">D'où part le colis&nbsp;?</label>
+     <select id="o"><option>France</option><option>Côte d'Ivoire — Abidjan</option><option>États-Unis — New York</option><option>Sénégal — Dakar</option><option>Bénin — Cotonou</option><option>Guinée — Conakry</option><option>Mali — Bamako</option><option>Congo — Brazzaville</option><option>RD Congo — Kinshasa</option></select></div>
+    <div class="fld"><label for="d">Où va le colis&nbsp;?</label>
+     <select id="d"><option>Côte d'Ivoire — Abidjan</option><option>Bénin — Cotonou</option><option>Guinée — Conakry</option><option>Mali — Bamako</option><option>Sénégal — Dakar</option><option>Congo — Brazzaville</option><option>RD Congo — Kinshasa</option><option>États-Unis — New York</option><option>France</option></select></div>
+   </div>
+   <div class="fld"><label>Comment nous remettrez-vous le colis&nbsp;?</label>
+    <div class="radios">
+     <label class="radio"><input type="radio" name="mode" checked><span class="radio__b"><b>Je dépose au bureau</b><span>Pesée sur place, règlement au comptoir</span></span></label>
+     <label class="radio"><input type="radio" name="mode" id="mExp"><span class="radio__b"><b>Je vous l'expédie</b><span>Par transporteur, à mes frais</span></span></label>
+    </div>
+   </div>
+   <div class="cond" id="boxExp"><div class="alert alert--warn" style="margin-top:4px"><b>Envoi à distance —</b> une fois votre devis validé, expédiez le colis avec votre <b>numéro de devis collé bien visible</b> dessus. C'est ce qui nous permet de l'identifier à l'arrivée. Les frais d'acheminement jusqu'à notre bureau sont à votre charge.</div></div>
+  </fieldset>
+
+  <div class="fsep"></div>
+
+  <fieldset class="fset"><legend>2. Votre colis</legend>
+   <div class="fld"><label for="n">Que contient le colis&nbsp;?</label>
+    <select id="n"><option value="std">Colis ordinaire — vêtements, hygiène, denrées, effets personnels</option><option value="pd">Pièces détachées</option><option value="el">Matériel électronique</option><option value="val">Articles de valeur ou de marque</option></select></div>
+
+   <div class="cond" id="boxEl"><div class="alert">Le matériel électronique est tarifé <b>à l'unité</b>, selon l'appareil. Précisez le type et le modèle dans la description ci-dessous.</div></div>
+   <div class="cond" id="boxVal">
+    <div class="alert"><b>Justificatif d'achat obligatoire</b> au dépôt, sans exception. La tarification est de 15 % de la valeur d'achat. L'indemnisation en cas de perte est plafonnée — voir nos conditions générales.</div>
+    <div class="fld"><label for="v">Valeur d'achat totale (€)</label><input id="v" type="number" placeholder="Ex. 450"></div>
+   </div>
+
+   <div class="grid2">
+    <div class="fld"><label for="pd">Poids approximatif (kg)</label><input id="pd" type="number" placeholder="Ex. 18"><span class="hint">Une estimation suffit, nous pèserons au dépôt</span></div>
+    <div class="fld"><label>Dimensions approximatives (cm)</label>
+     <div class="grid3"><input type="number" placeholder="Long."><input type="number" placeholder="Larg."><input type="number" placeholder="Haut."></div>
+     <span class="hint">Utile pour les colis volumineux</span></div>
+   </div>
+   <div class="fld"><label for="ds">Décrivez le contenu</label><textarea id="ds" placeholder="Ex. : 2 cartons de vêtements et produits d'hygiène, 1 paire de chaussures"></textarea><span class="hint">Soyez précis : cela nous évite de vous rappeler</span></div>
+
+   <div class="fld"><label>Photos du colis</label>
+    <div class="drop"><b>Prenez une photo ou choisissez un fichier</b><span>1 à 3 photos · JPEG, PNG ou HEIC · 5 Mo maximum par photo</span>
+     <div style="margin-top:16px"><span class="btn btn--outline btn--sm">Ajouter une photo</span></div></div>
+    <div class="thumbs"><div class="thumb">Photo 1</div><div class="thumb">Photo 2</div><div class="thumb">Photo 3</div></div>
+   </div>
+  </fieldset>
+
+  <div class="fsep"></div>
+
+  <fieldset class="fset"><legend>3. Vos coordonnées</legend>
+   <div class="grid2">
+    <div class="fld"><label for="nm">Votre nom</label><input id="nm" type="text" placeholder="Nom et prénom"></div>
+    <div class="fld"><label for="tl">Votre téléphone</label><input id="tl" type="tel" placeholder="06 00 00 00 00"><span class="hint">Nous vous répondons aussi sur WhatsApp</span></div>
+   </div>
+   <div class="grid2">
+    <div class="fld"><label for="em">Votre e-mail</label><input id="em" type="email" placeholder="vous@exemple.fr"></div>
+    <div class="fld"><label for="dp">Départ souhaité</label><select id="dp"><option>Peu importe</option><option>Jeu. 28 août — Abidjan</option><option>Ven. 29 août — Dakar</option><option>Lun. 1er sept. — Cotonou</option><option>Mer. 3 sept. — Kinshasa</option></select></div>
+   </div>
+   <label class="chk"><input type="checkbox"><span>J'accepte que mes informations soient utilisées pour établir mon devis et me recontacter. Voir la <a href="legal-confidentialite.html" style="color:var(--orange);font-weight:600">politique de confidentialité</a>.</span></label>
+  </fieldset>
+
+  <div style="margin-top:28px"><button class="btn btn--primary btn--block" type="button" onclick="document.getElementById('ok').style.display='block';window.scrollTo({top:0,behavior:'smooth'})">Envoyer ma demande</button></div>
+ </form>
+
+ <div class="card" id="ok" style="display:none;margin-top:24px;border-left:5px solid var(--orange)">
+  <h2 class="h2" style="font-size:1.375rem;color:var(--navy)">Demande envoyée</h2>
+  <p style="color:var(--ink-soft);line-height:1.7;margin:12px 0 0">Nous avons bien reçu votre demande. Vous recevrez votre devis sous 24 heures par e-mail, et par WhatsApp si vous nous avez laissé votre numéro.</p>
+  <p style="color:var(--muted);font-size:.875rem;margin:14px 0 0">Écran de confirmation — maquette.</p>
+ </div>
+</div></section>
+<script>
+(function(){
+ var n=document.getElementById('n'),el=document.getElementById('boxEl'),va=document.getElementById('boxVal'),
+     ex=document.getElementById('mExp'),bx=document.getElementById('boxExp');
+ function u(){el.classList.toggle('on',n.value==='el');va.classList.toggle('on',n.value==='val');}
+ n.addEventListener('change',u);u();
+ document.querySelectorAll('input[name=mode]').forEach(function(r){
+   r.addEventListener('change',function(){bx.classList.toggle('on',ex.checked);});});
+})();
+</script><footer class="ftr">
+  <div class="wrap">
+    <div class="ftr__grid">
+      <div><div class="ftr__logo"><img src="assets/logo-blanc.svg" alt="ENI Colis Services" style="width:100%;height:auto"></div><p class="ftr__base">Envoi de colis entre la France, l'Afrique et New York.<br><br>67 rue Saint-Julien<br>76100 Rouen<br>+33 6 52 70 70 14</p></div>
+      <div><h4>Destinations</h4><ul><li><a href="destination-abidjan.html">Abidjan</a></li><li><a href="destination-cotonou.html">Cotonou</a></li><li><a href="destination-conakry.html">Conakry</a></li><li><a href="destination-bamako.html">Bamako</a></li><li><a href="destination-dakar.html">Dakar</a></li><li><a href="destination-brazzaville.html">Brazzaville</a></li><li><a href="destination-kinshasa.html">Kinshasa</a></li><li><a href="destination-new-york.html">New York</a></li></ul></div>
+      <div><h4>Informations</h4><ul><li><a href="recevoir.html">Recevoir mes achats</a></li><li><a href="services.html">Nos services</a></li><li><a href="tarifs.html">Tarifs</a></li><li><a href="departs.html">Prochains départs</a></li><li><a href="suivi.html">Suivre un colis</a></li><li><a href="faq.html">FAQ</a></li><li><a href="a-propos.html">À propos</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+      <div><h4>Légal</h4><ul><li><a href="legal-mentions.html">Mentions légales</a></li><li><a href="legal-confidentialite.html">Confidentialité</a></li><li><a href="legal-cgs.html">Conditions générales</a></li><li><a href="legal-cookies.html">Cookies</a></li></ul></div>
+    </div>
+    <div class="ftr__bot"><span>© 2026 ENI Colis Services. Tous droits réservés.</span><span>Conçu par <a href="https://www.di-eureka.com">di-eureka</a></span></div>
+  </div>
+</footer>
+<a class="wa" href="#" aria-label="Nous écrire sur WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.47 14.38c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.64.08-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.75-1.65-2.05-.17-.3-.02-.46.13-.6.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.6-.92-2.2-.24-.58-.48-.5-.67-.5h-.57c-.2 0-.52.07-.79.37s-1.04 1.02-1.04 2.48 1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.7.63.71.23 1.36.19 1.87.12.57-.09 1.75-.72 2-1.41.25-.69.25-1.28.17-1.41-.07-.13-.27-.2-.57-.35zM12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm0 18.15c-1.53 0-3.03-.41-4.34-1.19l-.31-.18-3.23.85.86-3.15-.2-.32a8.2 8.2 0 01-1.26-4.38c0-4.54 3.7-8.23 8.24-8.23 4.54 0 8.23 3.69 8.23 8.23 0 4.54-3.69 8.24-8.23 8.24z"/></svg></a>
+<script>
+(function(){var b=document.querySelector('.burger'),d=document.getElementById('drawer');
+b.addEventListener('click',function(){var o=d.classList.toggle('is-open');b.setAttribute('aria-expanded',o?'true':'false');});
+d.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){d.classList.remove('is-open');b.setAttribute('aria-expanded','false');});});})();
+</script>
+</body></html>

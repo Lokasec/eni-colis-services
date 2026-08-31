@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Suivre mon colis | ENI Colis Services</title>
+<meta name="description" content="Saisissez votre code de suivi ENI pour connaître l'état de votre colis.">
+<meta name="theme-color" content="#0C335E">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon-180x180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<div class="mock"><b>MAQUETTE</b> — ENI Colis Services · v1.3 · di-eureka</div>
+<header class="hdr">
+  <div class="wrap hdr__in">
+    <a href="index.html" class="hdr__logo" aria-label="ENI Colis Services — accueil"><img src="assets/logo-couleur.svg" alt="ENI Colis Services" style="width:100%;height:auto"></a>
+    <nav class="nav" aria-label="Navigation principale"><a href="destinations.html">Destinations</a><a href="recevoir.html">Recevoir mes achats</a><a href="services.html">Services</a><a href="tarifs.html">Tarifs</a><a href="departs.html">Départs</a><a href="suivi.html" class="is-on">Suivi</a><a href="contact.html">Contact</a></nav>
+    <div class="hdr__cta"><a class="btn btn--primary btn--sm" href="devis.html">Demander un devis</a></div>
+    <button class="burger" aria-expanded="false" aria-controls="drawer" aria-label="Ouvrir le menu"><span></span></button>
+  </div>
+  <div class="drawer wrap" id="drawer"><a href="destinations.html">Destinations</a><a href="recevoir.html">Recevoir mes achats</a><a href="services.html">Services</a><a href="tarifs.html">Tarifs</a><a href="departs.html">Départs</a><a href="suivi.html">Suivi</a><a href="contact.html">Contact</a><a class="btn btn--primary btn--block" href="devis.html">Demander un devis</a></div>
+</header>
+<section class="phead"><div class="wrap"><p class="crumb"><a href="index.html">Accueil</a> · Suivi</p><p class="eyebrow">Où est mon colis</p><h1>Suivre mon colis</h1><p class="lede">Saisissez le code figurant sur votre reçu de dépôt. Il commence par ENI.</p></div></section>
+<section class="sec"><div class="wrap" style="max-width:780px">
+  <div class="card">
+   <div class="track">
+    <div class="fld" style="margin:0"><label for="code">Code de suivi</label><input id="code" type="text" placeholder="ENI-2026-00123" value="ENI-2026-00123"><span class="hint">Format : ENI-2026-00123</span></div>
+    <div style="display:flex;align-items:flex-start;padding-top:31px"><button class="btn btn--primary" type="button" onclick="document.getElementById('res').style.display='block'">Rechercher</button></div>
+   </div>
+  </div>
+
+  <div id="res" class="card" style="margin-top:24px">
+   <p class="eyebrow" style="margin-bottom:8px">Colis ENI-2026-00123</p>
+   <h2 class="h2" style="font-size:1.5rem;color:var(--navy)">En transit vers Cotonou</h2>
+   <dl class="kv" style="margin:24px 0 30px">
+    <div class="kv__i"><dt>Destination</dt><dd>Cotonou, Bénin</dd></div>
+    <div class="kv__i"><dt>Destinataire</dt><dd>Aminata D.</dd></div>
+    <div class="kv__i"><dt>Départ</dt><dd>18 août 2026</dd></div>
+    <div class="kv__i"><dt>Arrivée estimée</dt><dd><span class="todo">À COMPLÉTER</span></dd></div>
+   </dl>
+   <h3 class="h3" style="color:var(--navy);margin-bottom:18px">Historique</h3>
+   <ul class="frise">
+    <li class="done"><b>Reçu au bureau</b><span>14 août 2026 · 11h20</span></li>
+    <li class="done"><b>En préparation</b><span>16 août 2026 · 09h05</span></li>
+    <li class="done"><b>Expédié</b><span>18 août 2026 · 07h40</span></li>
+    <li class="now"><b>En transit</b><span>Depuis le 18 août 2026</span></li>
+    <li><b>Arrivé à destination</b><span>À venir</span></li>
+    <li><b>Disponible au retrait</b><span>À venir</span></li>
+    <li><b>Retiré</b><span>À venir</span></li>
+   </ul>
+   <div class="alert" style="margin:28px 0 0"><b>Point de retrait —</b> <span class="todo">À COMPLÉTER</span>. Votre destinataire sera prévenu par e-mail et WhatsApp dès que le colis sera disponible. Une pièce d'identité et le code de suivi seront demandés au retrait.</div>
+  </div>
+
+  <div class="prose" style="margin-top:44px">
+   <h2>Vous ne trouvez pas votre colis&nbsp;?</h2>
+   <p>Vérifiez la saisie : le code figure en haut de votre reçu de dépôt et commence par <strong>ENI</strong>. Si le doute persiste, contactez-nous — nous retrouverons votre envoi avec votre nom et votre numéro de téléphone.</p>
+   <p>Le groupage implique des temps d'attente : votre colis peut rester quelques jours avant le départ, le temps que le chargement soit complet. Si le délai annoncé est dépassé, écrivez-nous.</p>
+  </div>
+ </div></section><footer class="ftr">
+  <div class="wrap">
+    <div class="ftr__grid">
+      <div><div class="ftr__logo"><img src="assets/logo-blanc.svg" alt="ENI Colis Services" style="width:100%;height:auto"></div><p class="ftr__base">Envoi de colis entre la France, l'Afrique et New York.<br><br>67 rue Saint-Julien<br>76100 Rouen<br>+33 6 52 70 70 14</p></div>
+      <div><h4>Destinations</h4><ul><li><a href="destination-abidjan.html">Abidjan</a></li><li><a href="destination-cotonou.html">Cotonou</a></li><li><a href="destination-conakry.html">Conakry</a></li><li><a href="destination-bamako.html">Bamako</a></li><li><a href="destination-dakar.html">Dakar</a></li><li><a href="destination-brazzaville.html">Brazzaville</a></li><li><a href="destination-kinshasa.html">Kinshasa</a></li><li><a href="destination-new-york.html">New York</a></li></ul></div>
+      <div><h4>Informations</h4><ul><li><a href="recevoir.html">Recevoir mes achats</a></li><li><a href="services.html">Nos services</a></li><li><a href="tarifs.html">Tarifs</a></li><li><a href="departs.html">Prochains départs</a></li><li><a href="suivi.html">Suivre un colis</a></li><li><a href="faq.html">FAQ</a></li><li><a href="a-propos.html">À propos</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+      <div><h4>Légal</h4><ul><li><a href="legal-mentions.html">Mentions légales</a></li><li><a href="legal-confidentialite.html">Confidentialité</a></li><li><a href="legal-cgs.html">Conditions générales</a></li><li><a href="legal-cookies.html">Cookies</a></li></ul></div>
+    </div>
+    <div class="ftr__bot"><span>© 2026 ENI Colis Services. Tous droits réservés.</span><span>Conçu par <a href="https://www.di-eureka.com">di-eureka</a></span></div>
+  </div>
+</footer>
+<a class="wa" href="#" aria-label="Nous écrire sur WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.47 14.38c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.64.08-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.75-1.65-2.05-.17-.3-.02-.46.13-.6.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.6-.92-2.2-.24-.58-.48-.5-.67-.5h-.57c-.2 0-.52.07-.79.37s-1.04 1.02-1.04 2.48 1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.7.63.71.23 1.36.19 1.87.12.57-.09 1.75-.72 2-1.41.25-.69.25-1.28.17-1.41-.07-.13-.27-.2-.57-.35zM12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm0 18.15c-1.53 0-3.03-.41-4.34-1.19l-.31-.18-3.23.85.86-3.15-.2-.32a8.2 8.2 0 01-1.26-4.38c0-4.54 3.7-8.23 8.24-8.23 4.54 0 8.23 3.69 8.23 8.23 0 4.54-3.69 8.24-8.23 8.24z"/></svg></a>
+<script>
+(function(){var b=document.querySelector('.burger'),d=document.getElementById('drawer');
+b.addEventListener('click',function(){var o=d.classList.toggle('is-open');b.setAttribute('aria-expanded',o?'true':'false');});
+d.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){d.classList.remove('is-open');b.setAttribute('aria-expanded','false');});});})();
+</script>
+</body></html>
