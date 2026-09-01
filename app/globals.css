@@ -68,3 +68,35 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ------------------------------------------------------------------ *
+ * Alternance des surfaces — arbitrage cliente
+ *
+ * « Sur fond blanc les cartes passent en sable, sur fond sable en blanc :
+ *   le contraste est toujours maintenu. »  (design/tokens.json §rules)
+ *
+ * La règle est encodée ici une fois pour toutes : <Section tone> pose
+ * data-tone, et <Card> lit --surface-card. Aucun composant n'a donc à
+ * savoir sur quel fond il est posé.
+ * ------------------------------------------------------------------ */
+
+:root {
+  /* Le fond de page est blanc : une carte posée hors section est en sable. */
+  --surface-card: var(--color-sand);
+  --surface-card-deep: var(--color-sand-deep);
+}
+
+[data-tone='white'] {
+  --surface-card: var(--color-sand);
+  --surface-card-deep: var(--color-sand-deep);
+}
+
+[data-tone='sand'] {
+  --surface-card: var(--color-white);
+  --surface-card-deep: var(--color-sand-deep);
+}
+
+[data-tone='navy'] {
+  --surface-card: var(--color-white);
+  --surface-card-deep: var(--color-sand);
+}

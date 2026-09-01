@@ -12,28 +12,32 @@
   --color-navy-dark: #08243F;
   --color-orange: #F18321;
   --color-orange-dark: #D96F12;
+  --color-orange-text: #B05A0A;
+  --color-whatsapp: #25D366;
   --color-sand: #FDF3E7;
   --color-sand-deep: #F8E7D2;
   --color-white: #FFFFFF;
   --color-line: #E6D9C8;
   --color-line-strong: #D4C2AC;
+  --color-notice: #E7EFF7;
   --color-ink: #111111;
   --color-ink-soft: #4A4A4A;
-  --color-muted: #8A7B6A;
+  --color-muted: #786A5B;
   --color-on-navy: #FFFFFF;
   --color-on-orange: #FFFFFF;
+  --color-placeholder: #786A5B;
   --color-status-devis-nouveau-bg: #FDF3E7;
-  --color-status-devis-nouveau-fg: #B26A15;
+  --color-status-devis-nouveau-fg: #9E5E11;
   --color-status-devis-chiffre-bg: #E7EFF7;
   --color-status-devis-chiffre-fg: #0C335E;
   --color-status-en-transit-bg: #FBF0DC;
-  --color-status-en-transit-fg: #B8860B;
+  --color-status-en-transit-fg: #8E6708;
   --color-status-arrive-bg: #EAF1E9;
   --color-status-arrive-fg: #4A6B3F;
   --color-status-disponible-bg: #E3F3EA;
   --color-status-disponible-fg: #1F7A55;
   --color-status-retire-bg: #F0EBE4;
-  --color-status-retire-fg: #7A6E60;
+  --color-status-retire-fg: #71655A;
   --color-status-litige-bg: #FBE9E7;
   --color-status-litige-fg: #B03A2B;
   --color-status-complet-bg: #F4E4E2;
@@ -102,6 +106,9 @@
   --duration-fast: 150ms;
   --duration-base: 200ms;
   --duration-slow: 250ms;
+
+  /* --- points de rupture propres au projet */
+  --breakpoint-menu: 1040px;
 
   /* --- gabarit */
   --container-page: 1200px;

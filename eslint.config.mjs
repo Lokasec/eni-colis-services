@@ -21,6 +21,17 @@ const config = [
   {
     rules: {
       '@typescript-eslint/consistent-type-imports': 'error',
+      // Convention : un identifiant prefixe par _ est volontairement inutilise
+      // (destructuration servant a ecarter des props avant un spread).
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+          ignoreRestSiblings: true,
+        },
+      ],
     },
   },
 ]

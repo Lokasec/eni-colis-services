@@ -47,7 +47,11 @@ Prérequis : **Node.js 20 ou plus** (développé sous Node 24).
 app/                  routes App Router
   globals.css         base + import des tokens générés
   styles/tokens.css   GÉNÉRÉ — ne pas éditer
-components/           composants d'interface (lot 2)
+components/           design system
+  ui/                 primitives publiques (Button, Section, Card, Badge…)
+  layout/             Header, Footer, WhatsAppFloat
+  form/               champs de saisie et upload photo
+  admin/              Sidebar, Topbar, StatCard, Modal, Toast…
 design/
   tokens.json         SOURCE UNIQUE du design system
   tokens.generated.ts GÉNÉRÉ — mêmes valeurs, pour le JS (PDF, e-mails)
@@ -80,6 +84,22 @@ Garde-fou : la palette par défaut de Tailwind est **neutralisée** (`--color-*:
 ### Règle de fond (arbitrage cliente)
 
 Blanc dominant · sable en respiration une section sur deux · sur fond blanc les cartes passent en sable, sur fond sable en blanc · le navy reste au texte, à l'en-tête, au footer et aux blocs pleine largeur (tableau des départs, bloc expédition, bande CTA).
+
+### Corrections d'accessibilité apportées aux tokens
+
+L'audit de contraste de tout le nuancier a révélé cinq paires sous le seuil WCAG AA. La règle du projet étant d'amender la source plutôt que de contourner dans un composant, `design/tokens.json` a été corrigé :
+
+| Token | Avant | Après | Contraste |
+|---|---|---|---|
+| `status.enTransit.fg` | `#B8860B` | `#8E6708` | 2,88 → 4,54 |
+| `status.devisNouveau.fg` | `#B26A15` | `#9E5E11` | 3,86 → 4,71 |
+| `status.retire.fg` | `#7A6E60` | `#71655A` | 4,19 → 4,77 |
+| `text.muted` | `#8A7B6A` | `#786A5B` | 3,74 → 4,77 sur sable |
+| **nouveau** `brand.orangeText` | — | `#B05A0A` | 5,08 sur blanc |
+
+Deux combinaisons restent volontairement impossibles, parce qu'aucune valeur ne les sauve : **blanc sur orange** (2,62) et **orange `#F18321` sur blanc** (2,62). D'où la règle du design system : les boutons orange portent du texte **navy** — y compris au survol, là où la maquette passait au blanc sur `orange-dark` (3,37) — et tout texte orange sur fond clair utilise `orange-text`.
+
+Trois autres tokens ont été ajoutés : `brand.whatsapp` (vert de marque, usage fonctionnel), `surface.notice` (fond des encarts d'information) et `breakpoint.menu` (1040 px, bascule vers le menu burger).
 
 ---
 

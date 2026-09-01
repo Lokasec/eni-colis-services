@@ -126,6 +126,12 @@ for (const name of ['fast', 'base', 'slow']) {
 }
 
 lines.push('')
+lines.push('  /* --- points de rupture propres au projet */')
+for (const [name, token] of Object.entries(tokens.breakpoint ?? {})) {
+  lines.push(`  --breakpoint-${kebab(name)}: ${token.value};`)
+}
+
+lines.push('')
 lines.push('  /* --- gabarit */')
 lines.push(`  --container-page: ${tokens.space.container.max};`)
 lines.push('}')
