@@ -364,8 +364,8 @@ async function main() {
       data: {
         code: 'GRANDE_MARQUE',
         libelle: 'Article de marque ou de valeur',
-        mode: 'MAX_POIDS_OU_POURCENTAGE',
-        valeur: '0.1500', // 15 % de la valeur d'achat — [À CONFIRMER] CDC §13.5
+        mode: 'POURCENTAGE_VALEUR',
+        valeur: '0.1500', // 15 % de la valeur d'achat — confirme par la cliente
         publie: true,
         devisRequis: true,
         ordre: 3,

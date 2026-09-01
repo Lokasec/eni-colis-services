@@ -33,7 +33,7 @@ const pieceDetachee: CategorieTarifaire = {
 const grandeMarque: CategorieTarifaire = {
   code: 'GRANDE_MARQUE',
   libelle: 'Article de marque ou de valeur',
-  mode: 'MAX_POIDS_OU_POURCENTAGE',
+  mode: 'POURCENTAGE_VALEUR',
   valeur: '0.1500',
   actif: true,
 }
@@ -125,40 +125,58 @@ describe('PIECE_DETACHEE — le tarif fixe REMPLACE celui de la liaison', () => 
   })
 })
 
-describe('GRANDE_MARQUE — le plus élevé du poids ou du pourcentage', () => {
-  it('retient le POIDS quand il l’emporte', () => {
-    // 40 kg × 15 = 600 € contre 15 % de 620 € = 93 €
+describe('GRANDE_MARQUE — le coût du transport EST un pourcentage de la valeur', () => {
+  it('facture le pourcentage de la valeur d’achat', () => {
+    // 15 % de 620 € = 93 €.
     expect(
       montant(
-        calculerTarif(demande({ poidsKg: '40', valeurAchat: '620', categorie: grandeMarque })),
+        calculerTarif(demande({ poidsKg: '4.5', valeurAchat: '620', categorie: grandeMarque })),
       ),
-    ).toBe('600.00')
+    ).toBe('93.00')
   })
 
-  it('retient le POURCENTAGE quand il l’emporte', () => {
-    // 4,5 kg × 12 = 54 € contre 15 % de 620 € = 93 € → 93 €
+  it('ignore complètement le poids', () => {
+    // Règle confirmée par la cliente : le poids n'intervient pas. Un article
+    // de 40 kg et un de 0,5 kg de même valeur coûtent le même prix.
+    const lourd = calculerTarif(
+      demande({ poidsKg: '40', valeurAchat: '620', categorie: grandeMarque }),
+    )
+    const leger = calculerTarif(
+      demande({ poidsKg: '0.5', valeurAchat: '620', categorie: grandeMarque }),
+    )
+    expect(montant(lourd)).toBe('93.00')
+    expect(montant(leger)).toBe('93.00')
+  })
+
+  it('ignore aussi le tarif de la liaison', () => {
+    // Aller à 15 €/kg ou retour à 12 €/kg : même montant.
+    expect(montant(calculerTarif(demande({ valeurAchat: '620', categorie: grandeMarque })))).toBe(
+      '93.00',
+    )
     expect(
       montant(
         calculerTarif(
-          demande({
-            poidsKg: '4.5',
-            valeurAchat: '620',
-            categorie: grandeMarque,
-            liaison: franceVersDakar,
-          }),
+          demande({ valeurAchat: '620', categorie: grandeMarque, liaison: abidjanVersFrance }),
         ),
       ),
     ).toBe('93.00')
   })
 
-  it('retient le poids en cas d’égalité stricte', () => {
-    // 10 kg × 15 = 150 € ; 15 % de 1000 € = 150 €. Les deux se valent :
-    // la comparaison est un « strictement supérieur », le poids reste.
+  it('se chiffre SANS poids : un devis sur photos est possible', () => {
+    // Le colis n'est pas encore arrivé, il n'a pas été pesé — et ce n'est
+    // pas un obstacle, puisque le poids n'entre pas dans le calcul.
     expect(
       montant(
-        calculerTarif(demande({ poidsKg: '10', valeurAchat: '1000', categorie: grandeMarque })),
+        calculerTarif(demande({ poidsKg: null, valeurAchat: '620', categorie: grandeMarque })),
       ),
-    ).toBe('150.00')
+    ).toBe('93.00')
+  })
+
+  it('arrondit au centime', () => {
+    // 15 % de 333,33 € = 49,9995 € → 50,00 €
+    expect(
+      montant(calculerTarif(demande({ valeurAchat: '333.33', categorie: grandeMarque }))),
+    ).toBe('50.00')
   })
 
   it('refuse sans valeur d’achat déclarée', () => {
@@ -166,27 +184,29 @@ describe('GRANDE_MARQUE — le plus élevé du poids ou du pourcentage', () => {
     expect(resultat).toMatchObject({ statut: 'REFUSE', code: 'VALEUR_ACHAT_MANQUANTE' })
   })
 
-  it('montre les deux branches du calcul dans le libellé', () => {
-    const resultat = calculerTarif(
-      demande({
-        poidsKg: '4.5',
-        valeurAchat: '620',
-        categorie: grandeMarque,
-        liaison: franceVersDakar,
-      }),
-    )
-    if (resultat.statut !== 'CALCULE') throw new Error('calcul attendu')
-    expect(resultat.detail).toContain('4,5 kg × 12,00 €/kg = 54,00 €')
-    expect(resultat.detail).toContain('15 % de 620,00 € = 93,00 €')
+  it('refuse une valeur d’achat nulle ou négative', () => {
+    // Une valeur à 0 produirait une facture à 0 €.
+    expect(calculerTarif(demande({ valeurAchat: '0', categorie: grandeMarque }))).toMatchObject({
+      statut: 'REFUSE',
+      code: 'VALEUR_ACHAT_INVALIDE',
+    })
+    expect(calculerTarif(demande({ valeurAchat: '-100', categorie: grandeMarque }))).toMatchObject({
+      statut: 'REFUSE',
+      code: 'VALEUR_ACHAT_INVALIDE',
+    })
   })
 
-  it('affiche les deux branches meme quand le poids l’emporte', () => {
+  it('exige tout de même une liaison desservie', () => {
     const resultat = calculerTarif(
-      demande({ poidsKg: '40', valeurAchat: '620', categorie: grandeMarque }),
+      demande({ valeurAchat: '620', categorie: grandeMarque, liaison: null }),
     )
+    expect(resultat).toMatchObject({ statut: 'REFUSE', code: 'LIAISON_INTROUVABLE' })
+  })
+
+  it('produit un libellé imprimable', () => {
+    const resultat = calculerTarif(demande({ valeurAchat: '620', categorie: grandeMarque }))
     if (resultat.statut !== 'CALCULE') throw new Error('calcul attendu')
-    expect(resultat.detail).toContain('40 kg × 15,00 €/kg = 600,00 €')
-    expect(resultat.detail).toContain('15 % de 620,00 € = 93,00 €')
+    expect(resultat.detail).toBe('Article de marque ou de valeur — 15 % de 620,00 €')
   })
 })
 

@@ -48,7 +48,7 @@ Ce qu'il renvoie est une **suggestion modifiable**, jamais un prix imposé : la 
 npm run test
 ```
 
-43 tests couvrent les quatre catégories à l'aller et au retour, les deux branches de `GRANDE_MARQUE` (poids gagnant, pourcentage gagnant, égalité), la conversion en zone CFA et à taux saisi, le refus de convertir sans taux, et huit motifs de refus. `isolement.test.ts` échoue si un fichier du site public importe le moteur — vérifié en injectant volontairement une violation.
+46 tests couvrent les quatre catégories à l'aller et au retour, `GRANDE_MARQUE` sans poids et sans influence de la liaison, la conversion en zone CFA et à taux saisi, le refus de convertir sans taux, et huit motifs de refus. `isolement.test.ts` échoue si un fichier du site public importe le moteur — vérifié en injectant volontairement une violation.
 
 Les montants transitent en `Decimal` exact, jamais en `number` : `1,005 × 3` vaut `3,015` et s'arrondit à `3,02 €`, là où la virgule flottante donnerait `3,01 €`.
 

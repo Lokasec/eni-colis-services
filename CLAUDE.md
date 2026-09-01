@@ -170,13 +170,15 @@ Départs **hebdomadaires** partout. **France ↔ USA** : opérée via Abidjan, `
 
 Valeurs de **seed uniquement** — jamais en dur dans la logique.
 
+> **`GRANDE_MARQUE` — confirmé par la cliente (1ᵉʳ septembre 2026)** : le coût du transport **est** 15 % de la valeur d'achat. Ce n'est pas un plancher, ce n'est pas comparé au poids. Un article de 40 kg valant 620 € est facturé 93 €, comme un article de 500 g de même valeur. Le poids n'est donc pas exigé pour chiffrer cette catégorie, ce qui permet d'établir un devis sur photos avant réception.
+
 ### 4.3 Catégories d'articles
 
 | Catégorie | Calcul | Devis |
 |---|---|---|
 | `STANDARD` | poids × tarif liaison | Non |
 | `PIECE_DETACHEE` | 20 €/kg — **remplace** le tarif | Non |
-| `GRANDE_MARQUE` | `max(poids × tarif, 15 % valeur)` *(à confirmer)* | Oui |
+| `GRANDE_MARQUE` | **15 % de la valeur d'achat** — le poids n'intervient pas | Oui |
 | `ELECTRONIQUE` | À l'unité, non publié | Oui |
 
 Moteur dans `lib/tarification/`, **testé unitairement**, appelé **uniquement** depuis le back-office comme suggestion modifiable.

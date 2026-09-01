@@ -110,9 +110,20 @@ async function main() {
   verifier(
     'Quatre catégories, règles portées par la base',
     categories.length === 4 &&
+      categories.find((c) => c.code === 'STANDARD')?.mode === 'POIDS_X_TARIF_LIAISON' &&
       categories.find((c) => c.code === 'PIECE_DETACHEE')?.mode === 'POIDS_X_TARIF_FIXE' &&
-      Number(categories.find((c) => c.code === 'GRANDE_MARQUE')?.valeur) === 0.15,
-    categories.map((c) => c.code).join(', '),
+      categories.find((c) => c.code === 'ELECTRONIQUE')?.mode === 'SUR_DEVIS',
+    categories.map((c) => `${c.code}=${c.mode}`).join(' · '),
+  )
+
+  // Règle confirmée par la cliente : le coût du transport EST 15 % de la
+  // valeur d'achat. Si ce mode redevenait un `max`, la facturation des
+  // articles lourds changerait du tout au tout sans qu'on le voie.
+  const marque = categories.find((c) => c.code === 'GRANDE_MARQUE')
+  verifier(
+    'GRANDE_MARQUE : 15 % de la valeur, sans intervention du poids',
+    marque?.mode === 'POURCENTAGE_VALEUR' && Number(marque?.valeur) === 0.15,
+    `${marque?.mode} à ${Number(marque?.valeur) * 100} %`,
   )
 
   // --- Exploitation ---------------------------------------------------------

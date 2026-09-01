@@ -1,5 +1,11 @@
 import { arrondir } from './devise'
-import { Decimal, type DemandeTarification, type Numerique, type Tarification } from './types'
+import {
+  Decimal,
+  type CodeRefus,
+  type DemandeTarification,
+  type Numerique,
+  type Tarification,
+} from './types'
 
 /**
  * Moteur de tarification — CLAUDE.md §4.3.
@@ -40,11 +46,7 @@ export function calculerTarif(demande: DemandeTarification): Tarification {
   const { categorie, liaison } = demande
 
   if (!categorie.actif) {
-    return {
-      statut: 'REFUSE',
-      code: 'CATEGORIE_INACTIVE',
-      motif: `La catégorie « ${categorie.libelle} » est désactivée.`,
-    }
+    return refus('CATEGORIE_INACTIVE', `La catégorie « ${categorie.libelle} » est désactivée.`)
   }
 
   // L'électronique se tarife à l'unité, après examen de l'appareil.
@@ -56,79 +58,89 @@ export function calculerTarif(demande: DemandeTarification): Tarification {
     }
   }
 
-  const poids = lirePoids(demande.poidsKg)
-  if (poids.erreur) return poids.erreur
-
-  // PIECE_DETACHEE remplace le tarif de la liaison : son prix au kilo
-  // s'applique quelle que soit la destination. La liaison reste néanmoins
-  // exigée — on ne tarife pas un trajet qu'on ne dessert pas.
-  const verif = verifierLiaison(liaison)
-  if (verif) return verif
-
-  const prixLiaison = new Decimal(liaison!.prixParKg)
+  // Toutes les catégories restantes exigent une liaison active : même quand
+  // le prix n'en dépend pas, on ne tarife pas un trajet qu'on ne dessert pas.
+  const liaisonInvalide = verifierLiaison(liaison)
+  if (liaisonInvalide) return liaisonInvalide
 
   switch (categorie.mode) {
     case 'POIDS_X_TARIF_LIAISON': {
-      const tarif = verifierTarif(prixLiaison, 'de la liaison')
-      if (tarif) return tarif
-      const montant = arrondirEuros(poids.valeur.mul(prixLiaison))
+      const poids = lirePoids(demande.poidsKg)
+      if (poids.erreur) return poids.erreur
+
+      const prix = new Decimal(liaison!.prixParKg)
+      const tarifInvalide = verifierMontantPositif(prix, 'TARIF_INVALIDE', 'de la liaison')
+      if (tarifInvalide) return tarifInvalide
+
       return {
         statut: 'CALCULE',
-        montantEur: montant,
-        detail: `${formaterPoids(poids.valeur)} × ${euros(prixLiaison)}/kg`,
+        montantEur: arrondirEuros(poids.valeur.mul(prix)),
+        detail: `${formaterPoids(poids.valeur)} × ${euros(prix)}/kg`,
       }
     }
 
     case 'POIDS_X_TARIF_FIXE': {
-      if (categorie.valeur === null || categorie.valeur === undefined) {
+      // Le tarif de la catégorie REMPLACE celui de la liaison : il
+      // s'applique quelle que soit la destination.
+      if (estAbsent(categorie.valeur)) {
         return manqueParametre(categorie.libelle, 'un tarif au kilo')
       }
-      const tarifFixe = new Decimal(categorie.valeur)
-      const tarif = verifierTarif(tarifFixe, `de la catégorie « ${categorie.libelle} »`)
-      if (tarif) return tarif
-      const montant = arrondirEuros(poids.valeur.mul(tarifFixe))
+      const poids = lirePoids(demande.poidsKg)
+      if (poids.erreur) return poids.erreur
+
+      const tarifFixe = new Decimal(categorie.valeur!)
+      const tarifInvalide = verifierMontantPositif(
+        tarifFixe,
+        'TARIF_INVALIDE',
+        `de la catégorie « ${categorie.libelle} »`,
+      )
+      if (tarifInvalide) return tarifInvalide
+
       return {
         statut: 'CALCULE',
-        montantEur: montant,
+        montantEur: arrondirEuros(poids.valeur.mul(tarifFixe)),
         detail: `${formaterPoids(poids.valeur)} × ${euros(tarifFixe)}/kg — ${categorie.libelle}`,
       }
     }
 
-    case 'MAX_POIDS_OU_POURCENTAGE': {
-      if (categorie.valeur === null || categorie.valeur === undefined) {
+    case 'POURCENTAGE_VALEUR': {
+      // Règle confirmée par la cliente : le coût du transport EST le
+      // pourcentage de la valeur d'achat. Le poids n'intervient pas, et
+      // n'est donc pas exigé — ce qui permet de chiffrer sur photos, avant
+      // même que le colis soit pesé.
+      if (estAbsent(categorie.valeur)) {
         return manqueParametre(categorie.libelle, 'un pourcentage de la valeur')
       }
-      if (demande.valeurAchat === null || demande.valeurAchat === undefined) {
-        return {
-          statut: 'REFUSE',
-          code: 'VALEUR_ACHAT_MANQUANTE',
-          motif: `« ${categorie.libelle} » exige la valeur d'achat déclarée et son justificatif.`,
-        }
+      if (estAbsent(demande.valeurAchat)) {
+        return refus(
+          'VALEUR_ACHAT_MANQUANTE',
+          `« ${categorie.libelle} » se chiffre sur la valeur d'achat déclarée : elle est indispensable, avec son justificatif.`,
+        )
       }
 
-      const tarif = verifierTarif(prixLiaison, 'de la liaison')
-      if (tarif) return tarif
+      const taux = new Decimal(categorie.valeur!)
+      const tauxInvalide = verifierMontantPositif(
+        taux,
+        'TARIF_INVALIDE',
+        `de la catégorie « ${categorie.libelle} »`,
+      )
+      if (tauxInvalide) return tauxInvalide
 
-      const taux = new Decimal(categorie.valeur)
-      const valeurAchat = new Decimal(demande.valeurAchat)
+      const valeurAchat = new Decimal(demande.valeurAchat!)
+      const valeurInvalide = verifierMontantPositif(
+        valeurAchat,
+        'VALEUR_ACHAT_INVALIDE',
+        "d'achat déclarée",
+      )
+      if (valeurInvalide) return valeurInvalide
 
-      const parLePoids = arrondirEuros(poids.valeur.mul(prixLiaison))
-      const parLaValeur = arrondirEuros(valeurAchat.mul(taux))
-      const pourcentage = fr(taux.mul(100), taux.mul(100).isInteger() ? 0 : 2)
-
-      // Règle [À CONFIRMER] — CDC §13 point 5 : `max` des deux, ou
-      // remplacement pur par le pourcentage ? Toute la règle tient dans
-      // la comparaison ci-dessous, une seule ligne à changer.
-      const parLeValeurGagne = parLaValeur.greaterThan(parLePoids)
-      const montant = parLeValeurGagne ? parLaValeur : parLePoids
+      const centieme = taux.mul(100)
+      const pourcentage = fr(centieme, centieme.isInteger() ? 0 : 2)
 
       return {
         statut: 'CALCULE',
-        montantEur: montant,
-        detail:
-          `${categorie.libelle} — le plus élevé de : ` +
-          `${formaterPoids(poids.valeur)} × ${euros(prixLiaison)}/kg = ${euros(parLePoids)}` +
-          ` ou ${pourcentage} % de ${euros(valeurAchat)} = ${euros(parLaValeur)}`,
+        montantEur: arrondirEuros(valeurAchat.mul(taux)),
+        detail: `${categorie.libelle} — ${pourcentage} % de ${euros(valeurAchat)}`,
       }
     }
   }
@@ -136,87 +148,83 @@ export function calculerTarif(demande: DemandeTarification): Tarification {
 
 // ---------------------------------------------------------------------------
 
+function estAbsent(valeur: Numerique | null | undefined): boolean {
+  return valeur === null || valeur === undefined || valeur === ''
+}
+
+function refus(code: CodeRefus, motif: string): Tarification {
+  return { statut: 'REFUSE', code, motif }
+}
+
 /**
- * Un tarif nul, négatif ou illisible est une erreur de paramétrage. Sans ce
- * garde-fou, elle produirait des factures à 0 € que personne ne remarquerait
- * avant des semaines.
+ * Un montant nul, négatif ou illisible est une erreur de saisie ou de
+ * paramétrage. Sans ce garde-fou, elle produirait des factures à 0 € que
+ * personne ne remarquerait avant des semaines.
  */
-function verifierTarif(tarif: Decimal, origine: string): Tarification | null {
-  if (!tarif.isFinite() || tarif.lessThanOrEqualTo(0)) {
-    return {
-      statut: 'REFUSE',
-      code: 'TARIF_INVALIDE',
-      motif: `Le tarif au kilo ${origine} vaut ${tarif.toString()} : corrigez-le en back-office avant de chiffrer.`,
-    }
+function verifierMontantPositif(
+  montant: Decimal,
+  code: 'TARIF_INVALIDE' | 'VALEUR_ACHAT_INVALIDE',
+  origine: string,
+): Tarification | null {
+  if (!montant.isFinite() || montant.lessThanOrEqualTo(0)) {
+    const quoi = code === 'TARIF_INVALIDE' ? 'Le tarif' : 'La valeur'
+    return refus(
+      code,
+      `${quoi} ${origine} vaut ${montant.toString()} : corrigez-le avant de chiffrer.`,
+    )
   }
   return null
 }
 
 function manqueParametre(libelle: string, attendu: string): Tarification {
-  return {
-    statut: 'REFUSE',
-    code: 'PARAMETRE_CATEGORIE_MANQUANT',
-    motif: `La catégorie « ${libelle} » devrait porter ${attendu} : sa valeur est absente en base.`,
-  }
+  return refus(
+    'PARAMETRE_CATEGORIE_MANQUANT',
+    `La catégorie « ${libelle} » devrait porter ${attendu} : sa valeur est absente en base.`,
+  )
 }
 
 function verifierLiaison(liaison: DemandeTarification['liaison']): Tarification | null {
   if (liaison === null || liaison === undefined) {
-    return {
-      statut: 'REFUSE',
-      code: 'LIAISON_INTROUVABLE',
-      motif:
-        "Aucune liaison ne dessert ce trajet. Vérifiez le sens : l'aller et le retour sont deux liaisons distinctes.",
-    }
+    return refus(
+      'LIAISON_INTROUVABLE',
+      "Aucune liaison ne dessert ce trajet. Vérifiez le sens : l'aller et le retour sont deux liaisons distinctes.",
+    )
   }
   if (!liaison.actif) {
-    return {
-      statut: 'REFUSE',
-      code: 'LIAISON_INACTIVE',
-      motif: 'Cette liaison est désactivée.',
-    }
+    return refus('LIAISON_INACTIVE', 'Cette liaison est désactivée.')
   }
   return null
 }
 
 function lirePoids(
-  poidsKg: Numerique | null,
+  poidsKg: Numerique | null | undefined,
 ): { valeur: Decimal; erreur?: undefined } | { valeur: Decimal; erreur: Tarification } {
   const zero = new Decimal(0)
 
-  if (poidsKg === null || poidsKg === undefined || poidsKg === '') {
+  if (estAbsent(poidsKg)) {
     return {
       valeur: zero,
-      erreur: {
-        statut: 'REFUSE',
-        code: 'POIDS_MANQUANT',
-        motif: 'Le poids est indispensable au calcul. Pesez le colis avant de chiffrer.',
-      },
+      erreur: refus(
+        'POIDS_MANQUANT',
+        'Le poids est indispensable au calcul. Pesez le colis avant de chiffrer.',
+      ),
     }
   }
 
   let poids: Decimal
   try {
-    poids = new Decimal(poidsKg)
+    poids = new Decimal(poidsKg!)
   } catch {
     return {
       valeur: zero,
-      erreur: {
-        statut: 'REFUSE',
-        code: 'POIDS_INVALIDE',
-        motif: `Poids illisible : ${String(poidsKg)}.`,
-      },
+      erreur: refus('POIDS_INVALIDE', `Poids illisible : ${String(poidsKg)}.`),
     }
   }
 
   if (!poids.isFinite() || poids.lessThanOrEqualTo(0)) {
     return {
       valeur: zero,
-      erreur: {
-        statut: 'REFUSE',
-        code: 'POIDS_INVALIDE',
-        motif: 'Le poids doit être strictement positif.',
-      },
+      erreur: refus('POIDS_INVALIDE', 'Le poids doit être strictement positif.'),
     }
   }
 

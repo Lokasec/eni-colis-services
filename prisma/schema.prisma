@@ -88,7 +88,7 @@ enum TypeDocument {
 enum ModeCalcul {
   POIDS_X_TARIF_LIAISON // STANDARD
   POIDS_X_TARIF_FIXE // PIECE_DETACHEE : 20 €/kg, remplace le tarif de la liaison
-  MAX_POIDS_OU_POURCENTAGE // GRANDE_MARQUE : max(poids × tarif, 15 % valeur) — [À CONFIRMER]
+  POURCENTAGE_VALEUR // GRANDE_MARQUE : 15 % de la valeur d'achat, le poids n'intervient pas
   SUR_DEVIS // ELECTRONIQUE : à l'unité, non publié
 }
 
@@ -259,7 +259,7 @@ model CategorieArticle {
   mode    ModeCalcul
 
   /// Sens dépendant du mode : tarif au kilo pour POIDS_X_TARIF_FIXE,
-  /// pourcentage de la valeur pour MAX_POIDS_OU_POURCENTAGE.
+  /// part de la valeur d'achat (0,15) pour POURCENTAGE_VALEUR.
   valeur Decimal? @db.Decimal(10, 4)
 
   /// Une catégorie non publiée affiche « nous consulter » côté public.

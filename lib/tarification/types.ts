@@ -13,7 +13,7 @@ export type Decimal = Prisma.Decimal
 export type Numerique = Decimal | string | number
 
 export type ModeCalcul =
-  'POIDS_X_TARIF_LIAISON' | 'POIDS_X_TARIF_FIXE' | 'MAX_POIDS_OU_POURCENTAGE' | 'SUR_DEVIS'
+  'POIDS_X_TARIF_LIAISON' | 'POIDS_X_TARIF_FIXE' | 'POURCENTAGE_VALEUR' | 'SUR_DEVIS'
 
 export type Monnaie = 'EUR' | 'XOF' | 'XAF' | 'GNF' | 'CDF' | 'USD'
 
@@ -29,8 +29,8 @@ export type LiaisonTarifaire = {
 
 /**
  * Catégorie telle que lue en base. Le sens de `valeur` dépend du mode :
- * un tarif au kilo pour POIDS_X_TARIF_FIXE, un taux (0,15) pour
- * MAX_POIDS_OU_POURCENTAGE.
+ * un tarif au kilo pour POIDS_X_TARIF_FIXE, une part de la valeur d'achat
+ * (0,15) pour POURCENTAGE_VALEUR.
  */
 export type CategorieTarifaire = {
   code: string
@@ -43,7 +43,7 @@ export type CategorieTarifaire = {
 export type DemandeTarification = {
   /** Poids retenu : le poids réel s'il est connu, sinon l'estimation. */
   poidsKg: Numerique | null
-  /** Valeur d'achat déclarée — requise par MAX_POIDS_OU_POURCENTAGE. */
+  /** Valeur d'achat déclarée — requise par POURCENTAGE_VALEUR. */
   valeurAchat?: Numerique | null
   /** `null` si aucune liaison ne dessert le trajet demandé. */
   liaison: LiaisonTarifaire | null
@@ -58,6 +58,7 @@ export type CodeRefus =
   | 'POIDS_INVALIDE'
   | 'TARIF_INVALIDE'
   | 'VALEUR_ACHAT_MANQUANTE'
+  | 'VALEUR_ACHAT_INVALIDE'
   | 'PARAMETRE_CATEGORIE_MANQUANT'
 
 /**
