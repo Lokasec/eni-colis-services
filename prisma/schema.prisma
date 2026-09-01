@@ -1,0 +1,21 @@
+// Schéma Prisma — ENI Colis Services
+//
+// Lot 1 : infrastructure seulement. Le modèle de données complet
+// (Client, Pays, Ville, Liaison, Colis, Document, Encaissement, Depart…)
+// arrive au lot 3, d'après docs/CDC-v1.3.md §9.
+//
+// Prisma 7 : l'URL de connexion n'est plus déclarée ici mais dans
+// prisma.config.ts, et le client est instancié avec un adaptateur de
+// pilote (voir lib/db.ts).
+//
+// Dev  : SQLite (fichier local, ignoré par Git)
+// Prod : PostgreSQL sur Neon, RÉGION EUROPE (contrainte RGPD)
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}

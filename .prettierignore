@@ -1,0 +1,17 @@
+.next/
+node_modules/
+package-lock.json
+
+# Fichiers générés — ne jamais reformater
+app/styles/tokens.css
+design/tokens.generated.ts
+lib/generated/
+next-env.d.ts
+
+# Documents du kit et contenus validés par la cliente — intouchables
+docs/
+CLAUDE.md
+DEMARRER.md
+DEPLOIEMENT.md
+PROMPT-CLAUDE-CODE.md
+public/brand/

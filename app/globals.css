@@ -1,0 +1,70 @@
+@import 'tailwindcss';
+@import './styles/tokens.css';
+
+/* ------------------------------------------------------------------ *
+ * Base — voir design/tokens.json §rules
+ *
+ * BLANC DOMINANT : fond de page et majorité des sections.
+ * SABLE EN RESPIRATION : une section sur deux.
+ * NAVY : texte, en-tête, footer et blocs pleine largeur uniquement.
+ *
+ * Aucune valeur de couleur, de rayon ou d'ombre ne doit apparaître
+ * ici en dur : tout vient de app/styles/tokens.css, lui-même généré
+ * depuis design/tokens.json par `npm run brand`.
+ * ------------------------------------------------------------------ */
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-white);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-size: var(--text-body);
+    font-weight: 400;
+    line-height: var(--text-body--line-height);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-title);
+    color: var(--color-navy);
+    text-wrap: balance;
+  }
+
+  img,
+  svg,
+  video {
+    display: block;
+    max-width: 100%;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-orange);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Cibles tactiles : le back-office est utilisé debout, sur téléphone. */
+  button,
+  [role='button'],
+  a[data-cta] {
+    min-height: var(--touch-min);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

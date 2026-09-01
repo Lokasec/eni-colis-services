@@ -1,0 +1,123 @@
+/* GÉNÉRÉ PAR scripts/build-brand.mjs — NE PAS ÉDITER À LA MAIN.
+   Source : design/tokens.json — régénérer avec `npm run brand`. */
+
+@theme {
+  /* --- couleurs : la palette par défaut de Tailwind est neutralisée, */
+  /*     seuls les tokens de la marque restent disponibles.           */
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-inherit: inherit;
+  --color-navy: #0C335E;
+  --color-navy-dark: #08243F;
+  --color-orange: #F18321;
+  --color-orange-dark: #D96F12;
+  --color-sand: #FDF3E7;
+  --color-sand-deep: #F8E7D2;
+  --color-white: #FFFFFF;
+  --color-line: #E6D9C8;
+  --color-line-strong: #D4C2AC;
+  --color-ink: #111111;
+  --color-ink-soft: #4A4A4A;
+  --color-muted: #8A7B6A;
+  --color-on-navy: #FFFFFF;
+  --color-on-orange: #FFFFFF;
+  --color-status-devis-nouveau-bg: #FDF3E7;
+  --color-status-devis-nouveau-fg: #B26A15;
+  --color-status-devis-chiffre-bg: #E7EFF7;
+  --color-status-devis-chiffre-fg: #0C335E;
+  --color-status-en-transit-bg: #FBF0DC;
+  --color-status-en-transit-fg: #B8860B;
+  --color-status-arrive-bg: #EAF1E9;
+  --color-status-arrive-fg: #4A6B3F;
+  --color-status-disponible-bg: #E3F3EA;
+  --color-status-disponible-fg: #1F7A55;
+  --color-status-retire-bg: #F0EBE4;
+  --color-status-retire-fg: #7A6E60;
+  --color-status-litige-bg: #FBE9E7;
+  --color-status-litige-fg: #B03A2B;
+  --color-status-complet-bg: #F4E4E2;
+  --color-status-complet-fg: #9C3A2C;
+  --color-success: #1F7A55;
+  --color-warning: #B8860B;
+  --color-error: #B03A2B;
+  --color-info: #0C335E;
+
+  /* --- familles typographiques (Montserrat auto-hébergée via next/font) */
+  --font-sans: var(--font-montserrat), Montserrat, Arial, Helvetica, sans-serif;
+  --font-body: var(--font-montserrat), Montserrat, Arial, Helvetica, sans-serif;
+  --font-title: var(--font-montserrat), Montserrat, Arial, Helvetica, sans-serif;
+
+  /* --- échelle typographique */
+  --text-display: clamp(2.25rem, 5vw, 3.5rem);
+  --text-display--line-height: 1.08;
+  --text-display--font-weight: 800;
+  --text-display--letter-spacing: -0.02em;
+  --text-h1: clamp(1.875rem, 4vw, 2.75rem);
+  --text-h1--line-height: 1.15;
+  --text-h1--font-weight: 800;
+  --text-h1--letter-spacing: -0.015em;
+  --text-h2: clamp(1.5rem, 3vw, 2rem);
+  --text-h2--line-height: 1.2;
+  --text-h2--font-weight: 700;
+  --text-h2--letter-spacing: -0.01em;
+  --text-h3: 1.25rem;
+  --text-h3--line-height: 1.3;
+  --text-h3--font-weight: 700;
+  --text-eyebrow: 0.8125rem;
+  --text-eyebrow--line-height: 1.2;
+  --text-eyebrow--font-weight: 600;
+  --text-eyebrow--letter-spacing: 0.12em;
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: 1.65;
+  --text-body-lg--font-weight: 400;
+  --text-body: 1rem;
+  --text-body--line-height: 1.6;
+  --text-body--font-weight: 400;
+  --text-body-sm: 0.9375rem;
+  --text-body-sm--line-height: 1.55;
+  --text-body-sm--font-weight: 400;
+  --text-caption: 0.8125rem;
+  --text-caption--line-height: 1.45;
+  --text-caption--font-weight: 500;
+  --text-button: 1rem;
+  --text-button--line-height: 1;
+  --text-button--font-weight: 600;
+  --text-button--letter-spacing: 0.01em;
+
+  /* --- rayons */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-pill: 999px;
+
+  /* --- ombres (teintées navy, jamais de noir pur) */
+  --shadow-sm: 0 1px 2px rgba(12, 51, 94, 0.06);
+  --shadow-md: 0 4px 12px rgba(12, 51, 94, 0.08);
+  --shadow-lg: 0 12px 32px rgba(12, 51, 94, 0.10);
+
+  /* --- mouvement */
+  --ease-brand: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 150ms;
+  --duration-base: 200ms;
+  --duration-slow: 250ms;
+
+  /* --- gabarit */
+  --container-page: 1200px;
+}
+
+:root {
+  /* Valeurs non traduisibles en utilitaire Tailwind, exposées en CSS pur. */
+  --gutter: 1.25rem;
+  --section-y: 3.5rem;
+  --touch-min: 44px;
+  --eyebrow-transform: uppercase;
+}
+
+@media (min-width: 900px) {
+  :root {
+    --gutter: 2rem;
+    --section-y: 6rem;
+  }
+}

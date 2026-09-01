@@ -11,3 +11,11 @@ build/
 *.pem
 .vercel
 coverage/
+
+# Prisma (dev)
+prisma/dev.db
+prisma/dev.db-journal
+prisma/migrations/dev.db*
+next-env.d.ts
+*.tsbuildinfo
+lib/generated/
