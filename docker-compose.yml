@@ -1,0 +1,38 @@
+# PostgreSQL de développement.
+#
+#   docker compose up -d
+#
+# La chaîne correspondante est déjà dans .env.example :
+#   DATABASE_URL="postgresql://eni:eni@localhost:5433/eni_colis?schema=public"
+#
+# Port 5433 et non 5432, pour ne pas entrer en conflit avec un PostgreSQL
+# déjà installé sur le poste.
+#
+# Sans Docker : créer une branche de développement sur Neon (région Europe)
+# et coller son URL dans .env — voir README §Base de données.
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: eni-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: eni
+      POSTGRES_PASSWORD: eni
+      POSTGRES_DB: eni_colis
+      # UTF8 explicite. Sur un poste dont la locale systeme est Windows,
+      # initdb peut creer la base en WIN1252 : les drapeaux emoji des pays
+      # sont alors rejetes a l'insertion. Verifie : le seed echouait.
+      POSTGRES_INITDB_ARGS: '--encoding=UTF8 --locale=C'
+    ports:
+      - '5433:5432'
+    volumes:
+      - eni-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U eni -d eni_colis']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  eni-pgdata:

@@ -13,13 +13,34 @@ Le brief permanent est dans [`CLAUDE.md`](CLAUDE.md), le cahier des charges dans
 ```bash
 npm install
 cp .env.example .env
-npm run brand
+docker compose up -d
+npx prisma migrate deploy
+npm run db:seed
 npm run dev
 ```
 
 L'application démarre sur <http://localhost:3000>.
 
-Prérequis : **Node.js 20 ou plus** (développé sous Node 24).
+Prérequis : **Node.js 20 ou plus** (développé sous Node 24) et un **PostgreSQL**.
+
+### Base de données
+
+**PostgreSQL en développement comme en production.** Le brief prévoyait SQLite en développement ; nous ne l'avons pas suivi, pour une raison précise : les migrations Prisma sont propres à un moteur. Une migration générée sur SQLite n'est pas promouvable vers le Neon de production, ce qui obligerait à maintenir un second schéma divergent et à ne jamais tester les migrations qui tournent réellement en production. Sur un module de facturation, l'écart se paie en euros. SQLite refuse par ailleurs `@db.Decimal`, donc toute déclaration de précision sur les montants.
+
+Deux façons d'avoir PostgreSQL en local :
+
+- **Docker** — `docker compose up -d` démarre PostgreSQL 17 sur le port **5433** (5433 et non 5432, pour ne pas entrer en conflit avec une installation existante). La chaîne de connexion correspondante est déjà dans `.env.example`.
+- **Sans Docker** — créer une branche de développement sur [Neon](https://neon.tech) en **région Europe** et coller son URL dans `.env`. C'est aussi ce qui servira en production.
+
+> **Encodage** : la base doit être en **UTF8**. Sur un poste à locale Windows, `initdb` peut créer une base en WIN1252, qui rejette les drapeaux emoji des pays et fait échouer le seed. Le `docker-compose.yml` force l'encodage ; sur Neon, UTF8 est le défaut.
+
+### Vérifier les données
+
+```bash
+npm run db:verify
+```
+
+`prisma/verifier-seed.ts` interroge la base et contrôle 14 invariants métier — ceux qui ne se verraient pas à l'écran s'ils cassaient : fuite du hub de transit dans une sélection publique, liaison France ↔ USA rendue visible, trou dans la numérotation des factures, taux de change recalculé au lieu d'être figé, file des colis non rattachés, mention de l'article 293 B. À relancer après chaque migration.
 
 ---
 
@@ -62,7 +83,11 @@ lib/                  logique métier (tarification, accès données…)
   generated/          GÉNÉRÉ — client Prisma, hors Git
 messages/fr.json      libellés d'interface
 prisma.config.ts      configuration du CLI Prisma (URL, migrations, seed)
-prisma/schema.prisma  modèle de données
+prisma/
+  schema.prisma       modèle de données
+  migrations/         migrations SQL versionnées
+  seed.ts             données de développement
+  verifier-seed.ts    contrôle des invariants métier
 public/brand/         logos et favicons
 public/images/        photos — voir docs/guide-images.md
 scripts/build-brand.mjs  générateur de tokens
@@ -89,13 +114,13 @@ Blanc dominant · sable en respiration une section sur deux · sur fond blanc le
 
 L'audit de contraste de tout le nuancier a révélé cinq paires sous le seuil WCAG AA. La règle du projet étant d'amender la source plutôt que de contourner dans un composant, `design/tokens.json` a été corrigé :
 
-| Token | Avant | Après | Contraste |
-|---|---|---|---|
-| `status.enTransit.fg` | `#B8860B` | `#8E6708` | 2,88 → 4,54 |
-| `status.devisNouveau.fg` | `#B26A15` | `#9E5E11` | 3,86 → 4,71 |
-| `status.retire.fg` | `#7A6E60` | `#71655A` | 4,19 → 4,77 |
-| `text.muted` | `#8A7B6A` | `#786A5B` | 3,74 → 4,77 sur sable |
-| **nouveau** `brand.orangeText` | — | `#B05A0A` | 5,08 sur blanc |
+| Token                          | Avant     | Après     | Contraste             |
+| ------------------------------ | --------- | --------- | --------------------- |
+| `status.enTransit.fg`          | `#B8860B` | `#8E6708` | 2,88 → 4,54           |
+| `status.devisNouveau.fg`       | `#B26A15` | `#9E5E11` | 3,86 → 4,71           |
+| `status.retire.fg`             | `#7A6E60` | `#71655A` | 4,19 → 4,77           |
+| `text.muted`                   | `#8A7B6A` | `#786A5B` | 3,74 → 4,77 sur sable |
+| **nouveau** `brand.orangeText` | —         | `#B05A0A` | 5,08 sur blanc        |
 
 Deux combinaisons restent volontairement impossibles, parce qu'aucune valeur ne les sauve : **blanc sur orange** (2,62) et **orange `#F18321` sur blanc** (2,62). D'où la règle du design system : les boutons orange portent du texte **navy** — y compris au survol, là où la maquette passait au blanc sur `orange-dark` (3,37) — et tout texte orange sur fond clair utilise `orange-text`.
 

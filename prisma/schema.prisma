@@ -1,15 +1,15 @@
+// ============================================================================
 // Schéma Prisma — ENI Colis Services
+// D'après docs/CDC-v1.3.md §9 et CLAUDE.md §10.
 //
-// Lot 1 : infrastructure seulement. Le modèle de données complet
-// (Client, Pays, Ville, Liaison, Colis, Document, Encaissement, Depart…)
-// arrive au lot 3, d'après docs/CDC-v1.3.md §9.
+// Moteur : PostgreSQL, en développement comme en production.
+// Les migrations Prisma sont propres à un moteur : une migration générée
+// sur SQLite ne serait pas promouvable vers le Neon de production. Sur un
+// module de facturation, tester autre chose que ce qui tourne en prod est
+// un risque qu'on ne prend pas. Voir README §Base de données.
 //
-// Prisma 7 : l'URL de connexion n'est plus déclarée ici mais dans
-// prisma.config.ts, et le client est instancié avec un adaptateur de
-// pilote (voir lib/db.ts).
-//
-// Dev  : SQLite (fichier local, ignoré par Git)
-// Prod : PostgreSQL sur Neon, RÉGION EUROPE (contrainte RGPD)
+// Production : Neon, RÉGION EUROPE (contrainte RGPD — CDC §12).
+// ============================================================================
 
 generator client {
   provider = "prisma-client"
@@ -17,5 +17,613 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
+}
+
+// ============================================================================
+// Énumérations
+// ============================================================================
+
+enum Role {
+  ADMIN
+  OPERATEUR
+}
+
+enum Monnaie {
+  EUR
+  XOF // franc CFA — UEMOA (Côte d'Ivoire, Bénin, Mali, Sénégal)
+  XAF // franc CFA — CEMAC (Congo-Brazzaville)
+  GNF // franc guinéen
+  CDF // franc congolais
+  USD
+}
+
+enum ModeTransport {
+  AERIEN
+  MARITIME // structure présente, désactivée en base (CDC annexe)
+}
+
+/// Les trois modes de réception — structure fondatrice du métier (CLAUDE.md §1.1).
+enum ModeReception {
+  COMMANDE_EN_LIGNE // mode A : le marchand livre chez ENI, le client est souvent en Afrique
+  DEPOT // mode B : le client apporte son colis au bureau
+  EXPEDITION // mode C : le client expédie son colis au bureau à ses frais
+}
+
+enum MomentPaiement {
+  DEPART
+  ARRIVEE
+}
+
+/// EN_REACHEMINEMENT est INTERNE : voir lib/statuts.ts et le mappage public.
+enum StatutColis {
+  DEVIS_ACCEPTE
+  RECU
+  EN_PREPARATION
+  EXPEDIE
+  EN_TRANSIT
+  EN_REACHEMINEMENT
+  ARRIVE
+  DISPONIBLE_RETRAIT
+  RETIRE
+  LITIGE
+}
+
+enum StatutPaiement {
+  NON_DU
+  A_PAYER_DEPART
+  A_PAYER_ARRIVEE
+  PAYE
+  PARTIELLEMENT_PAYE
+  IMPAYE_RELANCE
+  ABANDONNE
+}
+
+enum TypeDocument {
+  DEVIS
+  FACTURE
+}
+
+/// Mode de calcul d'une catégorie d'articles (CLAUDE.md §4.3).
+enum ModeCalcul {
+  POIDS_X_TARIF_LIAISON // STANDARD
+  POIDS_X_TARIF_FIXE // PIECE_DETACHEE : 20 €/kg, remplace le tarif de la liaison
+  MAX_POIDS_OU_POURCENTAGE // GRANDE_MARQUE : max(poids × tarif, 15 % valeur) — [À CONFIRMER]
+  SUR_DEVIS // ELECTRONIQUE : à l'unité, non publié
+}
+
+enum StatutDemandeDevis {
+  NOUVELLE
+  CHIFFREE
+  ENVOYEE
+  ACCEPTEE
+  REFUSEE
+  EXPIREE
+  CONVERTIE
+}
+
+enum StatutDepart {
+  PLANIFIE
+  DEPOTS_OUVERTS
+  CLOTURE_DEPOTS
+  COMPLET
+  PARTI
+  ARRIVE
+}
+
+enum LieuEncaissement {
+  FRANCE
+  ABIDJAN
+  AUTRE
+}
+
+enum MoyenPaiement {
+  ESPECES
+  VIREMENT
+  MOBILE_MONEY
+  CARTE
+  AUTRE
+}
+
+enum ModeRemise {
+  DEPOT
+  EXPEDITION
+}
+
+// ============================================================================
+// Géographie et réseau
+// ============================================================================
+
+model Pays {
+  id      String  @id @default(cuid())
+  codeIso String  @unique @db.Char(2)
+  nom     String
+  slug    String  @unique
+  drapeau String? // emoji — fonctionnel, pas décoratif
+  monnaie Monnaie
+
+  /// Parité fixe (655,957 en zone CFA). Conversion automatique.
+  tauxFixe Decimal? @db.Decimal(14, 6)
+
+  /// Taux saisi en back-office pour les devises flottantes (USD, CDF, GNF).
+  /// Jamais deviné, jamais récupéré d'une API : la cliente le saisit.
+  tauxManuel      Decimal?  @db.Decimal(14, 6)
+  tauxManuelMajLe DateTime?
+
+  actif Boolean @default(true)
+
+  villes             Ville[]
+  liaisonsAuDepart   Liaison[] @relation("LiaisonOrigine")
+  liaisonsALArrivee  Liaison[] @relation("LiaisonDestination")
+  clients            Client[]
+
+  creeLe     DateTime @default(now())
+  modifieLe  DateTime @updatedAt
+
+  @@index([actif])
+}
+
+model Ville {
+  id     String @id @default(cuid())
+  nom    String
+  slug   String @unique
+  paysId String
+  pays   Pays   @relation(fields: [paysId], references: [id], onDelete: Restrict)
+
+  codeAeroport String? @db.Char(3)
+
+  /// Hub d'éclatement — INTERNE.
+  /// Cotonou, Conakry, Bamako et Dakar transitent par Abidjan avant
+  /// réacheminement. Ce champ ne doit JAMAIS figurer dans une réponse
+  /// d'API publique : le vérifier explicitement dans chaque `select`.
+  villeTransitId String?
+  villeTransit   Ville?  @relation("Transit", fields: [villeTransitId], references: [id], onDelete: SetNull)
+  villesDesservies Ville[] @relation("Transit")
+
+  actif Boolean @default(true)
+
+  pointsRetrait  PointRetrait[]
+  colisArrivee   Colis[]        @relation("VilleArrivee")
+  clients        Client[]
+
+  creeLe    DateTime @default(now())
+  modifieLe DateTime @updatedAt
+
+  @@unique([paysId, nom])
+  @@index([paysId, actif])
+}
+
+model PointRetrait {
+  id      String @id @default(cuid())
+  nom     String
+  villeId String
+  ville   Ville  @relation(fields: [villeId], references: [id], onDelete: Cascade)
+
+  /// `null` tant que la cliente n'a pas communiqué l'adresse
+  /// (Brazzaville et Kinshasa, sous-traités) — [À COMPLÉTER].
+  adresse   String?
+  telephone String?
+  horaires  String?
+  /// Repère de recherche sur les applications de VTC (« Eni Colis Service Cocody »).
+  reperage  String?
+
+  actif Boolean @default(true)
+  colis Colis[]
+
+  creeLe    DateTime @default(now())
+  modifieLe DateTime @updatedAt
+
+  @@index([villeId, actif])
+}
+
+/// Liaison ORIENTÉE : Abidjan → France et France → Abidjan sont deux lignes
+/// distinctes, avec chacune son prix. Ne jamais déduire l'une de l'autre.
+model Liaison {
+  id              String @id @default(cuid())
+  paysOrigineId   String
+  paysOrigine     Pays   @relation("LiaisonOrigine", fields: [paysOrigineId], references: [id], onDelete: Restrict)
+  paysDestinationId String
+  paysDestination Pays   @relation("LiaisonDestination", fields: [paysDestinationId], references: [id], onDelete: Restrict)
+
+  mode      ModeTransport @default(AERIEN)
+  prixParKg Decimal       @db.Decimal(10, 2)
+
+  delaiJoursMin Int?
+  delaiJoursMax Int?
+
+  /// Sous-traitance (Brazzaville, Kinshasa) — transmission tracée, contrat art. 28 RGPD.
+  sousTraitee Boolean  @default(false)
+  /// Prix d'achat auprès du sous-traitant — INTERNE, jamais exposé.
+  prixAchat   Decimal? @db.Decimal(10, 2)
+
+  /// France ↔ USA est opérée via Abidjan mais ne doit apparaître ni dans les
+  /// destinations, ni dans les sélecteurs, ni dans le sitemap.
+  afficheePubliquement Boolean @default(true)
+  actif                Boolean @default(true)
+
+  departs Depart[]
+
+  creeLe    DateTime @default(now())
+  modifieLe DateTime @updatedAt
+
+  @@unique([paysOrigineId, paysDestinationId, mode])
+  @@index([afficheePubliquement, actif])
+}
+
+/// Catégories d'articles — aucune règle de prix n'est écrite en dur dans le
+/// code : le moteur de tarification (lot 4) lit ces lignes.
+model CategorieArticle {
+  id      String     @id @default(cuid())
+  code    String     @unique // STANDARD, PIECE_DETACHEE, GRANDE_MARQUE, ELECTRONIQUE
+  libelle String
+  mode    ModeCalcul
+
+  /// Sens dépendant du mode : tarif au kilo pour POIDS_X_TARIF_FIXE,
+  /// pourcentage de la valeur pour MAX_POIDS_OU_POURCENTAGE.
+  valeur Decimal? @db.Decimal(10, 4)
+
+  /// Une catégorie non publiée affiche « nous consulter » côté public.
+  publie      Boolean @default(true)
+  devisRequis Boolean @default(false)
+  ordre       Int     @default(0)
+  actif       Boolean @default(true)
+
+  colis          Colis[]
+  demandesDevis  DemandeDevis[]
+
+  creeLe    DateTime @default(now())
+  modifieLe DateTime @updatedAt
+}
+
+// ============================================================================
+// Clients et utilisateurs
+// ============================================================================
+
+/// Client du service d'adresse en France (mode A).
+/// Distinct de l'expéditeur : celui qui dépose un colis n'est pas
+/// nécessairement inscrit au service.
+model Client {
+  id String @id @default(cuid())
+
+  /// Identifiant complet en base : ENI-XX-0000 (initiales + séquence).
+  numeroClient String @unique
+  /// Ce que le client saisit dans le champ « Nom » de ses commandes :
+  /// « Eni Prénom NN ». Format imposé par la cliente, ne pas le modifier.
+  nomLivraison String @unique
+  /// Rang de la séquence, pour éviter la collision entre deux mêmes prénoms.
+  sequence     Int
+
+  prenom    String
+  nom       String
+  telephone String
+  email     String
+
+  paysDestinationId String?
+  paysDestination   Pays?   @relation(fields: [paysDestinationId], references: [id], onDelete: SetNull)
+  villeDestinationId String?
+  villeDestination   Ville? @relation(fields: [villeDestinationId], references: [id], onDelete: SetNull)
+
+  consentementLe DateTime
+  actif          Boolean  @default(true)
+  dateInscription DateTime @default(now())
+
+  colis Colis[]
+
+  creeLe    DateTime @default(now())
+  modifieLe DateTime @updatedAt
+
+  @@index([email])
+  @@index([actif])
+}
+
+model Utilisateur {
+  id           String  @id @default(cuid())
+  email        String  @unique
+  nom          String
+  motDePasse   String // haché avec argon2 — jamais en clair
+  role         Role    @default(OPERATEUR)
+  actif        Boolean @default(true)
+
+  encaissements    Encaissement[]
+  changementsStatut HistoriqueStatut[]
+
+  derniereConnexion DateTime?
+  creeLe            DateTime  @default(now())
+  modifieLe         DateTime  @updatedAt
+}
+
+// ============================================================================
+// Demandes de devis (formulaire public)
+// ============================================================================
+
+/// Une demande de devis existe AVANT le colis : en mode C le devis précède
+/// l'envoi, en mode A il précède l'acheminement. C'est pourquoi `Document`
+/// peut pointer vers une demande sans colis (écart assumé au CDC §9).
+model DemandeDevis {
+  id        String @id @default(cuid())
+  reference String @unique // DEM-2026-00042
+
+  // Trajet
+  paysDepart    String
+  villeDepart   String
+  paysArrivee   String
+  villeArrivee  String
+  modeRemise    ModeRemise
+
+  // Contenu
+  categorieId    String?
+  categorie      CategorieArticle? @relation(fields: [categorieId], references: [id], onDelete: SetNull)
+  poidsEstime    Decimal?          @db.Decimal(8, 3)
+  dimensions     String?
+  valeurAchat    Decimal?          @db.Decimal(12, 2)
+  description    String
+  departSouhaite DateTime?
+
+  // Demandeur
+  nom       String
+  telephone String
+  email     String
+
+  statut StatutDemandeDevis @default(NOUVELLE)
+
+  /// Consentement RGPD horodaté. Purge des demandes non converties à 12 mois.
+  consentementLe DateTime
+
+  photos    PhotoDevis[]
+  documents Document[]
+  colis     Colis[]
+
+  creeLe    DateTime @default(now())
+  modifieLe DateTime @updatedAt
+
+  @@index([statut, creeLe])
+  @@index([email])
+}
+
+/// Photos jointes à une demande. Conservées : trace en cas de litige.
+/// Stockage objet en RÉGION EUROPE (données personnelles).
+model PhotoDevis {
+  id       String       @id @default(cuid())
+  demandeId String
+  demande  DemandeDevis @relation(fields: [demandeId], references: [id], onDelete: Cascade)
+
+  url         String
+  nomOriginal String?
+  tailleOctets Int?
+  ordre       Int     @default(0)
+
+  creeLe DateTime @default(now())
+
+  @@index([demandeId])
+}
+
+// ============================================================================
+// Départs et colis
+// ============================================================================
+
+model Depart {
+  id        String @id @default(cuid())
+  reference String @unique // DEP-2026-0042
+
+  liaisonId String
+  liaison   Liaison @relation(fields: [liaisonId], references: [id], onDelete: Restrict)
+
+  dateClotureDepot  DateTime
+  dateDepart        DateTime
+  dateArriveeEstimee DateTime?
+
+  statut StatutDepart @default(PLANIFIE)
+  notes  String?
+
+  colis Colis[]
+
+  creeLe    DateTime @default(now())
+  modifieLe DateTime @updatedAt
+
+  @@index([statut, dateDepart])
+  @@index([dateDepart])
+}
+
+model Colis {
+  id        String @id @default(cuid())
+  codeSuivi String @unique // ENI-2026-00123
+
+  /// NULL = colis reçu au bureau sans client rattaché.
+  /// C'est la « file des colis non identifiés » : sans elle, un carton
+  /// marchand anonyme n'existe nulle part et se perd — d'autant que le
+  /// local est partagé avec un autre opérateur (CLAUDE.md §1.2).
+  clientId String?
+  client   Client? @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  modeReception  ModeReception
+  momentPaiement MomentPaiement
+
+  /// Photo prise à la réception, avant rattachement. Indispensable pour
+  /// retrouver un colis anonyme.
+  photoReceptionUrl String?
+
+  // Expéditeur et destinataire : champs propres au colis. Un client du
+  // service d'adresse n'est pas nécessairement l'expéditeur (CDC §9).
+  expediteurNom       String?
+  expediteurTelephone String?
+  expediteurEmail     String?
+  destinataireNom       String
+  destinataireTelephone String?
+  destinataireEmail     String?
+
+  villeArriveeId String
+  villeArrivee   Ville  @relation("VilleArrivee", fields: [villeArriveeId], references: [id], onDelete: Restrict)
+  pointRetraitId String?
+  pointRetrait   PointRetrait? @relation(fields: [pointRetraitId], references: [id], onDelete: SetNull)
+
+  departId String?
+  depart   Depart? @relation(fields: [departId], references: [id], onDelete: SetNull)
+
+  /// Le colis doit repartir du hub vers sa destination finale.
+  /// Interne : ne jamais exposer publiquement.
+  necessiteReacheminement Boolean @default(false)
+
+  poidsEstime Decimal? @db.Decimal(8, 3)
+  poidsReel   Decimal? @db.Decimal(8, 3)
+  dimensions  String?
+
+  categorieId    String?
+  categorie      CategorieArticle? @relation(fields: [categorieId], references: [id], onDelete: SetNull)
+  valeurDeclaree Decimal?          @db.Decimal(12, 2)
+  justificatifFourni Boolean       @default(false)
+  contenu        String?
+
+  statut         StatutColis    @default(RECU)
+  statutPaiement StatutPaiement @default(NON_DU)
+
+  demandeDevisId String?
+  demandeDevis   DemandeDevis? @relation(fields: [demandeDevisId], references: [id], onDelete: SetNull)
+
+  documents  Document[]
+  historique HistoriqueStatut[]
+
+  /// Date de départ effectif — sert au calcul de l'ancienneté des créances.
+  dateDepartEffectif DateTime?
+  dateArrivee        DateTime?
+  dateDisponible     DateTime?
+  dateRetrait        DateTime?
+
+  creeLe    DateTime @default(now())
+  modifieLe DateTime @updatedAt
+
+  @@index([statut])
+  @@index([statutPaiement])
+  @@index([clientId])
+  @@index([departId])
+  @@index([modeReception, clientId]) // file des colis non rattachés
+  @@index([necessiteReacheminement, statut]) // file de réacheminement
+}
+
+/// Journal des changements de statut — APPEND ONLY.
+/// Aucune mise à jour, aucune suppression : c'est la trace d'exploitation
+/// et la preuve en cas de litige.
+model HistoriqueStatut {
+  id      String @id @default(cuid())
+  colisId String
+  colis   Colis  @relation(fields: [colisId], references: [id], onDelete: Cascade)
+
+  statut      StatutColis
+  commentaire String?
+
+  auteurId String?
+  auteur   Utilisateur? @relation(fields: [auteurId], references: [id], onDelete: SetNull)
+
+  survenuLe DateTime @default(now())
+
+  @@index([colisId, survenuLe])
+}
+
+// ============================================================================
+// Documents, encaissements, numérotation
+// ============================================================================
+
+/// Devis ET facture : même structure, même rendu PDF, historique cohérent.
+model Document {
+  id     String       @id @default(cuid())
+  type   TypeDocument
+  numero String       @unique // DEV-2026-00123 | FAC-2026-00123
+
+  colisId String?
+  colis   Colis?  @relation(fields: [colisId], references: [id], onDelete: Restrict)
+
+  demandeDevisId String?
+  demandeDevis   DemandeDevis? @relation(fields: [demandeDevisId], references: [id], onDelete: SetNull)
+
+  montantEur Decimal @db.Decimal(12, 2)
+
+  /// Devise, taux et montant converti sont FIGÉS à l'émission et STOCKÉS.
+  /// Jamais recalculés à l'encaissement : le document doit refléter le taux
+  /// du jour où il a été émis (CDC §9, décisions structurantes).
+  devise        Monnaie  @default(EUR)
+  tauxApplique  Decimal? @db.Decimal(14, 6)
+  montantDevise Decimal? @db.Decimal(14, 2)
+
+  dateEmission  DateTime  @default(now())
+  dateValidite  DateTime? // devis : 7 jours
+  dateReglement DateTime?
+
+  /// Franchise de TVA — mention OBLIGATOIRE sur tout devis et toute facture.
+  /// Aucun montant de TVA nulle part.
+  mentionFiscale String @default("TVA non applicable, art. 293 B du CGI")
+
+  detail String? // libellé de la prestation, tel qu'imprimé
+  pdfUrl String?
+
+  encaissements Encaissement[]
+
+  creeLe    DateTime @default(now())
+  modifieLe DateTime @updatedAt
+
+  @@index([type, dateEmission])
+  @@index([colisId])
+}
+
+model Encaissement {
+  id         String   @id @default(cuid())
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Restrict)
+
+  montant Decimal @db.Decimal(14, 2)
+  devise  Monnaie
+
+  /// Taux utilisé pour cet encaissement, recopié du document.
+  tauxApplique Decimal? @db.Decimal(14, 6)
+
+  lieu  LieuEncaissement
+  moyen MoyenPaiement
+
+  operateurId String?
+  operateur   Utilisateur? @relation(fields: [operateurId], references: [id], onDelete: SetNull)
+
+  dateEncaissement DateTime @default(now())
+  reference        String?
+  notes            String?
+
+  creeLe DateTime @default(now())
+
+  @@index([documentId])
+  @@index([dateEncaissement])
+}
+
+/// Séquence de numérotation, une ligne par type et par année.
+///
+/// L'exigence comptable est une numérotation de factures CONTINUE ET SANS
+/// TROU. Le compteur est incrémenté dans la même transaction que la création
+/// du document : deux émissions simultanées ne peuvent pas obtenir le même
+/// numéro, et un échec ne consomme pas de numéro.
+model SequenceDocument {
+  id     String @id @default(cuid())
+  type   String // DEVIS | FACTURE | COLIS | DEMANDE | DEPART | CLIENT
+  annee  Int
+  dernierNumero Int @default(0)
+
+  modifieLe DateTime @updatedAt
+
+  @@unique([type, annee])
+}
+
+// ============================================================================
+// Messagerie
+// ============================================================================
+
+model MessageCampagne {
+  id      String @id @default(cuid())
+  sujet   String
+  corps   String
+  canal   String // EMAIL | WHATSAPP
+  cible   String // libellé du filtre appliqué (départ, destination…)
+
+  departId    String?
+  nbDestinataires Int      @default(0)
+  envoyeeLe   DateTime?
+  auteurEmail String?
+
+  creeLe DateTime @default(now())
+
+  @@index([creeLe])
 }
