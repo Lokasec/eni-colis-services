@@ -34,6 +34,24 @@ Deux façons d'avoir PostgreSQL en local :
 
 > **Encodage** : la base doit être en **UTF8**. Sur un poste à locale Windows, `initdb` peut créer une base en WIN1252, qui rejette les drapeaux emoji des pays et fait échouer le seed. Le `docker-compose.yml` force l'encodage ; sur Neon, UTF8 est le défaut.
 
+## Moteur de tarification
+
+`lib/tarification/` calcule le prix d'un envoi. Trois propriétés le définissent :
+
+1. **Il est pur.** Il ne lit pas la base : le back-office lui passe la liaison et la catégorie déjà chargées. Aucun effet de bord, donc testable exhaustivement.
+2. **Il ne contient aucun tarif.** Le prix au kilo vient de la liaison, le tarif de remplacement et le pourcentage viennent de la catégorie. Changer un tarif se fait en base.
+3. **Il est interdit côté public.** Le site n'affiche aucun prix calculé, sous aucune forme (`CLAUDE.md` §1.3). Les tarifs au kilo affichés sont lus tels quels en base.
+
+Ce qu'il renvoie est une **suggestion modifiable**, jamais un prix imposé : la cliente examine l'article avant de chiffrer.
+
+```bash
+npm run test
+```
+
+43 tests couvrent les quatre catégories à l'aller et au retour, les deux branches de `GRANDE_MARQUE` (poids gagnant, pourcentage gagnant, égalité), la conversion en zone CFA et à taux saisi, le refus de convertir sans taux, et huit motifs de refus. `isolement.test.ts` échoue si un fichier du site public importe le moteur — vérifié en injectant volontairement une violation.
+
+Les montants transitent en `Decimal` exact, jamais en `number` : `1,005 × 3` vaut `3,015` et s'arrondit à `3,02 €`, là où la virgule flottante donnerait `3,01 €`.
+
 ### Vérifier les données
 
 ```bash
@@ -78,7 +96,8 @@ design/
   tokens.generated.ts GÉNÉRÉ — mêmes valeurs, pour le JS (PDF, e-mails)
 docs/                 CDC, contenus rédactionnels validés, maquette HTML
 i18n/request.ts       configuration next-intl
-lib/                  logique métier (tarification, accès données…)
+lib/                  logique métier
+  tarification/       moteur de calcul — back-office uniquement
   db.ts               client Prisma (singleton + adaptateur de pilote)
   generated/          GÉNÉRÉ — client Prisma, hors Git
 messages/fr.json      libellés d'interface
