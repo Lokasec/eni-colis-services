@@ -62,6 +62,8 @@ Connexion GitHub → import du dépôt → détection automatique de Next.js.
 | `NEXT_PUBLIC_WHATSAPP` | `33652707014` |
 | `TAUX_CFA` | `655.957` — parité fixe, en variable pour traçabilité |
 
+> **`NEXT_PUBLIC_SITE_URL` est indispensable avant d'imprimer un reçu** : le QR code encode cette adresse. Sans elle, il pointerait vers `localhost`, et un QR imprimé ne se corrige pas. La génération du reçu refuse alors de s'exécuter et renvoie un message explicite.
+
 Le plan Hobby est gratuit et suffisant pour une vitrine avec formulaires et back-office. Passer en Pro seulement si un SLA garanti devient nécessaire.
 
 ---

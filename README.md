@@ -101,6 +101,44 @@ L'outil est utilisé debout, sur téléphone, un colis dans les mains. La naviga
 
 Tout changement de statut écrit une ligne dans `HistoriqueStatut`, qui est en **ajout seul** : c'est la trace d'exploitation et la preuve en cas de litige.
 
+## Documents PDF et notifications
+
+Les trois documents du CDC §10 sont composés avec `@react-pdf/renderer` : **devis**, **facture**, **reçu de dépôt**.
+
+| Document      | URL                                   | Accès                            |
+| ------------- | ------------------------------------- | -------------------------------- |
+| Devis         | `/admin/documents/DEV-2026-00002/pdf` | Tout compte connecté             |
+| Facture       | `/admin/documents/FAC-2026-00001/pdf` | **ADMIN uniquement** — 403 sinon |
+| Reçu de dépôt | `/admin/colis/ENI-2026-00104/recu`    | Tout compte connecté             |
+
+Le contrôle de rôle est **refait dans la route**. L'URL d'un PDF se partage, se met en favori et se retrouve dans un historique : masquer un bouton ne protège rien.
+
+**Rien n'est recalculé.** Montants, taux de change, poids facturé et son explication sont lus tels qu'ils ont été figés à l'émission. Le moteur de tarification n'est pas importé par la couche PDF et ne doit jamais l'être : il produit des suggestions, pas des pièces. Un devis réimprimé six mois plus tard affiche exactement ce que le client a reçu.
+
+Le logo est **redessiné à partir du SVG**, dont `npm run brand` extrait les tracés — la même chaîne que les couleurs. Si le logo gagnait un jour un dégradé, la génération échouerait avec un message explicite plutôt que de le perdre en silence. Montserrat est vendorisée en TTF dans `public/fonts/` (police libre, OFL) : `next/font` ne produit que du woff2, que la bibliothèque PDF ne lit pas, et un PDF ne doit pas dépendre d'un appel réseau.
+
+### Le QR code du reçu
+
+Il encode `https://…/suivi?code=…`, construit par `urlSuivi()` — testé, parce qu'**un QR imprimé ne se corrige pas**. Si `NEXT_PUBLIC_SITE_URL` manquait en production, `site.url` retomberait sur `localhost` et chaque reçu partirait avec un lien mort. La génération **refuse alors d'imprimer** et renvoie un 503 disant quoi corriger.
+
+### E-mails
+
+Gabarit en tableaux et styles en ligne — Outlook ignore les feuilles de style. **Aucune image** : un logo distant est bloqué par défaut chez beaucoup de destinataires et l'en-tête apparaîtrait vide ; le nom composé en blanc sur navy tient ce rôle sans dépendre de rien. Les couleurs viennent des tokens.
+
+Sans `RESEND_API_KEY`, les envois sont **journalisés** au lieu d'être expédiés, et la fonction renvoie un succès : un formulaire ne doit pas échouer parce que la messagerie n'est pas configurée.
+
+### Messagerie de départ
+
+`/admin/messagerie` — trois modèles éditables (parti, arrivé, rappel), envoi **personnalisé par colis** : chacun reçoit son propre code de suivi et son lien. Un envoi groupé sans le code obligerait le destinataire à retrouver son numéro ailleurs, donc à téléphoner.
+
+Un message par personne, jamais une copie cachée : une liste en copie s'expose au premier « répondre à tous » et bascule en indésirable chez la plupart des fournisseurs.
+
+L'historique journalise le nombre d'envois **réellement acceptés**, pas le nombre de destinataires visés — un rapport qui compte les intentions ment sur ce qui est arrivé. La campagne est écrite en base **avant** l'envoi : si celui-ci casse à mi-parcours, on sait quand même qui a été prévenu.
+
+WhatsApp reste manuel : liens `wa.me` pré-remplis, un par destinataire. L'API Business est hors périmètre de la phase 1.
+
+---
+
 ## Formulaires publics
 
 `/devis` et `/inscription` reposent sur des Server Actions. Quatre protections, dans cet ordre :

@@ -488,3 +488,50 @@ export async function paysEtTaux() {
     orderBy: { nom: 'asc' },
   })
 }
+
+/**
+ * Départs pouvant faire l'objet d'un envoi groupé, avec leurs colis.
+ *
+ * On ne remonte que les colis qui portent une adresse ou un téléphone :
+ * un destinataire injoignable n'a rien à faire dans une liste d'envoi, il
+ * y ferait seulement gonfler un compteur sans rien recevoir.
+ */
+export async function departsAvecDestinataires() {
+  return db.depart.findMany({
+    select: {
+      id: true,
+      reference: true,
+      dateDepart: true,
+      dateArriveeEstimee: true,
+      statut: true,
+      liaison: {
+        select: {
+          paysOrigine: { select: { nom: true } },
+          paysDestination: { select: { nom: true } },
+        },
+      },
+      colis: {
+        select: {
+          id: true,
+          codeSuivi: true,
+          destinataireNom: true,
+          destinataireEmail: true,
+          destinataireTelephone: true,
+          expediteurNom: true,
+          expediteurEmail: true,
+          expediteurTelephone: true,
+          statut: true,
+          villeArrivee: { select: { nom: true } },
+        },
+        orderBy: { codeSuivi: 'asc' },
+      },
+    },
+    orderBy: { dateDepart: 'desc' },
+    take: 25,
+  })
+}
+
+/** Historique des campagnes, du plus récent au plus ancien. */
+export async function campagnes() {
+  return db.messageCampagne.findMany({ orderBy: { creeLe: 'desc' }, take: 40 })
+}

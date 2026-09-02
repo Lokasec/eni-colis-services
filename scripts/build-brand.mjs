@@ -18,6 +18,40 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const SOURCE = resolve(ROOT, 'design/tokens.json')
 const OUT_CSS = resolve(ROOT, 'app/styles/tokens.css')
 const OUT_TS = resolve(ROOT, 'design/tokens.generated.ts')
+const LOGO_SVG = resolve(ROOT, 'public/brand/logo-horizontal_couleur.svg')
+
+/**
+ * Extraction des tracés du logo horizontal.
+ *
+ * Le SVG n'est fait que de <path> à fond plat — ni dégradé, ni texte, ni
+ * masque. C'est ce qui rend l'extraction sûre : si un jour le logo gagnait
+ * un dégradé, le rendu PDF le perdrait silencieusement, d'où le contrôle
+ * ci-dessous qui préfère échouer.
+ */
+function lireLogo() {
+  const svg = readFileSync(LOGO_SVG, 'utf8')
+
+  const balisesInterdites = ['linearGradient', 'radialGradient', 'mask', 'text', 'image', 'use']
+  const trouvee = balisesInterdites.find((balise) => svg.includes(`<${balise}`))
+  if (trouvee) {
+    throw new Error(
+      `Le logo contient <${trouvee}>, que le rendu PDF ne sait pas reproduire. ` +
+        `Fournissez une version aplatie, ou adaptez lib/pdf/logo.tsx.`,
+    )
+  }
+
+  const viewBox = (svg.match(/viewBox="([^"]+)"/) ?? [])[1]
+  if (!viewBox) throw new Error('Le logo n’a pas de viewBox : impossible de le mettre à l’échelle.')
+
+  const paths = [...svg.matchAll(/<path[^>]*\sfill="([^"]+)"[^>]*\sd="([^"]+)"[^>]*>/g)].map(
+    ([, fill, d]) => ({ fill, d }),
+  )
+  if (paths.length === 0) throw new Error('Aucun tracé trouvé dans le logo.')
+
+  return { viewBox, paths }
+}
+
+const { viewBox: logoViewBox, paths: logoPaths } = lireLogo()
 
 const BANNER = `/* GÉNÉRÉ PAR scripts/build-brand.mjs — NE PAS ÉDITER À LA MAIN.
    Source : design/tokens.json — régénérer avec \`npm run brand\`. */`
@@ -181,12 +215,28 @@ export const brandTypeScale = ${JSON.stringify(tokens.font.scale, null, 2)} as c
 
 export const brandLogos = ${JSON.stringify(tokens.logo, null, 2)} as const
 
+/**
+ * Tracés du logo horizontal, extraits du SVG.
+ *
+ * Les PDF sont composés par @react-pdf/renderer, qui ne sait pas lire un
+ * fichier .svg : il attend des <Path> décrits un par un. Les extraire ici
+ * évite deux écueils — une lecture de fichier à chaque génération, et un
+ * logo redessiné à la main qui divergerait de la source.
+ *
+ * Régénéré par \`npm run brand\`, comme les couleurs.
+ */
+export const brandLogoPaths = ${JSON.stringify(logoPaths, null, 2)} as const
+
+export const brandLogoViewBox = ${JSON.stringify(logoViewBox)} as const
+
 export type BrandColor = keyof typeof brandColors
 `
 
 writeFileSync(OUT_TS, ts, 'utf8')
 
 const count = colors.length
-console.log(`✓ npm run brand — ${count} couleurs, ${textScale.length} niveaux typographiques`)
+console.log(
+  `✓ npm run brand — ${count} couleurs, ${textScale.length} niveaux typographiques, ${logoPaths.length} tracés de logo`,
+)
 console.log(`  → ${OUT_CSS.replace(ROOT, '.')}`)
 console.log(`  → ${OUT_TS.replace(ROOT, '.')}`)

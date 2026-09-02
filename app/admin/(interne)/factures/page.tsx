@@ -67,7 +67,17 @@ export default async function Factures() {
           >
             {factures.map((facture) => (
               <tr key={facture.id}>
-                <Td className="text-navy font-bold whitespace-nowrap">{facture.numero}</Td>
+                <Td className="whitespace-nowrap">
+                  <a
+                    href={`/admin/documents/${facture.numero}/pdf`}
+                    target="_blank"
+                    rel="noopener"
+                    className="text-navy font-bold no-underline hover:underline"
+                  >
+                    {facture.numero}
+                  </a>
+                  <span className="text-caption text-muted mt-0.5 block">PDF</span>
+                </Td>
                 <Td>
                   {facture.colis?.codeSuivi ?? '—'}
                   <span className="text-caption text-muted mt-0.5 block">

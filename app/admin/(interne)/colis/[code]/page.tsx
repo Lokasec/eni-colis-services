@@ -40,9 +40,21 @@ export default async function FicheColis({ params }: { params: Promise<{ code: s
         titre={colis.codeSuivi}
         sousTitre={`${colis.villeArrivee.nom}, ${colis.villeArrivee.pays.nom}`}
         actions={
-          <Button href="/admin/colis" variant="outline" size="sm">
-            Retour à la liste
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            {/* Ouvert dans un onglet : la cliente imprime le reçu et
+                revient à la fiche sans perdre sa place. */}
+            <Button
+              href={`/admin/colis/${colis.codeSuivi}/recu`}
+              target="_blank"
+              rel="noopener"
+              size="sm"
+            >
+              Reçu de dépôt (PDF)
+            </Button>
+            <Button href="/admin/colis" variant="outline" size="sm">
+              Retour à la liste
+            </Button>
+          </div>
         }
       />
 

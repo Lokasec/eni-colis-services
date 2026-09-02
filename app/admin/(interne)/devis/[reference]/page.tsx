@@ -142,6 +142,17 @@ export default async function FicheDevis({ params }: { params: Promise<{ referen
               {documentEmis.detail ? (
                 <p className="text-caption text-ink-soft mt-1">{documentEmis.detail}</p>
               ) : null}
+              <div className="mt-3">
+                <Button
+                  href={`/admin/documents/${documentEmis.numero}/pdf`}
+                  target="_blank"
+                  rel="noopener"
+                  variant="outline"
+                  size="sm"
+                >
+                  Voir le devis en PDF
+                </Button>
+              </div>
               <p className="text-caption text-muted mt-2">
                 {documentEmis.mentionFiscale}
                 <br />

@@ -7,7 +7,7 @@ import { adresseInterne, envoyer } from '@/lib/email'
 import { convertirDemandeEnColis } from '@/lib/admin/conversion'
 import { convertirPourPays } from '@/lib/admin/facturation'
 import { prochainNumero, TRANSACTION } from '@/lib/numerotation'
-import { site } from '@/lib/site'
+import { site, urlSuivi } from '@/lib/site'
 
 export type Reponse =
   { ok: true; message: string; detail?: string } | { ok: false; message: string }
@@ -574,7 +574,6 @@ export async function convertirEnColis(
         `Votre devis ${demande.reference} est accepté, et votre envoi vers ${demande.villeArrivee} est enregistré.`,
         '',
         `Code de suivi : ${codeSuivi}`,
-        `Suivez-le à tout moment sur ${site.url}/suivi?code=${codeSuivi}`,
         '',
         demande.modeRemise === 'EXPEDITION'
           ? `Collez le numéro ${demande.reference} de façon lisible sur le colis avant de l’expédier à notre bureau de Rouen.`
@@ -583,6 +582,7 @@ export async function convertirEnColis(
         site.name,
         site.telephone,
       ].join('\n'),
+      action: { libelle: 'Suivre mon colis', url: urlSuivi(codeSuivi) },
     })
   }
 

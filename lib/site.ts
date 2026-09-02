@@ -36,6 +36,19 @@ export const site = {
 /** Message pré-rempli du bouton WhatsApp — docs/contenus-pages.md §10 */
 export const whatsappMessage = 'Bonjour, je souhaite des informations sur un envoi.'
 
+/**
+ * URL publique de suivi d'un colis.
+ *
+ * C'est elle qu'encode le QR code du reçu de dépôt. Elle est ici, et
+ * testée, pour une raison précise : un QR imprimé ne se corrige pas. S'il
+ * pointait vers `localhost` — le repli de `site.url` quand
+ * NEXT_PUBLIC_SITE_URL manque — le défaut ne se verrait qu'une fois les
+ * reçus entre les mains des clients.
+ */
+export function urlSuivi(codeSuivi: string): string {
+  return `${site.url}/suivi?code=${encodeURIComponent(codeSuivi)}`
+}
+
 export function whatsappLink(message: string = whatsappMessage): string {
   return `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(message)}`
 }
