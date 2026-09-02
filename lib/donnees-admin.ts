@@ -282,6 +282,11 @@ export async function liaisonsExploitables() {
       id: true,
       prixParKg: true,
       afficheePubliquement: true,
+      // Deux destinations sont sous-traitées et leur prix d'achat n'a pas
+      // été communiqué. Sans ces deux champs, l'écran laisserait croire
+      // que le prix de vente est de la marge.
+      sousTraitee: true,
+      prixAchat: true,
       paysOrigine: { select: { nom: true, codeIso: true } },
       paysDestination: { select: { nom: true, codeIso: true } },
     },

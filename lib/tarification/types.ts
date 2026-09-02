@@ -69,6 +69,12 @@ export type Dimensions = {
 export type ParametresPoids = {
   /** Pas d'arrondi vers le haut. 1 = kilo supérieur, 0 = poids exact. */
   pasArrondiPoidsKg: Numerique
+  /**
+   * Tolérance sur l'excédent avant de passer au pas supérieur. 0,1 = un
+   * colis à 4,050 kg reste facturé 4 kg ; à 4,100 kg il passe à 5 kg.
+   * 0 rétablit l'arrondi vers le haut pur.
+   */
+  toleranceArrondiKg: Numerique
   /** Poids minimum facturé quel que soit le poids réel. */
   poidsMinimumFactureKg: Numerique
   /** (L × l × h en cm) ÷ diviseur = kg. `null` désactive la règle. */

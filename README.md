@@ -48,9 +48,18 @@ Ce qu'il renvoie est une **suggestion modifiable**, jamais un prix imposé : la 
 npm run test
 ```
 
-51 tests couvrent les quatre catégories à l'aller et au retour, l'arrondi du poids au kilo supérieur, le minimum de 1 kg, le poids volumétrique, `GRANDE_MARQUE` sans poids et sans influence de la liaison, la conversion en zone CFA et à taux saisi, le refus de convertir sans taux, et huit motifs de refus. `isolement.test.ts` échoue si un fichier du site public importe le moteur — vérifié en injectant volontairement une violation.
+59 tests couvrent les quatre catégories à l'aller et au retour, l'arrondi du poids au kilo supérieur, la tolérance de 100 g et sa frontière stricte, le minimum de 1 kg, le poids volumétrique, `GRANDE_MARQUE` sans poids et sans influence de la liaison, la conversion en zone CFA et à taux saisi, le refus de convertir sans taux, et huit motifs de refus. `isolement.test.ts` échoue si un fichier du site public importe le moteur — vérifié en injectant volontairement une violation.
 
-Le **poids facturé** est arrondi au kilo supérieur, avec un minimum de 1 kg, et comparé au poids volumétrique `(L × l × h) ÷ 5000` — trois règles paramétrées dans `ParametresTarification`, ajustables depuis le back-office sans redéploiement.
+Le **poids facturé** est arrondi au kilo supérieur avec une **tolérance de 100 g** sur l'excédent, un minimum de 1 kg, et comparé au poids volumétrique `(L × l × h) ÷ 5000` — quatre règles paramétrées dans `ParametresTarification`, ajustables depuis le back-office sans redéploiement.
+
+| Pesé      | Facturé | Pourquoi                                                               |
+| --------- | ------- | ---------------------------------------------------------------------- |
+| 0,050 kg  | 1 kg    | Minimum facturé — il l'emporte sur la tolérance                        |
+| 4,050 kg  | 4 kg    | 50 g d'excédent, sous la tolérance                                     |
+| 4,100 kg  | 5 kg    | 100 g pile : la comparaison est **stricte**, la tolérance ne joue plus |
+| 12,500 kg | 13 kg   | Kilo supérieur                                                         |
+
+Le document remis l'explique **dans les deux sens** : « 13 kg (12,5 kg arrondis au kilo supérieur) » comme « 4 kg (4,05 kg pesés, tolérance de 0,1 kg) ». Un arrondi favorable au client ressemble à une erreur s'il n'est pas justifié.
 
 Les montants transitent en `Decimal` exact, jamais en `number` : `1,005 × 3` vaut `3,015` et s'arrondit à `3,02 €`, là où la virgule flottante donnerait `3,01 €`.
 
@@ -111,7 +120,7 @@ Sans `RESEND_API_KEY`, les e-mails sont **journalisés au lieu d'être expédié
 npm run db:verify
 ```
 
-`prisma/verifier-seed.ts` interroge la base et contrôle 20 invariants métier — ceux qui ne se verraient pas à l'écran s'ils cassaient : fuite du hub de transit dans une sélection publique, liaison France ↔ USA rendue visible, trou dans la numérotation des factures, taux de change recalculé au lieu d'être figé, file des colis non rattachés, mention de l'article 293 B. À relancer après chaque migration.
+`prisma/verifier-seed.ts` interroge la base et contrôle 21 invariants métier — ceux qui ne se verraient pas à l'écran s'ils cassaient : fuite du hub de transit dans une sélection publique, liaison France ↔ USA rendue visible, trou dans la numérotation des factures, taux de change recalculé au lieu d'être figé, file des colis non rattachés, mention de l'article 293 B. À relancer après chaque migration.
 
 ---
 
@@ -248,6 +257,12 @@ Aucune de ces valeurs ne doit être inventée. Elles apparaissent comme telles d
 | 10  | Avis clients réels                                                                                      | Le bloc témoignages reste absent tant qu'il n'y en a pas | 🟢        |
 | 11  | Photos — 8 destinations + 5 photos d'activité (voir `docs/guide-images.md`)                             | Placeholders SVG en attendant                            | 🟢        |
 | 12  | Marchands acceptés ou refusés pour le mode A                                                            | FAQ                                                      | 🟢        |
+
+### Prix d'achat des sous-traitants — inconnu, et affiché comme tel
+
+ENI ne dessert pas Brazzaville et Kinshasa elle-même : le colis est remis à un partenaire. Les prix de vente sont connus (**20 €/kg** et **15 €/kg**), le prix payé au partenaire ne l'est pas — la cliente ne l'a pas communiqué.
+
+`Liaison.prixAchat` reste donc **nul**, et un invariant vérifie qu'il le reste : une valeur de confort rendrait fausse toute marge affichée. `/admin/tarifs` porte la mention **« marge inconnue »** sur ces deux lignes, avec l'avertissement que ces destinations peuvent être vendues à perte sans que rien ne le montre.
 
 ### Politique commerciale — tranchée le 2 septembre 2026
 

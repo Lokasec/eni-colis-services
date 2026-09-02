@@ -296,6 +296,11 @@ model ParametresTarification {
   /// 5000 est l'usage en fret aérien. `null` désactive la règle.
   diviseurVolumetrique Int? @default(5000)
 
+  /// Tolérance sur l'excédent avant de passer au pas supérieur.
+  /// 0,100 : un colis à 4,050 kg reste facturé 4 kg ; à 4,100 kg il passe
+  /// à 5 kg (comparaison stricte). 0 rétablit l'arrondi vers le haut pur.
+  toleranceArrondiKg Decimal @default("0.100") @db.Decimal(10, 3)
+
   /// Quand les deux sont connus, on retient le PLUS ÉLEVÉ du poids réel et
   /// du poids volumétrique. Désactivable si la cliente préfère le poids réel.
   appliquerPoidsVolumetrique Boolean @default(true)

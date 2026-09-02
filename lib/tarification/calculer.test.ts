@@ -21,10 +21,11 @@ const abidjanVersFrance: LiaisonTarifaire = { prixParKg: '12.00', actif: true }
 const franceVersDakar: LiaisonTarifaire = { prixParKg: '12.00', actif: true }
 const franceVersBrazzaville: LiaisonTarifaire = { prixParKg: '20.00', actif: true }
 
-// Règles confirmées par la cliente : kilo supérieur, minimum 1 kg,
-// poids volumétrique au diviseur 5000.
+// Règles confirmées par la cliente : kilo supérieur avec tolérance de
+// 100 g, minimum 1 kg, poids volumétrique au diviseur 5000.
 const parametres: ParametresPoids = {
   pasArrondiPoidsKg: '1.000',
+  toleranceArrondiKg: '0.100',
   poidsMinimumFactureKg: '1.000',
   diviseurVolumetrique: 5000,
   appliquerPoidsVolumetrique: true,
@@ -84,8 +85,10 @@ describe('Poids facturé — arrondi au kilo supérieur, minimum 1 kg', () => {
   it('arrondit au kilo supérieur', () => {
     // 12,5 kg pesés → 13 kg facturés → 13 × 15 = 195 €
     expect(montant(calculerTarif(demande({ poidsKg: '12.5' })))).toBe('195.00')
-    // 5,05 kg → 6 kg : il n'y a pas de tolérance
-    expect(montant(calculerTarif(demande({ poidsKg: '5.05' })))).toBe('90.00')
+    // 5,05 kg → 5 kg : 50 g d'excédent tombent sous la tolérance de 100 g
+    expect(montant(calculerTarif(demande({ poidsKg: '5.05' })))).toBe('75.00')
+    // 5,10 kg → 6 kg : à 100 g pile, la tolérance ne joue plus
+    expect(montant(calculerTarif(demande({ poidsKg: '5.10' })))).toBe('90.00')
   })
 
   it('laisse un poids déjà entier inchangé', () => {
@@ -112,9 +115,13 @@ describe('Poids facturé — arrondi au kilo supérieur, minimum 1 kg', () => {
   })
 
   it('respecte un paramétrage différent, sans changer de code', () => {
-    // Si la cliente demandait une tolérance aux 100 g, ce serait ce
-    // paramètre-là qui changerait — pas le moteur.
-    const auxCentGrammes: ParametresPoids = { ...parametres, pasArrondiPoidsKg: '0.100' }
+    // Si la cliente passait un jour à la facturation aux 100 g, ce sont
+    // ces paramètres-là qui changeraient — pas le moteur.
+    const auxCentGrammes: ParametresPoids = {
+      ...parametres,
+      pasArrondiPoidsKg: '0.100',
+      toleranceArrondiKg: '0',
+    }
     expect(montant(calculerTarif(demande({ poidsKg: '5.05', parametres: auxCentGrammes })))).toBe(
       '76.50',
     ) // 5,1 kg × 15
@@ -383,7 +390,11 @@ describe('Exactitude décimale — là où se logent les erreurs de facturation'
   })
 
   it('reste exact sur de très grands poids', () => {
-    // 999,001 kg → 1000 kg × 15 €
-    expect(montant(calculerTarif(demande({ poidsKg: '999.001' })))).toBe('15000.00')
+    // 999,001 kg → 999 kg (1 g d'excédent, sous la tolérance) × 15 €.
+    // Le point de ce test est la précision décimale : en flottant natif,
+    // 999.001 % 1 ne vaut pas 0.001.
+    expect(montant(calculerTarif(demande({ poidsKg: '999.001' })))).toBe('14985.00')
+    // 999,1 kg franchit la tolérance → 1000 kg × 15 €
+    expect(montant(calculerTarif(demande({ poidsKg: '999.1' })))).toBe('15000.00')
   })
 })

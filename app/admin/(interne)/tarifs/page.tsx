@@ -89,6 +89,12 @@ export default async function Tarifs() {
           <div className="border-line bg-line grid gap-px overflow-hidden rounded-lg border sm:grid-cols-2 lg:grid-cols-4">
             {[
               ['Arrondi', `${String(parametres?.pasArrondiPoidsKg ?? '—')} kg supérieur`],
+              [
+                'Tolérance',
+                parametres && Number(parametres.toleranceArrondiKg) > 0
+                  ? `${(Number(parametres.toleranceArrondiKg) * 1000).toFixed(0)} g`
+                  : 'aucune',
+              ],
               ['Minimum facturé', `${String(parametres?.poidsMinimumFactureKg ?? '—')} kg`],
               [
                 'Poids volumétrique',
@@ -107,8 +113,12 @@ export default async function Tarifs() {
             ))}
           </div>
           <p className="text-caption text-muted mt-2">
-            Ces règles s&apos;appliquent à toute catégorie facturée au poids. Leur modification
-            depuis cette page arrive avec le module Paramètres.
+            Ces règles s&apos;appliquent à toute catégorie facturée au poids.{' '}
+            <b className="text-navy">
+              Un colis pesé à 4,050 kg est facturé 4 kg ; à 4,100 kg il passe à 5 kg.
+            </b>{' '}
+            La tolérance est expliquée sur le document remis au client. Leur modification depuis
+            cette page arrive avec le module Paramètres.
           </p>
         </section>
 
@@ -205,7 +215,7 @@ export default async function Tarifs() {
           </Alert>
           <DataTable
             caption="Prix au kilo par liaison"
-            head={['Origine', 'Destination', 'Prix au kilo', 'Publiée']}
+            head={['Origine', 'Destination', 'Prix au kilo', "Prix d'achat", 'Publiée']}
           >
             {liaisons.map((l) => (
               <tr key={l.id}>
@@ -213,6 +223,22 @@ export default async function Tarifs() {
                 <Td className="text-navy font-bold">{l.paysDestination.nom}</Td>
                 <Td className="text-orange-text font-extrabold whitespace-nowrap">
                   {Number(l.prixParKg).toFixed(2).replace('.', ',')} €/kg
+                </Td>
+                <Td className="text-caption whitespace-nowrap">
+                  {!l.sousTraitee ? (
+                    <span className="text-muted">opérée par ENI</span>
+                  ) : l.prixAchat === null ? (
+                    <b className="text-orange-text">marge inconnue</b>
+                  ) : (
+                    <>
+                      {Number(l.prixAchat).toFixed(2).replace('.', ',')} €/kg
+                      <span className="text-muted block">
+                        marge{' '}
+                        {(Number(l.prixParKg) - Number(l.prixAchat)).toFixed(2).replace('.', ',')}{' '}
+                        €/kg
+                      </span>
+                    </>
+                  )}
                 </Td>
                 <Td>
                   {l.afficheePubliquement ? (
@@ -228,6 +254,12 @@ export default async function Tarifs() {
             Les liaisons marquées « interne » n&apos;apparaissent ni sur le site, ni dans les
             sélecteurs du formulaire de devis, ni dans le plan du site.
           </p>
+          <Alert tone="warn" className="mt-3">
+            <b>Brazzaville et Kinshasa sont sous-traitées et leur marge est inconnue.</b> Le prix
+            payé au partenaire n&apos;a pas été communiqué : ces deux destinations peuvent être
+            vendues à perte sans que rien ici ne le montre. Renseigner ce prix d&apos;achat est le
+            seul moyen de le savoir — il n&apos;est pas estimé, il est laissé vide.
+          </Alert>
         </section>
       </div>
     </>

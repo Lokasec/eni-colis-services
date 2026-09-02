@@ -182,12 +182,13 @@ Ces règles s'appliquent à **toute catégorie facturée au poids**. Elles sont 
 
 | Règle | Valeur | Effet |
 |---|---|---|
-| Arrondi du poids | **kilo supérieur** | 12,5 kg pesés → **13 kg facturés**. Aucune tolérance. |
-| Poids minimum facturé | **1 kg** | Un colis de 50 g est facturé 1 kg. |
+| Arrondi du poids | **kilo supérieur** | 12,5 kg pesés → **13 kg facturés**. |
+| Tolérance sur l'excédent | **100 g** | 4,050 kg → **4 kg**. 4,100 kg → **5 kg** : la comparaison est stricte, à 100 g pile la tolérance ne joue plus. |
+| Poids minimum facturé | **1 kg** | Un colis de 50 g est facturé 1 kg — le minimum l'emporte sur la tolérance. |
 | Poids volumétrique | **(L × l × h en cm) ÷ 5000** | On retient le **plus élevé** du poids réel et du poids volumétrique. |
 | Arrondi des montants CFA | **franc entier** | Plus simple au comptoir. |
 
-Le document émis **explique l'arrondi** : « 13 kg (12,5 kg arrondis au kilo supérieur) × 15,00 €/kg ». Un client ne doit pas avoir à téléphoner pour comprendre sa facture.
+Le document émis **explique l'arrondi**, dans les deux sens : « 13 kg (12,5 kg arrondis au kilo supérieur) × 15,00 €/kg », et « 4 kg (4,05 kg pesés, tolérance de 0,1 kg) » quand l'arrondi joue en faveur du client. Un client ne doit pas avoir à téléphoner pour comprendre sa facture.
 
 Le poids volumétrique alimente le **chiffrage du back-office**, y compris quand le colis n'a pas encore été pesé : les dimensions saisies au formulaire de devis suffisent. **Il n'apparaît jamais côté public** — aucun calcul de prix n'y est autorisé.
 

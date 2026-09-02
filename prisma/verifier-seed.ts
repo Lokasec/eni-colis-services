@@ -167,9 +167,25 @@ async function main() {
   // zéro, tous les montants baisseraient sans que rien ne le signale.
   const params = await db.parametresTarification.findUnique({ where: { id: 'singleton' } })
   verifier(
-    'Paramètres de tarification : kilo supérieur, minimum 1 kg',
-    Number(params?.pasArrondiPoidsKg) === 1 && Number(params?.poidsMinimumFactureKg) === 1,
-    `pas ${params?.pasArrondiPoidsKg} kg · minimum ${params?.poidsMinimumFactureKg} kg`,
+    'Paramètres de tarification : kilo supérieur, tolérance 100 g, minimum 1 kg',
+    Number(params?.pasArrondiPoidsKg) === 1 &&
+      Number(params?.toleranceArrondiKg) === 0.1 &&
+      Number(params?.poidsMinimumFactureKg) === 1,
+    `pas ${params?.pasArrondiPoidsKg} kg · tolérance ${params?.toleranceArrondiKg} kg · minimum ${params?.poidsMinimumFactureKg} kg`,
+  )
+
+  // Le prix d'achat des liaisons sous-traitées n'a pas été communiqué et
+  // ne doit pas être inventé. Ce contrôle ne vérifie pas qu'il est REMPLI,
+  // il vérifie qu'il est resté NUL : si quelqu'un y met une valeur de
+  // confort, la marge affichée en back-office deviendrait fausse.
+  const sousTraitees = await db.liaison.findMany({
+    where: { sousTraitee: true, actif: true },
+    select: { prixAchat: true, paysDestination: { select: { nom: true } } },
+  })
+  verifier(
+    "Liaisons sous-traitées : prix d'achat laissé vide, jamais inventé",
+    sousTraitees.length > 0 && sousTraitees.every((l) => l.prixAchat === null),
+    `${sousTraitees.map((l) => l.paysDestination.nom).join(', ')} — marge inconnue tant que la cliente ne l'aura pas communiqué`,
   )
   verifier(
     'Poids volumétrique actif, diviseur 5000',

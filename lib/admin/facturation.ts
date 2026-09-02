@@ -36,6 +36,7 @@ async function chargerParametres(): Promise<ParametresPoids> {
   }
   return {
     pasArrondiPoidsKg: p.pasArrondiPoidsKg.toString(),
+    toleranceArrondiKg: p.toleranceArrondiKg.toString(),
     poidsMinimumFactureKg: p.poidsMinimumFactureKg.toString(),
     diviseurVolumetrique: p.diviseurVolumetrique,
     appliquerPoidsVolumetrique: p.appliquerPoidsVolumetrique,

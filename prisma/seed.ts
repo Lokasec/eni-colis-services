@@ -75,6 +75,7 @@ async function main() {
     data: {
       id: 'singleton',
       pasArrondiPoidsKg: '1.000', // arrondi au kilo supérieur
+      toleranceArrondiKg: '0.100', // 4,050 kg → 4 kg ; 4,100 kg → 5 kg
       poidsMinimumFactureKg: '1.000', // un colis de 50 g est facturé 1 kg
       diviseurVolumetrique: 5000, // (L × l × h en cm) ÷ 5000
       appliquerPoidsVolumetrique: true,
