@@ -329,3 +329,68 @@ export async function categoriesPubliees() {
     orderBy: { ordre: 'asc' },
   })
 }
+
+export type OptionsTrajet = {
+  pays: Array<{ codeIso: string; nom: string; villes: string[] }>
+  /** Couples origine → destination effectivement desservis et publiés. */
+  liaisons: Array<{ origine: string; destination: string }>
+}
+
+/**
+ * Alimente les sélecteurs en cascade du formulaire de devis.
+ *
+ * Seules les liaisons PUBLIÉES sont proposées : France ↔ USA, qui existe en
+ * base sans être publique, ne peut donc pas apparaître dans les listes
+ * déroulantes. C'est le même filtre que pour les destinations, ce qui évite
+ * qu'une page et un formulaire divergent un jour.
+ */
+export async function optionsTrajet(): Promise<OptionsTrajet> {
+  const liaisons = await db.liaison.findMany({
+    where: LIAISON_PUBLIQUE,
+    select: {
+      paysOrigine: { select: { codeIso: true } },
+      paysDestination: { select: { codeIso: true } },
+    },
+  })
+
+  const codesUtiles = new Set(
+    liaisons.flatMap((l) => [l.paysOrigine.codeIso, l.paysDestination.codeIso]),
+  )
+
+  const pays = await db.pays.findMany({
+    where: { actif: true, codeIso: { in: [...codesUtiles] } },
+    // villeTransit reste hors de cette sélection.
+    select: {
+      codeIso: true,
+      nom: true,
+      villes: { where: { actif: true }, select: { nom: true }, orderBy: { creeLe: 'asc' } },
+    },
+    orderBy: { nom: 'asc' },
+  })
+
+  return {
+    pays: pays.map((p) => ({
+      codeIso: p.codeIso,
+      nom: p.nom,
+      villes: p.villes.map((v) => v.nom),
+    })),
+    liaisons: liaisons.map((l) => ({
+      origine: l.paysOrigine.codeIso,
+      destination: l.paysDestination.codeIso,
+    })),
+  }
+}
+
+/** Villes de retrait proposées à l'inscription au service d'adresse. */
+export async function villesDeRetrait() {
+  const villes = await db.ville.findMany({
+    where: {
+      actif: true,
+      pays: { actif: true, NOT: { codeIso: 'FR' } },
+      pointsRetrait: { some: { actif: true } },
+    },
+    select: { id: true, nom: true, pays: { select: { nom: true, codeIso: true } } },
+    orderBy: [{ pays: { nom: 'asc' } }, { nom: 'asc' }],
+  })
+  return villes.map((v) => ({ id: v.id, nom: v.nom, pays: v.pays.nom }))
+}

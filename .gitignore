@@ -19,3 +19,6 @@ prisma/migrations/dev.db*
 next-env.d.ts
 *.tsbuildinfo
 lib/generated/
+
+# Photos de devis deposees en developpement (production : stockage objet UE)
+public/uploads/

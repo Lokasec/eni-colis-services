@@ -1,10 +1,11 @@
 import type { Metadata } from 'next'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { PageHeader } from '@/components/ui/page-header'
 import { Section } from '@/components/ui/section'
-import { site, whatsappLink } from '@/lib/site'
+import { villesDeRetrait } from '@/lib/donnees-publiques'
+import { site } from '@/lib/site'
+import { FormulaireInscription } from './formulaire'
 
 export const metadata: Metadata = {
   title: 'Obtenir mon adresse en France',
@@ -13,7 +14,9 @@ export const metadata: Metadata = {
   alternates: { canonical: '/inscription' },
 }
 
-export default function Inscription() {
+export default async function Inscription() {
+  const villes = await villesDeRetrait()
+
   return (
     <>
       <PageHeader
@@ -28,31 +31,7 @@ export default function Inscription() {
       />
 
       <Section tone="white" containerClassName="max-w-[760px]">
-        <Card surface="plain">
-          <h2 className="text-h3">Formulaire en cours d&apos;intégration</h2>
-          <p className="text-body-sm text-ink-soft mt-2">
-            L&apos;inscription en ligne — attribution automatique de votre identifiant et affichage
-            de votre bloc d&apos;adresse prêt à copier — est développée au lot suivant. En
-            attendant, écrivez-nous : nous vous attribuons votre identifiant manuellement, le jour
-            même.
-          </p>
-          <div className="mt-5 flex flex-wrap gap-3">
-            <a
-              href={whatsappLink(
-                'Bonjour, je souhaite obtenir une adresse de livraison en France pour mes commandes.',
-              )}
-              target="_blank"
-              rel="noopener noreferrer"
-              data-cta
-              className="rounded-pill bg-whatsapp text-body-sm text-navy inline-flex min-h-11 shrink-0 items-center justify-center px-5 font-semibold no-underline"
-            >
-              M&apos;inscrire par WhatsApp
-            </a>
-            <Button href="/contact" variant="outline" size="sm">
-              Autres moyens de nous joindre
-            </Button>
-          </div>
-        </Card>
+        <FormulaireInscription villes={villes} />
 
         <div className="mt-11">
           <h2 className="text-h2">Ce que nous vous demanderons</h2>

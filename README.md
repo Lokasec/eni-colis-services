@@ -4,7 +4,7 @@ Site public et back-office d'exploitation d'**ENI Colis Services** — envoi de 
 
 Le brief permanent est dans [`CLAUDE.md`](CLAUDE.md), le cahier des charges dans [`docs/CDC-v1.3.md`](docs/CDC-v1.3.md), la maquette validée dans [`docs/maquette/`](docs/maquette/).
 
-> **État d'avancement : lot 5 — site public.** Les 14 pages publiques sont en place et lisent la base. Restent les formulaires (lot 6), le back-office (lots 7 et 8), les PDF et notifications (lot 9), la recette (lot 10). Voir [`DEMARRER.md`](DEMARRER.md).
+> **État d'avancement : lot 6 — formulaires.** Le site public et les deux formulaires publics sont opérationnels. Restent le back-office (lots 7 et 8), les PDF et notifications (lot 9), la recette (lot 10). Voir [`DEMARRER.md`](DEMARRER.md).
 
 ---
 
@@ -53,6 +53,19 @@ npm run test
 Le **poids facturé** est arrondi au kilo supérieur, avec un minimum de 1 kg, et comparé au poids volumétrique `(L × l × h) ÷ 5000` — trois règles paramétrées dans `ParametresTarification`, ajustables depuis le back-office sans redéploiement.
 
 Les montants transitent en `Decimal` exact, jamais en `number` : `1,005 × 3` vaut `3,015` et s'arrondit à `3,02 €`, là où la virgule flottante donnerait `3,01 €`.
+
+## Formulaires publics
+
+`/devis` et `/inscription` reposent sur des Server Actions. Quatre protections, dans cet ordre :
+
+1. **Piège à robots** — un champ invisible que seul un automate remplit.
+2. **Limitation de débit** — 5 demandes de devis et 3 inscriptions par heure et par adresse. L'implémentation est **en mémoire** : elle protège d'un envoi répété, mais le compteur n'est pas partagé entre instances serverless. Voir le commentaire en tête de `lib/rate-limit.ts` pour le remplacement par un magasin partagé si le volume l'exige.
+3. **Validation Zod rejouée côté serveur**, indépendamment du navigateur.
+4. **Vérification du trajet** — le couple pays/ville soumis doit correspondre à une liaison réellement publiée. Sans ce contrôle, un formulaire falsifié pourrait enregistrer une demande France ↔ USA.
+
+Les photos sont **compressées dans le navigateur** avant l'envoi (1 600 px, ~1 Mo), puis leur type et leur taille sont revérifiés côté serveur. En production elles vont sur Vercel Blob, **région Europe** ; en développement, dans `public/uploads/`, ignoré par Git.
+
+Sans `RESEND_API_KEY`, les e-mails sont **journalisés au lieu d'être expédiés** et le formulaire aboutit quand même : une demande enregistrée en base ne doit pas échouer parce que la messagerie n'est pas configurée.
 
 ### Vérifier les données
 

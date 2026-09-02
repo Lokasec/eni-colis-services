@@ -1,10 +1,9 @@
 import type { Metadata } from 'next'
 import { Alert } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { PageHeader } from '@/components/ui/page-header'
 import { Section } from '@/components/ui/section'
-import { site, whatsappLink } from '@/lib/site'
+import { optionsTrajet } from '@/lib/donnees-publiques'
+import { FormulaireDevis } from './formulaire'
 
 export const metadata: Metadata = {
   title: 'Demander un devis',
@@ -13,7 +12,9 @@ export const metadata: Metadata = {
   alternates: { canonical: '/devis' },
 }
 
-export default function Devis() {
+export default async function Devis() {
+  const options = await optionsTrajet()
+
   return (
     <>
       <PageHeader
@@ -32,40 +33,9 @@ export default function Devis() {
           si vous nous expédiez votre colis à distance.
         </Alert>
 
-        <Card surface="plain" className="mt-7">
-          <h2 className="text-h3">Formulaire en cours d&apos;intégration</h2>
-          <p className="text-body-sm text-ink-soft mt-2">
-            Le formulaire de demande — sélection du trajet, nature du colis, poids et dimensions,
-            envoi d&apos;une à trois photos depuis votre téléphone — est développé au lot suivant.
-            En attendant, écrivez-nous directement : nous traitons les demandes de la même façon.
-          </p>
-          <div className="mt-5 flex flex-wrap gap-3">
-            <a
-              href={whatsappLink(
-                'Bonjour, je souhaite un devis pour un envoi. Voici les photos et les informations de mon colis.',
-              )}
-              target="_blank"
-              rel="noopener noreferrer"
-              data-cta
-              className="rounded-pill bg-whatsapp text-body-sm text-navy inline-flex min-h-11 shrink-0 items-center justify-center px-5 font-semibold no-underline"
-            >
-              Demander par WhatsApp
-            </a>
-            <Button href="/contact" variant="outline" size="sm">
-              Autres moyens de nous joindre
-            </Button>
-          </div>
-          <p className="text-caption text-muted mt-4">
-            Ou par téléphone au{' '}
-            <a
-              href={`tel:${site.telephone.replace(/\s/g, '')}`}
-              className="text-orange-text font-semibold"
-            >
-              {site.telephone}
-            </a>
-            .
-          </p>
-        </Card>
+        <div className="mt-7">
+          <FormulaireDevis options={options} />
+        </div>
 
         <div className="mt-11">
           <h2 className="text-h2">Ce que nous vous demanderons</h2>
