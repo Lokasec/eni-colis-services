@@ -22,3 +22,5 @@ lib/generated/
 
 # Photos de devis deposees en developpement (production : stockage objet UE)
 public/uploads/
+
+.postgres-local/

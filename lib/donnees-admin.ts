@@ -526,6 +526,12 @@ export async function departsAvecDestinataires() {
           expediteurEmail: true,
           expediteurTelephone: true,
           statut: true,
+          // L'adresse du destinataire n'est PAS toujours sur le colis.
+          // Sur le mode A, elle est portée par le compte client : c'est lui
+          // qui s'est inscrit, le colis n'a été que rattaché. Sans ce repli,
+          // la messagerie ne trouvait aucun destinataire — constaté en
+          // recette : cinq départs, zéro envoi possible.
+          client: { select: { email: true, telephone: true } },
           villeArrivee: { select: { nom: true } },
         },
         orderBy: { codeSuivi: 'asc' },

@@ -44,13 +44,22 @@ export async function envoyerCampagne(
       dateDepart: true,
       liaison: { select: { paysDestination: { select: { nom: true } } } },
       colis: {
-        select: { codeSuivi: true, destinataireNom: true, destinataireEmail: true },
+        select: {
+          codeSuivi: true,
+          destinataireNom: true,
+          destinataireEmail: true,
+          // Même repli que dans la page : sur le mode A, l'adresse est
+          // portée par le compte client, pas par le colis.
+          client: { select: { email: true } },
+        },
       },
     },
   })
   if (!depart) return { ok: false, message: 'Ce départ n’existe plus.' }
 
-  const joignables = depart.colis.filter((c) => c.destinataireEmail)
+  const joignables = depart.colis
+    .map((c) => ({ ...c, adresse: c.destinataireEmail ?? c.client?.email ?? null }))
+    .filter((c) => c.adresse !== null)
   if (joignables.length === 0) {
     return {
       ok: false,
@@ -84,7 +93,7 @@ export async function envoyerCampagne(
       .replaceAll('{{nom}}', colis.destinataireNom)
       .replaceAll('{{code}}', colis.codeSuivi)
 
-    const resultat = await envoyerEnLot([colis.destinataireEmail!], {
+    const resultat = await envoyerEnLot([colis.adresse!], {
       sujet,
       texte: `${personnalise}\n\n${site.name}\n${site.telephone}`,
       action: { libelle: 'Suivre mon colis', url: urlSuivi(colis.codeSuivi) },

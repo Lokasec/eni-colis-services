@@ -43,7 +43,13 @@ const csp = [
   "base-uri 'self'",
   "object-src 'none'",
   "frame-ancestors 'none'",
-  'upgrade-insecure-requests',
+  // UNIQUEMENT en production. Cette directive réécrit toute requête http://
+  // en https:// — y compris vers localhost, que le serveur de développement
+  // ne sait pas servir. Constaté en recette : les appels fetch du
+  // back-office tombaient en ERR_SSL_PROTOCOL_ERROR, sans rapport visible
+  // avec la CSP. En production, tout passe déjà par HTTPS et la directive
+  // ferme la porte à une ressource oubliée en clair.
+  ...(enDeveloppement ? [] : ['upgrade-insecure-requests']),
 ].join('; ')
 
 /**

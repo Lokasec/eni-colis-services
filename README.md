@@ -34,6 +34,21 @@ Deux façons d'avoir PostgreSQL en local :
 
 > **Encodage** : la base doit être en **UTF8**. Sur un poste à locale Windows, `initdb` peut créer une base en WIN1252, qui rejette les drapeaux emoji des pays et fait échouer le seed. Le `docker-compose.yml` force l'encodage ; sur Neon, UTF8 est le défaut.
 
+## Base de données locale
+
+Le chemin documenté est `docker-compose.yml`. **Sans Docker**, une alternative est fournie — le même PostgreSQL, les mêmes identifiants, le même port :
+
+```bash
+node scripts/postgres-local.mjs        # démarre, reste au premier plan
+node scripts/postgres-local.mjs --raz  # repart d'une base vierge
+```
+
+`embedded-postgres` télécharge les binaires officiels de PostgreSQL. Pas de variante SQLite, pas de moteur différent : le développement tourne sur le même moteur que la production. L'encodage est forcé en UTF-8, sans quoi le seed échoue sur les emojis de drapeaux.
+
+Les données vivent dans `.postgres-local/`, ignoré par git.
+
+---
+
 ## Moteur de tarification
 
 `lib/tarification/` calcule le prix d'un envoi. Trois propriétés le définissent :
@@ -291,6 +306,41 @@ Deux manques corrigés au cours de la recette :
 
 - **Lien d'évitement absent.** `<main id="contenu">` existait sans lien vers lui : un utilisateur au clavier retraversait l'en-tête et ses dix liens à chaque page.
 - **Fils d'Ariane à 19 px de haut**, sous le minimum de 24 px de WCAG 2.2 (2.5.8). La zone cliquable est passée à 24 px sans changer la taille du texte.
+
+---
+
+## Recette — ce qui a été vérifié, et comment
+
+Menée dans le navigateur, contre la vraie base, avec de vraies sessions.
+
+| Parcours (CLAUDE.md §17) | Vérification |
+| --- | --- |
+| 1. Devis avec photos → alerte | Chaîne vérifiée au navigateur ; **jamais depuis un vrai téléphone** |
+| 2. Chiffrage → envoi au demandeur | Suggestion du moteur, photos en grand, e-mail journalisé |
+| 3. Devis accepté → code de suivi → reçu PDF + QR | `DEM-2026-00002` → `ENI-2026-00109` → reçu PDF de 37 575 octets, Montserrat intégrée, QR 280×280 |
+| 4. Suivi public | « Nadia F. » — aucune trace de `villeTransit`, du hub, du statut interne ni de la valeur déclarée |
+| 5. Inscription → identifiant | Vérifié au lot 6 |
+| 6. Colis mode A pesé → devis estimatif | `ENI-2026-00106` → `DEV-2026-00005`, 72,00 € — « 6 kg (5,75 kg arrondis au kilo supérieur) × 12,00 €/kg » |
+| 7. Facture EUR + FCFA → encaissement → créance soldée | Vérifié au lot 8 |
+| 8. Départ → messagerie groupée | Campagne journalisée : 1 destinataire, envoyée, par `admin@eni.test` |
+
+**Rôle `OPERATEUR`, vérifié avec une vraie session** : factures, encaissements, créances, tarifs et paramètres → redirection vers `/admin?acces=refuse` ; PDF d'une facture → **403** ; export comptable → **403** ; colis, réceptions, PDF de devis et reçu → accessibles. Le contrôle est refait dans chaque route, jamais seulement dans le menu.
+
+### Trois défauts trouvés par la recette
+
+Aucun n'aurait été visible en relisant le code.
+
+1. **La messagerie ne trouvait aucun destinataire.** Cinq départs, zéro envoi possible. L'adresse n'est pas toujours sur le colis : sur le mode A, elle est portée par le **compte client**, le colis n'ayant été que rattaché. Repli ajouté — le colis d'abord, le compte ensuite.
+2. **`upgrade-insecure-requests` cassait le back-office en local.** La directive réécrit toute requête `http://` en `https://`, y compris vers `localhost` : les appels du back-office tombaient en `ERR_SSL_PROTOCOL_ERROR`, sans rapport visible avec la CSP. Réservée à la production.
+3. **Le parcours 6 n'existait pas.** Un colis mode A reçu et pesé ne pouvait recevoir aucun devis — le chiffrage n'existait que depuis une demande en ligne.
+
+### Ce qui reste non vérifié
+
+- **Aucun e-mail réellement expédié** : sans `RESEND_API_KEY`, ils sont journalisés. Le code est là, le canal jamais éprouvé.
+- **Aucune soumission depuis un vrai téléphone**, avec photo prise en direct. `capture="environment"` ne se valide pas autrement.
+- **Aucune photo partie sur Vercel Blob** — seul le stockage local a servi.
+- **Lighthouse non exécuté** : pas d'outil disponible dans l'environnement de développement. À lancer avant la mise en ligne.
+- **Les PDF n'ont pas été regardés** — vérifiés par leur structure (format A4, police intégrée, QR présent), pas par l'œil.
 
 ---
 

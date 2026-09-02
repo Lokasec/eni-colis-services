@@ -23,8 +23,10 @@ export default async function Messagerie() {
     colis: d.colis.map((c) => ({
       codeSuivi: c.codeSuivi,
       nom: c.destinataireNom,
-      email: c.destinataireEmail,
-      telephone: c.destinataireTelephone,
+      // Le colis d'abord, le compte client ensuite : une adresse saisie
+      // pour CE colis prime sur celle du compte, qui peut être ancienne.
+      email: c.destinataireEmail ?? c.client?.email ?? null,
+      telephone: c.destinataireTelephone ?? c.client?.telephone ?? null,
     })),
   }))
 
