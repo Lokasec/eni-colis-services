@@ -1,6 +1,8 @@
 import type { MetadataRoute } from 'next'
 
-const base = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+import { site } from '@/lib/site'
+
+const base = site.url
 
 /**
  * robots.txt.

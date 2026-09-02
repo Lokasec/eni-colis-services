@@ -11,6 +11,7 @@ import { KeyValueList } from '@/components/ui/key-value-list'
 import { PageHeader } from '@/components/ui/page-header'
 import { Section } from '@/components/ui/section'
 import { Todo } from '@/components/ui/todo'
+import { DonneesService } from '@/components/donnees-structurees'
 import { fichesDestination, paysParSlug } from '@/content/destinations'
 import { formaterJourCourt, formaterJourLong } from '@/lib/dates'
 import {
@@ -28,6 +29,24 @@ import {
  * lus tels quels.
  */
 
+/**
+ * Pré-génération des fiches destination.
+ *
+ * La liste vient de la base : une destination retirée du réseau disparaît
+ * du site sans intervention.
+ *
+ * LE BUILD ÉCHOUE VOLONTAIREMENT si la base est injoignable, et c'est le
+ * bon comportement. J'ai essayé l'inverse — renvoyer une liste vide pour
+ * que le déploiement passe quand même — et c'était une erreur : le pied de
+ * page de TOUTES les pages publiques lit lui aussi les destinations en
+ * base. Un build « tolérant » livrerait donc un site au pied de page vide,
+ * sans que rien ne le signale. Un déploiement qui échoue se voit ; un
+ * déploiement silencieusement amputé, non.
+ *
+ * Conséquence pratique, notée dans DEPLOIEMENT.md : la base doit être
+ * RÉVEILLÉE avant un déploiement. Sur Neon, une instance en veille peut
+ * refuser la première connexion.
+ */
 export async function generateStaticParams() {
   const destinations = await destinationsPubliques()
   return destinations.map((d) => ({ slug: d.slug }))
@@ -251,6 +270,22 @@ export default async function FicheDestinationPage({
           }
         />
       </Section>
+
+      {/*
+        Le prix balisé est CELUI DE LA BASE, le même que celui affiché
+        au-dessus. Un balisage qui annoncerait un autre montant serait
+        sanctionné par Google, et surtout mensonger pour le visiteur.
+        Absent quand la liaison n'a pas de tarif : mieux vaut pas d'offre
+        qu'une offre à zéro euro.
+      */}
+      {tarifAller !== null ? (
+        <DonneesService
+          destination={destination.villePrincipale}
+          pays={destination.pays}
+          prixParKg={tarifAller}
+          slug={destination.slug}
+        />
+      ) : null}
     </>
   )
 }

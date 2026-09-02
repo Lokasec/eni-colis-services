@@ -27,8 +27,21 @@ export const metadata: Metadata = {
     shortcut: '/brand/favicon.ico',
     apple: '/brand/apple-touch-icon-180x180.png',
   },
-  // Le site n'est pas encore ouvert : on n'indexe rien avant le lot 10.
-  robots: { index: false, follow: false },
+  /**
+   * Indexation FERMÉE par défaut, ouverte par une seule variable.
+   *
+   * `NEXT_PUBLIC_INDEXATION=active` est l'interrupteur de mise en ligne —
+   * la même que celle que lit robots.ts, pour qu'un `robots.txt` permissif
+   * et des balises `noindex` ne puissent pas se contredire.
+   *
+   * Tant que les mentions légales et les CGS portent des `[À COMPLÉTER]`,
+   * cette variable doit rester absente : un site indexé avec des pages
+   * légales vides est pire qu'un site non indexé.
+   */
+  robots:
+    process.env.NEXT_PUBLIC_INDEXATION === 'active'
+      ? { index: true, follow: true }
+      : { index: false, follow: false },
 }
 
 export const viewport: Viewport = {

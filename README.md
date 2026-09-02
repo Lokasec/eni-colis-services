@@ -251,6 +251,49 @@ Trois autres tokens ont été ajoutés : `brand.whatsapp` (vert de marque, usage
 
 ---
 
+## Sécurité, SEO et accessibilité
+
+### En-têtes de sécurité
+
+Six en-têtes sur toutes les routes, vérifiés en réponse HTTP réelle : `Content-Security-Policy`, `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options`, `Permissions-Policy`, `Strict-Transport-Security`. `X-Powered-By` est retiré.
+
+**Sur la portée réelle de la CSP** : `script-src` contient `'unsafe-inline'`, parce que Next injecte ses scripts d'amorçage en ligne et que les données structurées JSON-LD sont écrites dans la page. Une CSP qui autorise l'inline **ne bloque donc pas** une injection de script — ce n'est pas la protection principale, la validation Zod côté serveur et l'échappement de React le sont.
+
+Ce qu'elle bloque réellement, et qui vaut la peine : `connect-src 'self'` empêche un script injecté d'**exfiltrer des données vers un domaine tiers** — la protection la plus utile ici, l'application manipulant des coordonnées et des montants ; `base-uri 'self'` empêche le détournement de toutes les URL relatives par une balise `<base>` ; `form-action 'self'` empêche la redirection d'un formulaire vers un serveur étranger ; `frame-ancestors 'none'` interdit la mise en cadre du back-office.
+
+`Permissions-Policy` **autorise la caméra sur notre origine** : le formulaire de devis utilise `capture="environment"` pour photographier un colis depuis un téléphone. La couper casserait la fonction la plus utilisée du site.
+
+### Indexation — fermée par défaut
+
+`NEXT_PUBLIC_INDEXATION=active` est l'unique interrupteur de mise en ligne. La même variable pilote `robots.txt` **et** les balises `robots` du document, pour qu'un `robots.txt` permissif et un `noindex` ne puissent pas se contredire.
+
+Tant que les mentions légales et les CGS portent des `[À COMPLÉTER]`, cette variable doit rester absente : un site indexé avec des pages légales vides est pire qu'un site non indexé.
+
+### Données structurées
+
+`Organization` + `LocalBusiness` sur toutes les pages publiques, `Service` sur chaque fiche destination, `FAQPage` sur la FAQ.
+
+Deux règles : **rien qui ne soit vrai** — pas d'horaires inventés, pas de note moyenne, pas d'avis, et les horaires du bureau sont absents plutôt qu'approximés, parce qu'un horaire faux fait déplacer quelqu'un pour rien ; et le **prix balisé est celui de la base**, le même que celui affiché sur la page.
+
+### Bandeau cookies — une information, pas un faux choix
+
+Le site ne dépose **aucun traceur** : pas d'analytique, pas de régie, pas de pixel, aucun script tiers. Le seul cookie est celui de session du back-office, strictement nécessaire.
+
+La directive ePrivacy n'exige de consentement que pour les cookies **non nécessaires**. Afficher « Accepter / Refuser » pour un site qui ne dépose rien serait un faux choix : le visiteur croirait arbitrer quelque chose qui n'existe pas, et « Refuser » ne changerait rien. Le bandeau informe et se ferme.
+
+> Le jour où une mesure d'audience est ajoutée, `components/layout/bandeau-cookies.tsx` doit devenir un vrai gestionnaire de consentement, avec dépôt **conditionné** au clic.
+
+### Accessibilité
+
+Audité sur le DOM rendu : un seul `h1` par page, aucun saut de niveau de titre, aucune image sans `alt`, aucun lien sans intitulé, `lang="fr"`, `prefers-reduced-motion` pris en charge, et un contour de focus **orange 3 px avec 3 px de décalage** sur `:focus-visible` (vérifié au clavier, pas seulement dans la feuille de style).
+
+Deux manques corrigés au cours de la recette :
+
+- **Lien d'évitement absent.** `<main id="contenu">` existait sans lien vers lui : un utilisateur au clavier retraversait l'en-tête et ses dix liens à chaque page.
+- **Fils d'Ariane à 19 px de haut**, sous le minimum de 24 px de WCAG 2.2 (2.5.8). La zone cliquable est passée à 24 px sans changer la taille du texte.
+
+---
+
 ## Hypothèses retenues
 
 | Sujet               | Décision                                     | Raison                                                                                                                                                                                                                                                                                                                                          |

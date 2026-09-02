@@ -25,11 +25,14 @@ export function PageHeader({
           <nav aria-label="Fil d'Ariane" className="mb-3.5">
             <ol className="text-caption text-muted flex list-none flex-wrap gap-1.5 p-0">
               {crumb.map((item, i) => (
-                <li key={item.label} className="flex gap-1.5">
+                <li key={item.label} className="flex items-center gap-1.5">
                   {item.href ? (
+                    // `py-1` porte la cible a 24 px de haut : minimum exige
+                    // par WCAG 2.2 (2.5.8). Le texte reste a sa taille, seule
+                    // la zone cliquable grandit.
                     <Link
                       href={item.href}
-                      className="text-muted hover:text-orange-text no-underline"
+                      className="text-muted hover:text-orange-text inline-flex items-center py-1 no-underline"
                     >
                       {item.label}
                     </Link>

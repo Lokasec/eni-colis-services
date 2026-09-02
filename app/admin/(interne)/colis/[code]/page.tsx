@@ -9,6 +9,8 @@ import { exigerConnexion } from '@/lib/autorisation'
 import { formaterJourEtHeure, formaterJourLong } from '@/lib/dates'
 import { colisParCode, departsOuverts } from '@/lib/donnees-admin'
 import { statutsColis, statutsPaiement, type StatutColis, type StatutPaiement } from '@/lib/statuts'
+import { suggererMontant } from '@/lib/admin/facturation'
+import { PanneauEstimation } from './estimation'
 import { PanneauExploitation } from './panneau'
 
 export const dynamic = 'force-dynamic'
@@ -25,6 +27,21 @@ export default async function FicheColis({ params }: { params: Promise<{ code: s
   if (!colis) notFound()
 
   const departs = await departsOuverts()
+
+  // Devis estimatif du mode A : on regarde s'il existe déjà, et sinon on
+  // demande une suggestion au moteur. Le moteur PROPOSE — la cliente reste
+  // libre du montant qu'elle envoie (CLAUDE.md §4.3).
+  const devisEstimatif = colis.documents.find((d) => d.type === 'DEVIS') ?? null
+  const suggestion =
+    colis.modeReception === 'COMMANDE_EN_LIGNE' && !devisEstimatif && colis.poidsReel !== null
+      ? await suggererMontant({
+          codeOrigine: 'FR',
+          codeDestination: colis.villeArrivee.pays.codeIso,
+          codeCategorie: colis.categorie?.code ?? 'STANDARD',
+          poidsKg: String(colis.poidsReel),
+          valeurAchat: colis.valeurDeclaree ? String(colis.valeurDeclaree) : null,
+        })
+      : null
 
   const frise: TimelineItem[] = colis.historique.map((ligne, index) => ({
     titre: statutsColis[ligne.statut as StatutColis].label,
@@ -133,16 +150,39 @@ export default async function FicheColis({ params }: { params: Promise<{ code: s
           </div>
         </div>
 
-        <PanneauExploitation
-          colisId={colis.id}
-          statut={colis.statut as StatutColis}
-          departId={colis.depart?.id ?? ''}
-          poidsReel={colis.poidsReel ? String(colis.poidsReel) : ''}
-          departs={departs.map((d) => ({
-            id: d.id,
-            etiquette: `${d.reference} — ${d.liaison.paysDestination.nom}, ${formaterJourLong(d.dateDepart)}`,
-          }))}
-        />
+        <div className="space-y-4">
+          <PanneauEstimation
+            colisId={colis.id}
+            codeSuivi={colis.codeSuivi}
+            modeReception={colis.modeReception}
+            pese={colis.poidsReel !== null}
+            devisExistant={
+              devisEstimatif
+                ? {
+                    numero: devisEstimatif.numero,
+                    montant: `${Number(devisEstimatif.montantEur).toFixed(2).replace('.', ',')} €`,
+                  }
+                : null
+            }
+            suggestion={
+              suggestion?.statut === 'CALCULE'
+                ? { montant: suggestion.montantEur.toFixed(2), detail: suggestion.detail }
+                : null
+            }
+            refus={suggestion && suggestion.statut !== 'CALCULE' ? suggestion.motif : null}
+          />
+
+          <PanneauExploitation
+            colisId={colis.id}
+            statut={colis.statut as StatutColis}
+            departId={colis.depart?.id ?? ''}
+            poidsReel={colis.poidsReel ? String(colis.poidsReel) : ''}
+            departs={departs.map((d) => ({
+              id: d.id,
+              etiquette: `${d.reference} — ${d.liaison.paysDestination.nom}, ${formaterJourLong(d.dateDepart)}`,
+            }))}
+          />
+        </div>
       </div>
     </>
   )

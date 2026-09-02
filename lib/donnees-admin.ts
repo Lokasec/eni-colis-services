@@ -209,7 +209,7 @@ export async function colisParCode(codeSuivi: string) {
           id: true,
           nom: true,
           villeTransit: { select: { nom: true } },
-          pays: { select: { nom: true } },
+          pays: { select: { nom: true, codeIso: true } },
         },
       },
       pointRetrait: { select: { nom: true, adresse: true } },
@@ -223,7 +223,12 @@ export async function colisParCode(codeSuivi: string) {
           auteur: { select: { nom: true } },
         },
       },
-      documents: { select: { type: true, numero: true, montantEur: true, devise: true } },
+      // Devis estimatif ET facture : la fiche doit savoir lequel existe
+      // déjà, pour ne pas proposer d'en émettre un second.
+      documents: {
+        select: { id: true, type: true, numero: true, montantEur: true, devise: true },
+        orderBy: { dateEmission: 'desc' },
+      },
     },
   })
 }
@@ -242,7 +247,7 @@ export async function fileReacheminement() {
         select: {
           nom: true,
           villeTransit: { select: { nom: true } },
-          pays: { select: { nom: true } },
+          pays: { select: { nom: true, codeIso: true } },
         },
       },
       historique: { orderBy: { survenuLe: 'desc' }, take: 1, select: { survenuLe: true } },

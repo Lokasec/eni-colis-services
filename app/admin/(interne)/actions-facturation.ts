@@ -595,3 +595,122 @@ export async function convertirEnColis(
     detail: demande ? `Le code de suivi a été envoyé à ${demande.email}.` : undefined,
   }
 }
+
+/**
+ * Devis estimatif sur un colis DÉJÀ REÇU — le mode A.
+ *
+ * C'est le chaînon qui manquait au parcours du service d'adresse
+ * (CLAUDE.md §5.2) : « colis reçu et pesé → DEVIS → acheminement →
+ * arrivée → facture ». Jusqu'ici un devis ne pouvait naître que d'une
+ * demande en ligne ; un carton arrivé du marchand n'avait aucun moyen
+ * d'être chiffré avant son départ.
+ *
+ * L'enjeu n'est pas cosmétique. Sur le mode A, ENI AVANCE le transport et
+ * n'est payée qu'à l'arrivée. Le client doit connaître le montant avant
+ * que le colis parte — sinon il découvre la somme au retrait, avec le
+ * colis déjà à Abidjan et aucun moyen de refuser.
+ *
+ * Le devis est un ESTIMATIF : il ne consomme pas la séquence des factures
+ * et ne vaut pas pièce comptable. Il porte quand même la mention 293 B,
+ * comme l'exige le brief pour tout devis.
+ */
+export async function estimerColis(
+  _precedent: Reponse | null,
+  donnees: FormData,
+): Promise<Reponse> {
+  const session = await exigerConnexionAction()
+  if (!session.ok) return session
+
+  const colisId = String(donnees.get('colisId') ?? '')
+  const montant = Number(
+    String(donnees.get('montantEur') ?? '')
+      .replace(',', '.')
+      .trim(),
+  )
+  const detail = String(donnees.get('detail') ?? '').trim()
+
+  if (!colisId) return { ok: false, message: 'Colis manquant.' }
+  if (!Number.isFinite(montant) || montant <= 0) {
+    return { ok: false, message: 'Indiquez un montant supérieur à zéro.' }
+  }
+
+  const colis = await db.colis.findUnique({
+    where: { id: colisId },
+    select: {
+      id: true,
+      codeSuivi: true,
+      destinataireNom: true,
+      destinataireEmail: true,
+      villeArrivee: { select: { nom: true } },
+      client: { select: { prenom: true, email: true } },
+      documents: { where: { type: 'DEVIS' }, select: { numero: true } },
+    },
+  })
+  if (!colis) return { ok: false, message: 'Ce colis n’existe plus.' }
+  if (colis.documents.length > 0) {
+    return {
+      ok: false,
+      message: `Ce colis a déjà un devis estimatif (${colis.documents[0]!.numero}).`,
+    }
+  }
+
+  const validite = new Date()
+  validite.setDate(validite.getDate() + 7)
+
+  let numero: string
+  try {
+    numero = await db.$transaction(async (tx) => {
+      const reference = await prochainNumero(tx, 'DEVIS')
+      await tx.document.create({
+        data: {
+          type: 'DEVIS',
+          numero: reference,
+          colisId: colis.id,
+          montantEur: String(montant),
+          devise: 'EUR',
+          detail: detail || null,
+          dateValidite: validite,
+          mentionFiscale: MENTION_293B,
+        },
+      })
+      return reference
+    }, TRANSACTION)
+  } catch (erreur) {
+    console.error('[colis] estimation impossible :', erreur)
+    return { ok: false, message: 'L’émission du devis a échoué. Réessayez.' }
+  }
+
+  const destinataire = colis.client?.email ?? colis.destinataireEmail
+  if (destinataire) {
+    await envoyer({
+      destinataire,
+      sujet: `Estimation pour votre colis ${colis.codeSuivi} — ${site.name}`,
+      texte: [
+        `Bonjour ${colis.client?.prenom ?? colis.destinataireNom},`,
+        '',
+        `Nous avons reçu et pesé votre colis ${colis.codeSuivi}, à destination de ${colis.villeArrivee.nom}.`,
+        '',
+        `Estimation : ${montant.toFixed(2).replace('.', ',')} €${detail ? ` — ${detail}` : ''}`,
+        `Devis ${numero}, valable 7 jours.`,
+        '',
+        'Ce montant est réglé au retrait du colis, sur place. Le montant définitif figure sur la facture émise à l’arrivée.',
+        '',
+        MENTION_293B,
+        '',
+        site.name,
+        site.telephone,
+      ].join('\n'),
+      action: { libelle: 'Suivre mon colis', url: urlSuivi(colis.codeSuivi) },
+    })
+  }
+
+  revalidatePath('/admin/colis')
+  revalidatePath('/admin/receptions')
+  return {
+    ok: true,
+    message: `Devis ${numero} émis pour ${colis.codeSuivi}.`,
+    detail: destinataire
+      ? `Estimation envoyée à ${destinataire}.`
+      : 'Aucune adresse e-mail : prévenez le client par WhatsApp.',
+  }
+}

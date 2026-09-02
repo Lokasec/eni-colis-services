@@ -62,6 +62,10 @@ Connexion GitHub → import du dépôt → détection automatique de Next.js.
 | `NEXT_PUBLIC_WHATSAPP` | `33652707014` |
 | `TAUX_CFA` | `655.957` — parité fixe, en variable pour traçabilité |
 
+> **Réveillez la base avant de déployer.** Le build interroge PostgreSQL : les fiches destination sont pré-générées, et le pied de page de chaque page publique lit les destinations. Sur Neon, une instance en veille peut refuser la première connexion et faire échouer le déploiement entier. Ouvrez la console Neon ou lancez une requête avant de déclencher le build.
+>
+> Cet échec est **volontaire**. Un build tolérant livrerait un site au pied de page vide sans que rien ne le signale : un déploiement qui échoue se voit, un déploiement amputé non.
+
 > **`NEXT_PUBLIC_SITE_URL` est indispensable avant d'imprimer un reçu** : le QR code encode cette adresse. Sans elle, il pointerait vers `localhost`, et un QR imprimé ne se corrige pas. La génération du reçu refuse alors de s'exécuter et renvoie un message explicite.
 
 Le plan Hobby est gratuit et suffisant pour une vitrine avec formulaires et back-office. Passer en Pro seulement si un SLA garanti devient nécessaire.
