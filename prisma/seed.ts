@@ -21,6 +21,7 @@
 
 import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '../lib/generated/prisma/client'
+import { hacher } from '../lib/mot-de-passe'
 
 // tsx n'ouvre pas .env : on le charge nous-memes. `loadEnvFile` est natif
 // a Node et n'ecrase pas les variables deja definies (CI, production).
@@ -62,6 +63,7 @@ async function main() {
   await db.categorieArticle.deleteMany()
   await db.sequenceDocument.deleteMany()
   await db.parametresTarification.deleteMany()
+  await db.utilisateur.deleteMany()
   await db.messageCampagne.deleteMany()
 
   // ==========================================================================
@@ -398,6 +400,33 @@ async function main() {
       },
     }),
   ])
+
+  // ==========================================================================
+  // 5 bis. Utilisateurs du back-office
+  //
+  // Mots de passe de DÉVELOPPEMENT, hachés par scrypt. À changer avant
+  // toute mise en ligne — voir DEPLOIEMENT.md.
+  // ==========================================================================
+  console.log('Utilisateurs du back-office…')
+
+  const motDePasseDemo = process.env.SEED_MOT_DE_PASSE ?? 'eni-demo-2026'
+
+  await db.utilisateur.create({
+    data: {
+      email: 'admin@eni.test',
+      nom: 'Administratrice',
+      motDePasse: await hacher(motDePasseDemo),
+      role: 'ADMIN',
+    },
+  })
+  await db.utilisateur.create({
+    data: {
+      email: 'operateur@eni.test',
+      nom: 'Opérateur comptoir',
+      motDePasse: await hacher(motDePasseDemo),
+      role: 'OPERATEUR',
+    },
+  })
 
   // ==========================================================================
   // 6. Clients — FICTIFS, service d'adresse en France (mode A)
@@ -1046,6 +1075,7 @@ async function main() {
     devis: await db.document.count({ where: { type: 'DEVIS' } }),
     factures: await db.document.count({ where: { type: 'FACTURE' } }),
     encaissements: await db.encaissement.count(),
+    utilisateurs: await db.utilisateur.count(),
   }
   console.table(compte)
 }

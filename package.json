@@ -32,6 +32,7 @@
     "@vercel/blob": "^2.8.0",
     "browser-image-compression": "^2.0.2",
     "next": "^15.5.25",
+    "next-auth": "^5.0.0-beta.32",
     "next-intl": "^4.14.1",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

@@ -4,7 +4,7 @@ Site public et back-office d'exploitation d'**ENI Colis Services** — envoi de 
 
 Le brief permanent est dans [`CLAUDE.md`](CLAUDE.md), le cahier des charges dans [`docs/CDC-v1.3.md`](docs/CDC-v1.3.md), la maquette validée dans [`docs/maquette/`](docs/maquette/).
 
-> **État d'avancement : lot 6 — formulaires.** Le site public et les deux formulaires publics sont opérationnels. Restent le back-office (lots 7 et 8), les PDF et notifications (lot 9), la recette (lot 10). Voir [`DEMARRER.md`](DEMARRER.md).
+> **État d'avancement : lot 7 — back-office.** Site public, formulaires et exploitation du back-office sont en place. Restent la facturation (lot 8), les PDF et notifications (lot 9), la recette (lot 10). Voir [`DEMARRER.md`](DEMARRER.md).
 
 ---
 
@@ -53,6 +53,32 @@ npm run test
 Le **poids facturé** est arrondi au kilo supérieur, avec un minimum de 1 kg, et comparé au poids volumétrique `(L × l × h) ÷ 5000` — trois règles paramétrées dans `ParametresTarification`, ajustables depuis le back-office sans redéploiement.
 
 Les montants transitent en `Decimal` exact, jamais en `number` : `1,005 × 3` vaut `3,015` et s'arrondit à `3,02 €`, là où la virgule flottante donnerait `3,01 €`.
+
+## Back-office
+
+Accès sur `/admin`. Comptes de démonstration créés par le seed :
+
+| Rôle        | Adresse              | Mot de passe                  |
+| ----------- | -------------------- | ----------------------------- |
+| `ADMIN`     | `admin@eni.test`     | valeur de `SEED_MOT_DE_PASSE` |
+| `OPERATEUR` | `operateur@eni.test` | idem                          |
+
+**À changer avant toute mise en ligne.**
+
+### Deux barrières, pas une
+
+1. **Le middleware** ferme la porte : sans session, toute URL sous `/admin` renvoie vers la connexion en mémorisant la destination.
+2. **`exigerAdmin()` en tête de chaque page et de chaque action réservée** décide de ce qu'un opérateur a le droit de faire.
+
+Masquer une entrée de menu ne protège rien : l'URL reste tapable et la Server Action reste appelable. Vérifié : un compte `OPERATEUR` reçoit une redirection sur les six rubriques réservées — créances, factures, encaissements, tarifs, destinations, paramètres — **même en tapant l'URL directement**.
+
+Les mots de passe sont hachés par **`scrypt`**, de la bibliothèque standard de Node : pas de dépendance native à compiler au déploiement, ni de portage JavaScript plus lent. Les paramètres voyagent avec l'empreinte, pour pouvoir les durcir sans invalider les mots de passe existants.
+
+### Ergonomie
+
+L'outil est utilisé debout, sur téléphone, un colis dans les mains. La navigation s'efface derrière un bouton sur petit écran, les cibles de saisie font au moins 44 px, et chaque geste — peser, changer de statut, affecter à un départ — a son propre formulaire.
+
+Tout changement de statut écrit une ligne dans `HistoriqueStatut`, qui est en **ajout seul** : c'est la trace d'exploitation et la preuve en cas de litige.
 
 ## Formulaires publics
 
