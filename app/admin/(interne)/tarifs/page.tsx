@@ -11,6 +11,12 @@ import { SaisieTaux } from './formulaire'
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Tarifs' }
 
+/** Un montant nul doit se voir : « 0,00 € » et non un tiret discret. */
+function euros(valeur: unknown): string {
+  if (valeur === null || valeur === undefined) return '—'
+  return `${Number(valeur).toFixed(2).replace('.', ',')} €`
+}
+
 export default async function Tarifs() {
   // Rubrique réservée : un OPERATEUR est redirigé, même s'il tape l'URL.
   await exigerAdmin()
@@ -104,6 +110,64 @@ export default async function Tarifs() {
             Ces règles s&apos;appliquent à toute catégorie facturée au poids. Leur modification
             depuis cette page arrive avec le module Paramètres.
           </p>
+        </section>
+
+        {/* Politique commerciale */}
+        <section>
+          <h2 className="text-h3 mb-3">Indemnisation, garde et abandon</h2>
+          <Alert tone="warn" className="mb-4">
+            <b>Proposition en attente de confirmation.</b> Ces valeurs n&apos;avaient jamais été
+            fixées. Elles sont défendables, mais elles ne sont pas un avis juridique : la
+            disposition d&apos;un bien abandonné et le plafond d&apos;indemnisation doivent être
+            relus par un juriste avant de figurer dans les conditions générales.
+          </Alert>
+
+          <div className="border-line bg-line grid gap-px overflow-hidden rounded-lg border sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              [
+                'Indemnisation, colis ordinaire',
+                `${euros(parametres?.plafondIndemnisationParKgEur)} /kg`,
+                `Plafonnée à ${euros(parametres?.plafondIndemnisationParColisEur)} par colis. Le tarif le plus élevé de la grille, sous le plafond de la convention de Montréal.`,
+              ],
+              [
+                'Indemnisation, article de valeur',
+                parametres?.indemniserValeurDeclareeSiJustifiee
+                  ? 'Valeur déclarée'
+                  : 'Barème au kilo',
+                'Il est déjà facturé un pourcentage de sa valeur : il est couvert à hauteur de cette valeur, sur justificatif d’achat.',
+              ],
+              [
+                'Garde gratuite',
+                `${parametres?.delaiGardeGratuiteJours ?? '—'} jours`,
+                'À compter de la mise à disposition au point de retrait, pas de l’arrivée du vol.',
+              ],
+              [
+                'Frais de garde',
+                `${euros(parametres?.fraisGardeParJourEur)} /jour`,
+                parametres?.plafonnerFraisGardeAuTransport
+                  ? 'Plafonnés au montant du transport facturé. Sans ce plafond, un client qui doit plus de garde que de transport ne vient plus jamais : ENI perd tout.'
+                  : 'Sans plafond — un client peut devoir plus de garde que de transport.',
+              ],
+              [
+                'Colis réputé abandonné',
+                `${parametres?.delaiAbandonJours ?? '—'} jours`,
+                'Après deux relances tracées. Le délai est long à dessein : les trois quarts des destinataires sont des entreprises qui retirent aussitôt.',
+              ],
+              [
+                'Remise du colis',
+                'Contre paiement',
+                'Règle non paramétrable. Sur le mode A, ENI a avancé le transport : la remise est le seul moment où elle peut être payée.',
+              ],
+            ].map(([label, valeur, note]) => (
+              <div key={label} className="flex flex-col bg-white p-4">
+                <span className="text-caption text-muted block font-bold tracking-[0.08em] uppercase">
+                  {label}
+                </span>
+                <span className="text-navy mt-1 block text-lg font-extrabold">{valeur}</span>
+                <span className="text-caption text-ink-soft mt-2 block">{note}</span>
+              </div>
+            ))}
+          </div>
         </section>
 
         {/* Catégories */}

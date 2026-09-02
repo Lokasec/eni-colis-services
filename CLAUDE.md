@@ -168,7 +168,9 @@ Cotonou, Conakry, Bamako et Dakar transitent par Abidjan avant réacheminement.
 
 Départs **hebdomadaires** partout.
 
-**France ↔ USA** : `afficheePubliquement = false`, **20 €/kg**. La liaison commerciale réelle est **Abidjan ↔ New York** ; un envoi parti de France fait Paris → Abidjan, puis Abidjan → New York. Le client ne voit ni ce découpage ni le hub — il voit un prix et un statut `EN_TRANSIT`.
+**France ↔ USA : FERMÉE** — décision de la cliente du 2 septembre 2026. New York n'est ouverte qu'avec Abidjan, dans les deux sens. Les deux lignes restent **en base, `actif = false`** : les rouvrir se fait d'un booléen en back-office, sans migration ni perte d'historique.
+
+> Cette fermeture a une conséquence sur le modèle. Le transit est porté par la **ville d'arrivée** (`Ville.villeTransit`), ce qui suppose que l'escale se déduise de la seule destination. C'était vrai partout **sauf** pour France → USA : New York n'est pas une ville d'escale, elle est la destination. La ligne fermée, l'invariant redevient exact pour 100 % des liaisons actives — le transit n'a pas besoin d'être déplacé sur `Liaison`. `verifier-seed.ts` contrôle ce point et échouera si quelqu'un rouvre la ligne sans porter le transit sur la liaison.
 
 Valeurs de **seed uniquement** — jamais en dur dans la logique.
 
@@ -399,11 +401,25 @@ L'inscription au service de réception **est** dans le périmètre : elle est n�
 
 ## 16. Placeholders à laisser explicites
 
-Délais réels par destination · **plafond d'indemnisation** · sort d'un colis jamais retiré · frais de garde · points de retrait de Brazzaville et Kinshasa · horaires du bureau · statut réglementaire de l'activité · mentions légales et CGS (juriste) · vrais avis clients · photos.
+Délais réels par destination · points de retrait de Brazzaville et Kinshasa · horaires du bureau · statut réglementaire de l'activité · mentions légales et CGS (juriste) · vrais avis clients · photos · **prix d'achat auprès des sous-traitants** (Brazzaville, Kinshasa).
+
+### 16 bis. Politique commerciale — proposée le 2 septembre 2026
+
+Trois points n'avaient jamais été tranchés. La cliente retient les propositions ci-dessous **à titre de base de discussion** ; elles seront ajustées si elle le demande. Elles vivent dans `ParametresTarification`, **pas en dur**, et sont affichées dans `/admin/tarifs` avec la mention « en attente de confirmation ».
+
+| Point | Valeur retenue | Raison |
+|---|---|---|
+| Indemnisation, colis ordinaire | **20 €/kg**, plafond **400 €** par colis | Le tarif le plus élevé de la grille, sous le plafond de la convention de Montréal (~26 €/kg) |
+| Indemnisation, article de valeur | **Valeur déclarée**, sur justificatif | Il est déjà facturé 15 % de sa valeur : le couvrir au barème au kilo serait incohérent |
+| Garde gratuite | **30 jours** à compter de la mise à disposition | Reprend le délai du CDC §5.4 |
+| Frais de garde | **1 €/jour**, **plafonnés au montant du transport** | Sans plafond, un client qui doit plus de garde que de transport ne vient jamais : ENI perd tout |
+| Colis réputé abandonné | **120 jours**, après deux relances tracées | Délai long à dessein : les trois quarts des destinataires sont des entreprises qui retirent aussitôt |
+
+**Réserve à porter à la cliente** : la disposition d'un bien abandonné obéit à une procédure. Le délai de 120 jours et le plafond d'indemnisation doivent être **relus par un juriste** avant de figurer dans les conditions générales. Ce ne sont pas des avis juridiques.
 
 **Liste-les tous dans le README.**
 
-**Seed réaliste** : 8 pays et leurs villes (Sénégal avec Dakar **et** Thiès), les liaisons de §4.2, les 4 catégories, France ↔ USA en `afficheePubliquement: false`, ~6 clients avec identifiants, ~4 départs hebdomadaires, ~8 colis à des statuts et modes de réception différents, ~4 devis, ~3 factures dont une payée à l'arrivée en FCFA. **Aucun faux témoignage, aucun nom de client réel.**
+**Seed réaliste** : 8 pays et leurs villes (Sénégal avec Dakar **et** Thiès), les liaisons de §4.2, les 4 catégories, France ↔ USA conservée mais `actif: false`, ~6 clients avec identifiants, ~4 départs hebdomadaires, ~8 colis à des statuts et modes de réception différents, ~4 devis, ~3 factures dont une payée à l'arrivée en FCFA. **Aucun faux témoignage, aucun nom de client réel.**
 
 ---
 
@@ -426,7 +442,7 @@ Délais réels par destination · **plafond d'indemnisation** · sort d'un colis
 - [ ] **Aucun calculateur de prix côté public**, sous aucune forme
 - [ ] **Le devis n'est jamais présenté comme obligatoire** pour un colis ordinaire déposé au bureau
 - [ ] **`villeTransit` n'apparaît dans aucune réponse publique** (vérifié dans le HTML rendu)
-- [ ] **France ↔ USA absente** des destinations, sélecteurs et sitemap
+- [ ] **France ↔ USA fermée** et absente des destinations, sélecteurs et sitemap
 - [ ] `/destinations`, `/departs`, `/suivi` lisent la **vraie base**
 - [ ] Moteur de tarification **testé unitairement**, jamais appelé côté public
 - [ ] Aucun tarif, destination ou règle de catégorie **en dur**

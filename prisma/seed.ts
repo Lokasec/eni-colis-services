@@ -8,7 +8,7 @@
  * Règles tenues :
  *  - Aucun faux témoignage, aucun nom de client réel. Les six clients sont
  *    inventés et servent uniquement à la démonstration.
- *  - France ↔ USA existe mais avec afficheePubliquement = false.
+ *  - France ↔ USA existe en base mais INACTIVE et non publiée.
  *  - Le Sénégal a DEUX villes de retrait : Dakar et Thiès.
  *  - Les liaisons sont ORIENTÉES : l'aller et le retour sont deux lignes.
  *  - Les taux de change des documents sont FIGÉS à l'émission.
@@ -78,6 +78,17 @@ async function main() {
       poidsMinimumFactureKg: '1.000', // un colis de 50 g est facturé 1 kg
       diviseurVolumetrique: 5000, // (L × l × h en cm) ÷ 5000
       appliquerPoidsVolumetrique: true,
+
+      // Politique commerciale PROPOSÉE le 2 septembre 2026, en attente de
+      // la confirmation de la cliente. Elle n'avait jamais été fixée : ces
+      // valeurs sont des défauts défendables, pas un avis juridique.
+      plafondIndemnisationParKgEur: '20.00',
+      plafondIndemnisationParColisEur: '400.00',
+      indemniserValeurDeclareeSiJustifiee: true,
+      delaiGardeGratuiteJours: 30,
+      fraisGardeParJourEur: '1.00',
+      plafonnerFraisGardeAuTransport: true,
+      delaiAbandonJours: 120,
     },
   })
 
@@ -303,11 +314,20 @@ async function main() {
     // New York ↔ Abidjan, 20 €/kg dans les deux sens
     { o: usa, d: civ, prix: '20.00' },
     { o: civ, d: usa, prix: '20.00' },
-    // France ↔ USA : opérée via Abidjan, JAMAIS affichée publiquement.
-    // Le prix n'a pas été communiqué — [À COMPLÉTER]. La valeur ci-dessous
-    // ne sert qu'à satisfaire le schéma ; la liaison n'est pas publiée.
-    { o: france, d: usa, prix: '20.00', publique: false },
-    { o: usa, d: france, prix: '20.00', publique: false },
+    // France ↔ USA : FERMÉE. Décision de la cliente du 2 septembre 2026 —
+    // « on laisse New York ouvert seulement entre Abidjan et New York ».
+    //
+    // Ce n'est pas qu'une simplification commerciale. La ligne France → USA
+    // aurait été la SEULE liaison dont l'escale ne se déduit pas du pays
+    // d'arrivée : New York n'est pas une ville de transit, elle est la
+    // destination. En la fermant, `Ville.villeTransit` redevient exact pour
+    // 100 % des liaisons actives, et le modèle n'a pas besoin de déplacer
+    // le transit sur la liaison.
+    //
+    // Les lignes restent EN BASE, inactives : rouvrir se fait d'un booléen
+    // en back-office, sans migration ni perte d'historique.
+    { o: france, d: usa, prix: '20.00', publique: false, actif: false },
+    { o: usa, d: france, prix: '20.00', publique: false, actif: false },
   ]
 
   for (const l of liaisons) {
@@ -319,6 +339,7 @@ async function main() {
         prixParKg: l.prix,
         sousTraitee: l.sousTraitee ?? false,
         afficheePubliquement: l.publique ?? true,
+        actif: l.actif ?? true,
         // Délais réels non communiqués — [À COMPLÉTER]
         delaiJoursMin: null,
         delaiJoursMax: null,

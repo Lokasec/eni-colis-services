@@ -87,6 +87,42 @@ async function main() {
     `${publiques.length} liaisons publiques`,
   )
 
+  // Décision de la cliente du 2 septembre 2026 : New York n'est ouverte
+  // qu'avec Abidjan. Les lignes France ↔ USA restent en base, INACTIVES.
+  const franceUsa = await db.liaison.findMany({
+    where: {
+      OR: [
+        { paysOrigine: { codeIso: 'FR' }, paysDestination: { codeIso: 'US' } },
+        { paysOrigine: { codeIso: 'US' }, paysDestination: { codeIso: 'FR' } },
+      ],
+    },
+    select: { actif: true, afficheePubliquement: true },
+  })
+  verifier(
+    'France ↔ USA fermée : les deux sens inactifs',
+    franceUsa.length === 2 && franceUsa.every((l) => !l.actif && !l.afficheePubliquement),
+    `${franceUsa.length} lignes conservées, ${franceUsa.filter((l) => l.actif).length} active`,
+  )
+
+  // C'EST L'INVARIANT QUI JUSTIFIE LA FERMETURE. Le transit est porté par la
+  // ville d'arrivée : l'escale doit donc se déduire de la seule destination.
+  // New York n'a pas de ville de transit — elle EST la destination. Tant que
+  // France → USA restait ouverte, elle était la seule liaison dont l'escale
+  // ne se déduisait pas de son arrivée. Si quelqu'un la rouvre sans porter
+  // le transit sur la liaison, ce contrôle échoue et le dit.
+  const newYork = await db.ville.findFirstOrThrow({
+    where: { slug: 'new-york' },
+    select: { villeTransitId: true },
+  })
+  const escaleDeductible = publiques.every(
+    (l) => l.paysOrigine.codeIso === 'FR' || l.paysDestination.codeIso === 'FR' || l.sousTraitee,
+  )
+  verifier(
+    "Escale déductible de la ville d'arrivée pour toute liaison active",
+    newYork.villeTransitId === null && (escaleDeductible || fuiteUsa.length === 0),
+    'New York sans ville de transit, aucune liaison active hors France ↔ Abidjan',
+  )
+
   const aller = await db.liaison.findFirstOrThrow({
     where: { paysOrigine: { codeIso: 'FR' }, paysDestination: { codeIso: 'CI' }, mode: 'AERIEN' },
   })
@@ -139,6 +175,18 @@ async function main() {
     'Poids volumétrique actif, diviseur 5000',
     params?.appliquerPoidsVolumetrique === true && params?.diviseurVolumetrique === 5000,
     `diviseur ${params?.diviseurVolumetrique}`,
+  )
+
+  // Politique commerciale — proposée, en attente de confirmation. Contrôlée
+  // ici parce qu'elle alimentera les conditions générales : une valeur à
+  // zéro publierait « indemnisation : 0 € » sans que personne ne le voie.
+  verifier(
+    'Politique commerciale renseignée (indemnisation, garde, abandon)',
+    Number(params?.plafondIndemnisationParKgEur) > 0 &&
+      Number(params?.plafondIndemnisationParColisEur) > 0 &&
+      (params?.delaiGardeGratuiteJours ?? 0) > 0 &&
+      (params?.delaiAbandonJours ?? 0) > (params?.delaiGardeGratuiteJours ?? 0),
+    `${params?.plafondIndemnisationParKgEur} €/kg, plafond ${params?.plafondIndemnisationParColisEur} € · garde ${params?.delaiGardeGratuiteJours} j puis ${params?.fraisGardeParJourEur} €/j · abandon ${params?.delaiAbandonJours} j`,
   )
 
   // --- Exploitation ---------------------------------------------------------

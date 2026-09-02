@@ -111,7 +111,7 @@ Sans `RESEND_API_KEY`, les e-mails sont **journalisés au lieu d'être expédié
 npm run db:verify
 ```
 
-`prisma/verifier-seed.ts` interroge la base et contrôle 14 invariants métier — ceux qui ne se verraient pas à l'écran s'ils cassaient : fuite du hub de transit dans une sélection publique, liaison France ↔ USA rendue visible, trou dans la numérotation des factures, taux de change recalculé au lieu d'être figé, file des colis non rattachés, mention de l'article 293 B. À relancer après chaque migration.
+`prisma/verifier-seed.ts` interroge la base et contrôle 20 invariants métier — ceux qui ne se verraient pas à l'écran s'ils cassaient : fuite du hub de transit dans une sélection publique, liaison France ↔ USA rendue visible, trou dans la numérotation des factures, taux de change recalculé au lieu d'être figé, file des colis non rattachés, mention de l'article 293 B. À relancer après chaque migration.
 
 ---
 
@@ -236,20 +236,38 @@ Aucune de ces valeurs ne doit être inventée. Elles apparaissent comme telles d
 
 | #   | Point                                                                                                   | Impact                                                   | Criticité |
 | --- | ------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- | --------- |
-| 1   | Plafond d'indemnisation en cas de perte ou d'avarie                                                     | CGS, exposition financière                               | 🔴        |
-| 2   | Sort d'un colis jamais retiré ni payé                                                                   | CGS, module créances                                     | 🔴        |
-| 3   | Frais de garde au-delà de 30 jours                                                                      | CGS, relances                                            | 🟠        |
-| 4   | Seuil d'écart devis/facture déclenchant une alerte                                                      | Paramétrage back-office                                  | 🟠        |
-| 5   | Confirmation de la règle `GRANDE_MARQUE` (`max` ou remplacement pur)                                    | Facturation                                              | 🟠        |
-| 6   | Points de retrait de **Brazzaville** et **Kinshasa** (adresses, contacts)                               | Pages destination                                        | 🟠        |
-| 7   | Horaires, contacts et adresses précises des autres points de retrait                                    | Pages destination                                        | 🟠        |
-| 8   | Délais réels par destination, réacheminement inclus                                                     | Crédibilité, pages destination                           | 🟠        |
-| 9   | Statut réglementaire de l'activité de transport                                                         | Mentions légales                                         | 🟠        |
-| 10  | Horaires du bureau de Rouen                                                                             | Contact, e-mail « colis disponible »                     | 🟠        |
-| 11  | Mentions légales et CGS rédigées (SIREN, directeur de publication) — **à faire valider par un juriste** | Pages légales                                            | 🟠        |
-| 12  | Avis clients réels                                                                                      | Le bloc témoignages reste absent tant qu'il n'y en a pas | 🟢        |
-| 13  | Photos — 8 destinations + 5 photos d'activité (voir `docs/guide-images.md`)                             | Placeholders SVG en attendant                            | 🟢        |
-| 14  | Marchands acceptés ou refusés pour le mode A                                                            | FAQ                                                      | 🟢        |
+| 1   | **Prix d'achat auprès des sous-traitants** (Brazzaville, Kinshasa) — voir ci-dessous                    | Marge réelle sur deux destinations                       | 🔴        |
+| 2   | Seuil d'écart devis/facture déclenchant une alerte                                                      | Paramétrage back-office                                  | 🟠        |
+| 3   | Confirmation de la règle `GRANDE_MARQUE` (`max` ou remplacement pur)                                    | Facturation                                              | 🟠        |
+| 4   | Points de retrait de **Brazzaville** et **Kinshasa** (adresses, contacts)                               | Pages destination                                        | 🟠        |
+| 5   | Horaires, contacts et adresses précises des autres points de retrait                                    | Pages destination                                        | 🟠        |
+| 6   | Délais réels par destination, réacheminement inclus                                                     | Crédibilité, pages destination                           | 🟠        |
+| 7   | Statut réglementaire de l'activité de transport                                                         | Mentions légales                                         | 🟠        |
+| 8   | Horaires du bureau de Rouen                                                                             | Contact, e-mail « colis disponible »                     | 🟠        |
+| 9   | Mentions légales et CGS rédigées (SIREN, directeur de publication) — **à faire valider par un juriste** | Pages légales                                            | 🟠        |
+| 10  | Avis clients réels                                                                                      | Le bloc témoignages reste absent tant qu'il n'y en a pas | 🟢        |
+| 11  | Photos — 8 destinations + 5 photos d'activité (voir `docs/guide-images.md`)                             | Placeholders SVG en attendant                            | 🟢        |
+| 12  | Marchands acceptés ou refusés pour le mode A                                                            | FAQ                                                      | 🟢        |
+
+### Politique commerciale — tranchée le 2 septembre 2026
+
+Trois points de cette liste ont été retirés : **plafond d'indemnisation**, **frais de garde**, **sort d'un colis jamais retiré**. La cliente retient les valeurs proposées comme base de discussion. Elles sont stockées dans `ParametresTarification`, **jamais en dur**, et affichées dans `/admin/tarifs` sous la mention « en attente de confirmation ».
+
+| Point                            | Valeur                               | Raison                                                                            |
+| -------------------------------- | ------------------------------------ | --------------------------------------------------------------------------------- |
+| Indemnisation, colis ordinaire   | 20 €/kg, plafond 400 €               | Le tarif le plus élevé de la grille, sous le plafond de la convention de Montréal |
+| Indemnisation, article de valeur | Valeur déclarée, sur justificatif    | Il est déjà facturé 15 % de sa valeur                                             |
+| Garde gratuite                   | 30 jours après mise à disposition    | Reprend le CDC §5.4                                                               |
+| Frais de garde                   | 1 €/jour, **plafonnés au transport** | Sans plafond, le client ne vient plus : ENI perd tout                             |
+| Colis abandonné                  | 120 jours, après deux relances       | Les trois quarts des destinataires sont des entreprises qui retirent aussitôt     |
+
+**Réserve** : la disposition d'un bien abandonné obéit à une procédure. Ce délai et ce plafond doivent être **relus par un juriste** avant de figurer dans les CGS.
+
+### France ↔ USA — fermée
+
+Décision du 2 septembre 2026 : New York n'est ouverte qu'avec **Abidjan**, dans les deux sens. Les lignes France ↔ USA restent en base avec `actif = false` — les rouvrir est un booléen en back-office.
+
+Cette fermeture rend le modèle exact. Le transit est porté par la **ville d'arrivée** ; France → USA était la seule liaison dont l'escale ne s'en déduisait pas, New York étant la destination et non une escale. `verifier-seed.ts` contrôle ce point et échouera si la ligne est rouverte sans porter le transit sur la liaison.
 
 ---
 

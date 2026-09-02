@@ -300,6 +300,39 @@ model ParametresTarification {
   /// du poids volumétrique. Désactivable si la cliente préfère le poids réel.
   appliquerPoidsVolumetrique Boolean @default(true)
 
+  // -------------------------------------------------------------------
+  // Politique commerciale — proposée le 2 septembre 2026, EN ATTENTE DE
+  // CONFIRMATION par la cliente. Ces valeurs alimentent les conditions
+  // générales et le module Créances ; elles ne sont pas un avis juridique.
+  // -------------------------------------------------------------------
+
+  /// Indemnisation d'un colis ordinaire : plafond par kilo facturé.
+  /// 20 €/kg — le tarif le plus élevé de la grille, sous le plafond de la
+  /// convention de Montréal (~26 €/kg).
+  plafondIndemnisationParKgEur Decimal @default("20.00") @db.Decimal(10, 2)
+
+  /// Plafond absolu par colis ordinaire.
+  plafondIndemnisationParColisEur Decimal @default("400.00") @db.Decimal(10, 2)
+
+  /// Un article de valeur est déjà facturé un pourcentage de sa valeur :
+  /// il est indemnisé à hauteur de la valeur déclarée ET justifiée.
+  indemniserValeurDeclareeSiJustifiee Boolean @default(true)
+
+  /// Garde gratuite à compter de la mise à disposition.
+  delaiGardeGratuiteJours Int @default(30)
+
+  /// Frais de garde par jour, au-delà du délai gratuit.
+  fraisGardeParJourEur Decimal @default("1.00") @db.Decimal(10, 2)
+
+  /// Les frais de garde sont plafonnés au montant du transport facturé.
+  /// Sans ce plafond, un client qui doit plus de garde que de transport
+  /// ne vient jamais chercher son colis : ENI perd tout.
+  plafonnerFraisGardeAuTransport Boolean @default(true)
+
+  /// Délai au terme duquel un colis est réputé abandonné. La disposition
+  /// d'un bien abandonné obéit à une procédure : à valider par un juriste.
+  delaiAbandonJours Int @default(120)
+
   modifieLe DateTime @updatedAt
 }
 
