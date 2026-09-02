@@ -4,7 +4,7 @@ Site public et back-office d'exploitation d'**ENI Colis Services** — envoi de 
 
 Le brief permanent est dans [`CLAUDE.md`](CLAUDE.md), le cahier des charges dans [`docs/CDC-v1.3.md`](docs/CDC-v1.3.md), la maquette validée dans [`docs/maquette/`](docs/maquette/).
 
-> **État d'avancement : lot 1 — infrastructure.** Aucune page métier, aucun modèle de données. La suite est décrite dans [`DEMARRER.md`](DEMARRER.md).
+> **État d'avancement : lot 5 — site public.** Les 14 pages publiques sont en place et lisent la base. Restent les formulaires (lot 6), le back-office (lots 7 et 8), les PDF et notifications (lot 9), la recette (lot 10). Voir [`DEMARRER.md`](DEMARRER.md).
 
 ---
 
@@ -88,6 +88,7 @@ npm run db:verify
 app/                  routes App Router
   globals.css         base + import des tokens générés
   styles/tokens.css   GÉNÉRÉ — ne pas éditer
+content/destinations.ts  textes validés des 8 fiches pays
 components/           design system
   ui/                 primitives publiques (Button, Section, Card, Badge…)
   layout/             Header, Footer, WhatsAppFloat
@@ -97,8 +98,11 @@ design/
   tokens.json         SOURCE UNIQUE du design system
   tokens.generated.ts GÉNÉRÉ — mêmes valeurs, pour le JS (PDF, e-mails)
 docs/                 CDC, contenus rédactionnels validés, maquette HTML
+app/(public)/         site public — 14 pages
+app/sitemap.ts        plan du site, dérivé des liaisons publiées
 i18n/request.ts       configuration next-intl
 lib/                  logique métier
+  donnees-publiques.ts requêtes du site public, à sélections explicites
   tarification/       moteur de calcul — back-office uniquement
   db.ts               client Prisma (singleton + adaptateur de pilote)
   generated/          GÉNÉRÉ — client Prisma, hors Git
