@@ -61,7 +61,23 @@ async function main() {
   await db.pays.deleteMany()
   await db.categorieArticle.deleteMany()
   await db.sequenceDocument.deleteMany()
+  await db.parametresTarification.deleteMany()
   await db.messageCampagne.deleteMany()
+
+  // ==========================================================================
+  // 0. Paramètres de tarification — règles confirmées par la cliente
+  // ==========================================================================
+  console.log('Paramètres de tarification…')
+
+  await db.parametresTarification.create({
+    data: {
+      id: 'singleton',
+      pasArrondiPoidsKg: '1.000', // arrondi au kilo supérieur
+      poidsMinimumFactureKg: '1.000', // un colis de 50 g est facturé 1 kg
+      diviseurVolumetrique: 5000, // (L × l × h en cm) ÷ 5000
+      appliquerPoidsVolumetrique: true,
+    },
+  })
 
   // ==========================================================================
   // 1. Pays
@@ -878,10 +894,10 @@ async function main() {
       type: 'DEVIS',
       numero: 'DEV-2026-00001',
       colisId: colisCreance.id,
-      montantEur: '187.50',
+      montantEur: '195.00',
       dateEmission: new Date('2026-08-08T12:00:00Z'),
       dateValidite: new Date('2026-08-15T12:00:00Z'),
-      detail: '12,5 kg × 15,00 €/kg — France → Abidjan',
+      detail: '13 kg (12,5 kg arrondis au kilo supérieur) × 15,00 €/kg — France → Abidjan',
     },
   })
   await db.document.create({
@@ -920,7 +936,7 @@ async function main() {
 
   // Facture émise à l'ARRIVÉE, en euros ET en FCFA.
   // Le taux est celui du jour d'émission, figé : 1 € = 655,957.
-  const montantCreanceEur = 187.5
+  const montantCreanceEur = 195
   const factureArrivee = await db.document.create({
     data: {
       type: 'FACTURE',
@@ -931,7 +947,7 @@ async function main() {
       tauxApplique: TAUX_CFA,
       montantDevise: convertirEnCfa(montantCreanceEur, TAUX_CFA),
       dateEmission: new Date('2026-08-21T15:00:00Z'),
-      detail: '12,5 kg × 15,00 €/kg — France → Abidjan',
+      detail: '13 kg (12,5 kg arrondis au kilo supérieur) × 15,00 €/kg — France → Abidjan',
     },
   })
 
@@ -954,10 +970,10 @@ async function main() {
       type: 'FACTURE',
       numero: 'FAC-2026-00003',
       colisId: (await db.colis.findFirstOrThrow({ where: { codeSuivi: 'ENI-2026-00107' } })).id,
-      montantEur: '182.00',
+      montantEur: '200.00',
       dateEmission: new Date('2026-07-21T11:00:00Z'),
       dateReglement: new Date('2026-07-21T11:00:00Z'),
-      detail: '9,1 kg × 20,00 €/kg — France → Brazzaville',
+      detail: '10 kg (9,1 kg arrondis au kilo supérieur) × 20,00 €/kg — France → Brazzaville',
     },
   })
 
@@ -981,7 +997,7 @@ async function main() {
   await db.encaissement.create({
     data: {
       documentId: factureRetire.id,
-      montant: '182.00',
+      montant: '200.00',
       devise: 'EUR',
       lieu: 'FRANCE',
       moyen: 'CARTE',

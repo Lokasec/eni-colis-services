@@ -18,8 +18,12 @@
 
 export { calculerTarif } from './calculer'
 export { convertirDepuisEuros, arrondir, arrondirDevise, decimalesDe } from './devise'
+export { calculerPoidsVolumetrique, resoudrePoidsFacture } from './poids'
 export type {
   CategorieTarifaire,
+  Dimensions,
+  ParametresPoids,
+  PoidsFacture,
   CodeRefus,
   Conversion,
   Decimal,

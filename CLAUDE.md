@@ -166,11 +166,28 @@ Cotonou, Conakry, Bamako et Dakar transitent par Abidjan avant réacheminement.
 | Kinshasa | 15 €/kg | 15 €/kg |
 | New York ↔ Abidjan | 20 €/kg | 20 €/kg |
 
-Départs **hebdomadaires** partout. **France ↔ USA** : opérée via Abidjan, `afficheePubliquement = false`.
+Départs **hebdomadaires** partout.
+
+**France ↔ USA** : `afficheePubliquement = false`, **20 €/kg**. La liaison commerciale réelle est **Abidjan ↔ New York** ; un envoi parti de France fait Paris → Abidjan, puis Abidjan → New York. Le client ne voit ni ce découpage ni le hub — il voit un prix et un statut `EN_TRANSIT`.
 
 Valeurs de **seed uniquement** — jamais en dur dans la logique.
 
 > **`GRANDE_MARQUE` — confirmé par la cliente (1ᵉʳ septembre 2026)** : le coût du transport **est** 15 % de la valeur d'achat. Ce n'est pas un plancher, ce n'est pas comparé au poids. Un article de 40 kg valant 620 € est facturé 93 €, comme un article de 500 g de même valeur. Le poids n'est donc pas exigé pour chiffrer cette catégorie, ce qui permet d'établir un devis sur photos avant réception.
+
+### 4.2 bis Règles de calcul du poids facturé — confirmées le 2 septembre 2026
+
+Ces règles s'appliquent à **toute catégorie facturée au poids**. Elles sont paramétrées dans la table `ParametresTarification`, jamais en dur.
+
+| Règle | Valeur | Effet |
+|---|---|---|
+| Arrondi du poids | **kilo supérieur** | 12,5 kg pesés → **13 kg facturés**. Aucune tolérance. |
+| Poids minimum facturé | **1 kg** | Un colis de 50 g est facturé 1 kg. |
+| Poids volumétrique | **(L × l × h en cm) ÷ 5000** | On retient le **plus élevé** du poids réel et du poids volumétrique. |
+| Arrondi des montants CFA | **franc entier** | Plus simple au comptoir. |
+
+Le document émis **explique l'arrondi** : « 13 kg (12,5 kg arrondis au kilo supérieur) × 15,00 €/kg ». Un client ne doit pas avoir à téléphoner pour comprendre sa facture.
+
+Le poids volumétrique alimente le **chiffrage du back-office**, y compris quand le colis n'a pas encore été pesé : les dimensions saisies au formulaire de devis suffisent. **Il n'apparaît jamais côté public** — aucun calcul de prix n'y est autorisé.
 
 ### 4.3 Catégories d'articles
 

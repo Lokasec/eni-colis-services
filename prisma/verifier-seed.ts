@@ -126,6 +126,21 @@ async function main() {
     `${marque?.mode} à ${Number(marque?.valeur) * 100} %`,
   )
 
+  // Règles de calcul du poids facturé, confirmées par la cliente.
+  // Elles commandent chaque facture : si quelqu'un remettait l'arrondi à
+  // zéro, tous les montants baisseraient sans que rien ne le signale.
+  const params = await db.parametresTarification.findUnique({ where: { id: 'singleton' } })
+  verifier(
+    'Paramètres de tarification : kilo supérieur, minimum 1 kg',
+    Number(params?.pasArrondiPoidsKg) === 1 && Number(params?.poidsMinimumFactureKg) === 1,
+    `pas ${params?.pasArrondiPoidsKg} kg · minimum ${params?.poidsMinimumFactureKg} kg`,
+  )
+  verifier(
+    'Poids volumétrique actif, diviseur 5000',
+    params?.appliquerPoidsVolumetrique === true && params?.diviseurVolumetrique === 5000,
+    `diviseur ${params?.diviseurVolumetrique}`,
+  )
+
   // --- Exploitation ---------------------------------------------------------
 
   const nonRattaches = await db.colis.findMany({

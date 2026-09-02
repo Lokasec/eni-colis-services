@@ -275,6 +275,34 @@ model CategorieArticle {
   modifieLe DateTime @updatedAt
 }
 
+/// Paramètres de tarification — ligne UNIQUE.
+///
+/// Ces valeurs commandent le calcul de chaque facture. Elles vivent en base
+/// et non dans le code : la cliente doit pouvoir les ajuster depuis le
+/// back-office sans redéploiement (CLAUDE.md §9, module Paramètres).
+model ParametresTarification {
+  id String @id @default("singleton")
+
+  /// Pas d'arrondi du poids facturé, arrondi vers le HAUT.
+  /// 1.000 = au kilo supérieur · 0.100 = aux 100 g supérieurs · 0 = poids exact.
+  /// Confirmé par la cliente : arrondi au kilo supérieur.
+  pasArrondiPoidsKg Decimal @default("1.000") @db.Decimal(6, 3)
+
+  /// Poids minimum facturé, quel que soit le poids réel.
+  /// Confirmé : un colis de 50 g est facturé 1 kg.
+  poidsMinimumFactureKg Decimal @default("1.000") @db.Decimal(6, 3)
+
+  /// Poids volumétrique : (L × l × h en cm) ÷ diviseur = kg.
+  /// 5000 est l'usage en fret aérien. `null` désactive la règle.
+  diviseurVolumetrique Int? @default(5000)
+
+  /// Quand les deux sont connus, on retient le PLUS ÉLEVÉ du poids réel et
+  /// du poids volumétrique. Désactivable si la cliente préfère le poids réel.
+  appliquerPoidsVolumetrique Boolean @default(true)
+
+  modifieLe DateTime @updatedAt
+}
+
 // ============================================================================
 // Clients et utilisateurs
 // ============================================================================

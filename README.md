@@ -48,7 +48,9 @@ Ce qu'il renvoie est une **suggestion modifiable**, jamais un prix imposé : la 
 npm run test
 ```
 
-46 tests couvrent les quatre catégories à l'aller et au retour, `GRANDE_MARQUE` sans poids et sans influence de la liaison, la conversion en zone CFA et à taux saisi, le refus de convertir sans taux, et huit motifs de refus. `isolement.test.ts` échoue si un fichier du site public importe le moteur — vérifié en injectant volontairement une violation.
+51 tests couvrent les quatre catégories à l'aller et au retour, l'arrondi du poids au kilo supérieur, le minimum de 1 kg, le poids volumétrique, `GRANDE_MARQUE` sans poids et sans influence de la liaison, la conversion en zone CFA et à taux saisi, le refus de convertir sans taux, et huit motifs de refus. `isolement.test.ts` échoue si un fichier du site public importe le moteur — vérifié en injectant volontairement une violation.
+
+Le **poids facturé** est arrondi au kilo supérieur, avec un minimum de 1 kg, et comparé au poids volumétrique `(L × l × h) ÷ 5000` — trois règles paramétrées dans `ParametresTarification`, ajustables depuis le back-office sans redéploiement.
 
 Les montants transitent en `Decimal` exact, jamais en `number` : `1,005 × 3` vaut `3,015` et s'arrondit à `3,02 €`, là où la virgule flottante donnerait `3,01 €`.
 

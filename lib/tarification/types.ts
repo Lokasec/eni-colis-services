@@ -41,20 +41,59 @@ export type CategorieTarifaire = {
 }
 
 export type DemandeTarification = {
-  /** Poids retenu : le poids réel s'il est connu, sinon l'estimation. */
+  /** Poids réel s'il est connu, sinon l'estimation. `null` si non pesé. */
   poidsKg: Numerique | null
+  /** Dimensions, pour le poids volumétrique. Facultatives. */
+  dimensions?: Dimensions | null
   /** Valeur d'achat déclarée — requise par POURCENTAGE_VALEUR. */
   valeurAchat?: Numerique | null
   /** `null` si aucune liaison ne dessert le trajet demandé. */
   liaison: LiaisonTarifaire | null
   categorie: CategorieTarifaire
+  /** Paramètres lus en base : arrondi, minimum, poids volumétrique. */
+  parametres: ParametresPoids
 }
+
+/** Dimensions du colis, en centimètres. */
+export type Dimensions = {
+  longueurCm: Numerique
+  largeurCm: Numerique
+  hauteurCm: Numerique
+}
+
+/**
+ * Paramètres de calcul du poids facturé, lus dans la table
+ * ParametresTarification. Aucune valeur par défaut n'est écrite dans le
+ * moteur : la cliente les ajuste depuis le back-office.
+ */
+export type ParametresPoids = {
+  /** Pas d'arrondi vers le haut. 1 = kilo supérieur, 0 = poids exact. */
+  pasArrondiPoidsKg: Numerique
+  /** Poids minimum facturé quel que soit le poids réel. */
+  poidsMinimumFactureKg: Numerique
+  /** (L × l × h en cm) ÷ diviseur = kg. `null` désactive la règle. */
+  diviseurVolumetrique: number | null
+  appliquerPoidsVolumetrique: boolean
+}
+
+export type PoidsFacture =
+  | {
+      statut: 'RETENU'
+      /** Poids effectivement facturé, après volumétrique, arrondi et minimum. */
+      poidsFactureKg: Decimal
+      poidsReelKg: Decimal | null
+      poidsVolumetriqueKg: Decimal | null
+      source: 'REEL' | 'VOLUMETRIQUE'
+      /** Explication en clair, destinée au devis et à la facture. */
+      detail: string
+    }
+  | { statut: 'INDETERMINE'; motif: string }
 
 export type CodeRefus =
   | 'LIAISON_INTROUVABLE'
   | 'LIAISON_INACTIVE'
   | 'CATEGORIE_INACTIVE'
-  | 'POIDS_MANQUANT'
+  | 'POIDS_INDETERMINE'
   | 'POIDS_INVALIDE'
   | 'TARIF_INVALIDE'
   | 'VALEUR_ACHAT_MANQUANTE'

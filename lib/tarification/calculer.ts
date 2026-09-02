@@ -1,4 +1,5 @@
 import { arrondir } from './devise'
+import { resoudrePoidsFacture } from './poids'
 import {
   Decimal,
   type CodeRefus,
@@ -26,11 +27,6 @@ import {
 /** Formate un nombre à la française, pour les libellés imprimés. */
 function fr(valeur: Decimal, decimales: number): string {
   return valeur.toFixed(decimales).replace('.', ',')
-}
-
-/** Le poids s'affiche sans décimales inutiles : 12,5 kg et non 12,500 kg. */
-function formaterPoids(poids: Decimal): string {
-  return `${poids.toDecimalPlaces(3).toString().replace('.', ',')} kg`
 }
 
 function euros(montant: Decimal): string {
@@ -65,8 +61,8 @@ export function calculerTarif(demande: DemandeTarification): Tarification {
 
   switch (categorie.mode) {
     case 'POIDS_X_TARIF_LIAISON': {
-      const poids = lirePoids(demande.poidsKg)
-      if (poids.erreur) return poids.erreur
+      const poids = resoudrePoids(demande)
+      if (!poids.ok) return poids.erreur
 
       const prix = new Decimal(liaison!.prixParKg)
       const tarifInvalide = verifierMontantPositif(prix, 'TARIF_INVALIDE', 'de la liaison')
@@ -74,8 +70,8 @@ export function calculerTarif(demande: DemandeTarification): Tarification {
 
       return {
         statut: 'CALCULE',
-        montantEur: arrondirEuros(poids.valeur.mul(prix)),
-        detail: `${formaterPoids(poids.valeur)} × ${euros(prix)}/kg`,
+        montantEur: arrondirEuros(poids.poidsFactureKg.mul(prix)),
+        detail: `${poids.detail} × ${euros(prix)}/kg`,
       }
     }
 
@@ -85,8 +81,8 @@ export function calculerTarif(demande: DemandeTarification): Tarification {
       if (estAbsent(categorie.valeur)) {
         return manqueParametre(categorie.libelle, 'un tarif au kilo')
       }
-      const poids = lirePoids(demande.poidsKg)
-      if (poids.erreur) return poids.erreur
+      const poids = resoudrePoids(demande)
+      if (!poids.ok) return poids.erreur
 
       const tarifFixe = new Decimal(categorie.valeur!)
       const tarifInvalide = verifierMontantPositif(
@@ -98,8 +94,8 @@ export function calculerTarif(demande: DemandeTarification): Tarification {
 
       return {
         statut: 'CALCULE',
-        montantEur: arrondirEuros(poids.valeur.mul(tarifFixe)),
-        detail: `${formaterPoids(poids.valeur)} × ${euros(tarifFixe)}/kg — ${categorie.libelle}`,
+        montantEur: arrondirEuros(poids.poidsFactureKg.mul(tarifFixe)),
+        detail: `${poids.detail} × ${euros(tarifFixe)}/kg — ${categorie.libelle}`,
       }
     }
 
@@ -196,37 +192,35 @@ function verifierLiaison(liaison: DemandeTarification['liaison']): Tarification 
   return null
 }
 
-function lirePoids(
-  poidsKg: Numerique | null | undefined,
-): { valeur: Decimal; erreur?: undefined } | { valeur: Decimal; erreur: Tarification } {
-  const zero = new Decimal(0)
+/**
+ * Lit le poids réel puis délègue à `resoudrePoidsFacture` : poids
+ * volumétrique, arrondi au kilo supérieur et minimum facturé.
+ */
+type ResolutionPoids =
+  { ok: true; poidsFactureKg: Decimal; detail: string } | { ok: false; erreur: Tarification }
 
-  if (estAbsent(poidsKg)) {
-    return {
-      valeur: zero,
-      erreur: refus(
-        'POIDS_MANQUANT',
-        'Le poids est indispensable au calcul. Pesez le colis avant de chiffrer.',
-      ),
+function resoudrePoids(demande: DemandeTarification): ResolutionPoids {
+  const brut = demande.poidsKg
+  let poidsReel: Decimal | null = null
+
+  if (!estAbsent(brut)) {
+    try {
+      poidsReel = new Decimal(brut!)
+    } catch {
+      return { ok: false, erreur: refus('POIDS_INVALIDE', `Poids illisible : ${String(brut)}.`) }
+    }
+    if (!poidsReel.isFinite() || poidsReel.lessThanOrEqualTo(0)) {
+      return {
+        ok: false,
+        erreur: refus('POIDS_INVALIDE', 'Le poids doit être strictement positif.'),
+      }
     }
   }
 
-  let poids: Decimal
-  try {
-    poids = new Decimal(poidsKg!)
-  } catch {
-    return {
-      valeur: zero,
-      erreur: refus('POIDS_INVALIDE', `Poids illisible : ${String(poidsKg)}.`),
-    }
+  const resolu = resoudrePoidsFacture(poidsReel, demande.dimensions, demande.parametres)
+  if (resolu.statut === 'INDETERMINE') {
+    return { ok: false, erreur: refus('POIDS_INDETERMINE', resolu.motif) }
   }
 
-  if (!poids.isFinite() || poids.lessThanOrEqualTo(0)) {
-    return {
-      valeur: zero,
-      erreur: refus('POIDS_INVALIDE', 'Le poids doit être strictement positif.'),
-    }
-  }
-
-  return { valeur: poids }
+  return { ok: true, poidsFactureKg: resolu.poidsFactureKg, detail: resolu.detail }
 }
