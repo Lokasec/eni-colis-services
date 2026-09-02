@@ -914,6 +914,15 @@ async function main() {
     },
   })
 
+  // « Convertie » doit vouloir dire quelque chose : le colis ENI-2026-00104
+  // EST cette demande, une fois passée en exploitation. Sans ce lien, le
+  // statut serait un libellé sans réalité, et la fiche du devis n'aurait
+  // aucun colis vers lequel renvoyer.
+  await db.colis.update({
+    where: { codeSuivi: 'ENI-2026-00104' },
+    data: { demandeDevisId: demandeEncombrant.id },
+  })
+
   await db.demandeDevis.create({
     data: {
       reference: 'DEM-2026-00004',

@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { auth } from '@/auth'
+import { db } from '@/lib/db'
 
 /**
  * Contrôle des droits — CÔTÉ SERVEUR.
@@ -15,6 +16,13 @@ import { auth } from '@/auth'
 
 export type Role = 'ADMIN' | 'OPERATEUR'
 
+/**
+ * Un seul message pour les deux causes — jeton expiré, ou compte supprimé
+ * ou désactivé. Il dit quoi faire, et ne distingue pas les cas : on
+ * n'apprend pas à un visiteur si tel compte existe encore.
+ */
+const SESSION_INVALIDE = 'Votre session n’est plus valide. Reconnectez-vous pour poursuivre.'
+
 export type Utilisateur = {
   id: string
   nom: string
@@ -22,16 +30,31 @@ export type Utilisateur = {
   role: Role
 }
 
-/** Session courante, ou `null`. Ne redirige pas. */
+/**
+ * Session courante, ou `null`. Ne redirige pas.
+ *
+ * Le jeton porte le rôle, mais il vit aussi longtemps que la session : un
+ * compte rétrogradé en OPERATEUR ou désactivé conserverait ses droits
+ * jusqu'à l'expiration de son jeton. **Le rôle qui fait foi est celui de
+ * la base**, relu à chaque contrôle — une lecture par clé primaire, sur
+ * des pages qui interrogent déjà la base largement plus.
+ *
+ * Ce contrôle rattrape aussi le compte qui n'existe plus. Sans lui, la
+ * session restait « valide » et l'erreur ne surgissait qu'à l'écriture,
+ * sous la forme d'une violation de clé étrangère sur `auteurId` —
+ * incompréhensible à l'écran, et « réessayez » n'y changeait rien.
+ */
 export async function utilisateurCourant(): Promise<Utilisateur | null> {
   const session = await auth()
   if (!session?.user?.id) return null
-  return {
-    id: session.user.id,
-    nom: session.user.name ?? '',
-    email: session.user.email ?? '',
-    role: session.user.role,
-  }
+
+  const compte = await db.utilisateur.findUnique({
+    where: { id: session.user.id },
+    select: { id: true, nom: true, email: true, role: true, actif: true },
+  })
+  if (!compte || !compte.actif) return null
+
+  return { id: compte.id, nom: compte.nom, email: compte.email, role: compte.role }
 }
 
 /** Exige une session. À appeler en tête de toute page du back-office. */
@@ -60,7 +83,7 @@ export async function exigerAdminAction(): Promise<
   { ok: true; utilisateur: Utilisateur } | { ok: false; message: string }
 > {
   const utilisateur = await utilisateurCourant()
-  if (!utilisateur) return { ok: false, message: 'Votre session a expiré. Reconnectez-vous.' }
+  if (!utilisateur) return { ok: false, message: SESSION_INVALIDE }
   if (utilisateur.role !== 'ADMIN') {
     return { ok: false, message: 'Cette opération est réservée aux administrateurs.' }
   }
@@ -72,7 +95,7 @@ export async function exigerConnexionAction(): Promise<
   { ok: true; utilisateur: Utilisateur } | { ok: false; message: string }
 > {
   const utilisateur = await utilisateurCourant()
-  if (!utilisateur) return { ok: false, message: 'Votre session a expiré. Reconnectez-vous.' }
+  if (!utilisateur) return { ok: false, message: SESSION_INVALIDE }
   return { ok: true, utilisateur }
 }
 

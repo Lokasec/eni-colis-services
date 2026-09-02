@@ -386,7 +386,7 @@ model Utilisateur {
   id           String  @id @default(cuid())
   email        String  @unique
   nom          String
-  motDePasse   String // haché avec argon2 — jamais en clair
+  motDePasse   String // haché avec scrypt (lib/mot-de-passe.ts) — jamais en clair
   role         Role    @default(OPERATEUR)
   actif        Boolean @default(true)
 

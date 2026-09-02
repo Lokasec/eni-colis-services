@@ -1,7 +1,8 @@
 import type { MetadataRoute } from 'next'
 import { destinationsPubliques } from '@/lib/donnees-publiques'
+import { site } from '@/lib/site'
 
-const base = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+const base = site.url
 
 /**
  * Plan du site.

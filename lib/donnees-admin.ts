@@ -360,6 +360,9 @@ export async function demandeParReference(reference: string) {
       photos: { orderBy: { ordre: 'asc' } },
       categorie: true,
       documents: { orderBy: { dateEmission: 'desc' } },
+      // Le colis issu de la conversion, s'il existe : la fiche doit
+      // pouvoir y renvoyer plutôt que d'offrir une seconde conversion.
+      colis: { select: { codeSuivi: true, statut: true } },
     },
   })
 }

@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { exigerAdminAction, exigerConnexionAction } from '@/lib/autorisation'
 import { db } from '@/lib/db'
 import { adresseInterne, envoyer } from '@/lib/email'
+import { convertirDemandeEnColis } from '@/lib/admin/conversion'
 import { convertirPourPays } from '@/lib/admin/facturation'
 import { prochainNumero, TRANSACTION } from '@/lib/numerotation'
 import { site } from '@/lib/site'
@@ -467,4 +468,130 @@ export async function signalerDevisEnRetard(reference: string, jours: number) {
     sujet: `[Relance interne] Devis ${reference} sans réponse depuis ${jours} jours`,
     texte: `La demande ${reference} attend un chiffrage depuis ${jours} jours.`,
   })
+}
+
+// ===========================================================================
+// Réponse du client, puis conversion en colis
+// ===========================================================================
+
+/**
+ * Enregistre la réponse du client à un devis envoyé.
+ *
+ * C'est une saisie manuelle : le client répond par téléphone, par WhatsApp
+ * ou par e-mail. Il n'y a pas d'acceptation en ligne — ce serait un
+ * engagement contractuel, hors périmètre de la phase 1.
+ */
+export async function statuerDevis(
+  _precedent: Reponse | null,
+  donnees: FormData,
+): Promise<Reponse> {
+  const session = await exigerConnexionAction()
+  if (!session.ok) return session
+
+  const demandeId = String(donnees.get('demandeId') ?? '')
+  const reponse = String(donnees.get('reponse') ?? '')
+  if (reponse !== 'ACCEPTEE' && reponse !== 'REFUSEE') {
+    return { ok: false, message: 'Réponse inconnue.' }
+  }
+
+  const demande = await db.demandeDevis.findUnique({
+    where: { id: demandeId },
+    select: { statut: true, reference: true },
+  })
+  if (!demande) return { ok: false, message: 'Cette demande n’existe plus.' }
+  if (demande.statut === 'CONVERTIE') {
+    return { ok: false, message: 'Ce devis est déjà converti en colis.' }
+  }
+
+  await db.demandeDevis.update({ where: { id: demandeId }, data: { statut: reponse } })
+
+  revalidatePath('/admin/devis')
+  return {
+    ok: true,
+    message:
+      reponse === 'ACCEPTEE'
+        ? `Devis ${demande.reference} accepté. Vous pouvez créer le colis.`
+        : `Devis ${demande.reference} marqué refusé.`,
+  }
+}
+
+/**
+ * Convertit un devis ACCEPTÉ en colis, avec son code de suivi.
+ *
+ * C'est le passage du commercial à l'exploitation, et il porte trois
+ * décisions qui ne se voient pas :
+ *
+ *  1. Le code de suivi est tiré de la MÊME séquence transactionnelle que
+ *     les autres numéros : deux conversions simultanées ne peuvent pas
+ *     produire le même code.
+ *  2. `necessiteReacheminement` est déduit de la ville d'arrivée. Cotonou,
+ *     Conakry, Bamako, Dakar et Thiès passent par Abidjan. C'est INTERNE :
+ *     le client verra `EN_TRANSIT`, jamais l'escale (CLAUDE.md §4.1).
+ *  3. Le devis émis est rattaché au colis. Sans ce lien, la facture
+ *     ultérieure ne pourrait pas être rapprochée de son estimation, et le
+ *     module Créances perdrait la trace du document d'origine.
+ *
+ * L'opération est idempotente à l'usage : une demande déjà convertie
+ * renvoie le colis existant au lieu d'en créer un second.
+ */
+export async function convertirEnColis(
+  _precedent: Reponse | null,
+  donnees: FormData,
+): Promise<Reponse> {
+  const session = await exigerConnexionAction()
+  if (!session.ok) return session
+
+  const demandeId = String(donnees.get('demandeId') ?? '')
+  if (!demandeId) return { ok: false, message: 'Demande manquante.' }
+
+  let resultat: Awaited<ReturnType<typeof convertirDemandeEnColis>>
+  try {
+    resultat = await convertirDemandeEnColis(demandeId, session.utilisateur.id)
+  } catch (erreur) {
+    console.error('[devis] conversion impossible :', erreur)
+    return { ok: false, message: 'La conversion a échoué. Réessayez.' }
+  }
+
+  if (resultat.statut === 'REFUS') return { ok: false, message: resultat.motif }
+  if (resultat.statut === 'DEJA_CONVERTIE') {
+    return {
+      ok: true,
+      message: 'Cette demande est déjà convertie.',
+      detail: `Colis ${resultat.codeSuivi}.`,
+    }
+  }
+
+  const { codeSuivi } = resultat
+  const demande = resultat.demande
+
+  if (demande) {
+    await envoyer({
+      destinataire: demande.email,
+      sujet: `Votre colis ${codeSuivi} — ${site.name}`,
+      texte: [
+        `Bonjour ${demande.nom},`,
+        '',
+        `Votre devis ${demande.reference} est accepté, et votre envoi vers ${demande.villeArrivee} est enregistré.`,
+        '',
+        `Code de suivi : ${codeSuivi}`,
+        `Suivez-le à tout moment sur ${site.url}/suivi?code=${codeSuivi}`,
+        '',
+        demande.modeRemise === 'EXPEDITION'
+          ? `Collez le numéro ${demande.reference} de façon lisible sur le colis avant de l’expédier à notre bureau de Rouen.`
+          : 'Présentez ce code lors du dépôt au bureau de Rouen.',
+        '',
+        site.name,
+        site.telephone,
+      ].join('\n'),
+    })
+  }
+
+  revalidatePath('/admin/devis')
+  revalidatePath('/admin/colis')
+  revalidatePath('/admin')
+  return {
+    ok: true,
+    message: `Colis créé : ${codeSuivi}.`,
+    detail: demande ? `Le code de suivi a été envoyé à ${demande.email}.` : undefined,
+  }
 }

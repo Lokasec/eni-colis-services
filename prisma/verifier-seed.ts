@@ -205,6 +205,18 @@ async function main() {
     `${params?.plafondIndemnisationParKgEur} €/kg, plafond ${params?.plafondIndemnisationParColisEur} € · garde ${params?.delaiGardeGratuiteJours} j puis ${params?.fraisGardeParJourEur} €/j · abandon ${params?.delaiAbandonJours} j`,
   )
 
+  // Un devis « converti » sans colis serait un libellé sans réalité : le
+  // parcours s'arrêterait là, et personne ne le verrait à l'écran.
+  const converties = await db.demandeDevis.findMany({
+    where: { statut: 'CONVERTIE' },
+    select: { reference: true, colis: { select: { codeSuivi: true } } },
+  })
+  verifier(
+    'Devis converti : un colis existe réellement derrière',
+    converties.length > 0 && converties.every((d) => d.colis.length > 0),
+    converties.map((d) => `${d.reference} → ${d.colis[0]?.codeSuivi ?? 'AUCUN COLIS'}`).join(', '),
+  )
+
   // --- Exploitation ---------------------------------------------------------
 
   const nonRattaches = await db.colis.findMany({

@@ -11,6 +11,7 @@ import { demandeParReference } from '@/lib/donnees-admin'
 import { suggererPourDemande } from '@/lib/admin/facturation'
 import { site, whatsappLink } from '@/lib/site'
 import { PanneauChiffrage } from './panneau'
+import { SuiteDuDevis } from './suite'
 
 export const dynamic = 'force-dynamic'
 
@@ -166,6 +167,13 @@ export default async function FicheDevis({ params }: { params: Promise<{ referen
                   : suggestion.motif
             }
             montantExistant={documentEmis ? Number(documentEmis.montantEur).toFixed(2) : ''}
+          />
+
+          <SuiteDuDevis
+            demandeId={demande.id}
+            statut={demande.statut}
+            devisEmis={documentEmis !== null}
+            colis={demande.colis[0] ?? null}
           />
         </div>
       </div>

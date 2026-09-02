@@ -13,6 +13,13 @@
 
 export const site = {
   name: 'ENI Colis Services',
+  /**
+   * Adresse canonique du site. Elle sert aux métadonnées, au plan du site
+   * ET aux liens de suivi glissés dans les e-mails : un lien vers
+   * `localhost` dans un e-mail parti en production serait invisible ici et
+   * inutilisable pour le destinataire. Une seule source, donc.
+   */
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',
   baseline: "Envoi de colis entre la France, l'Afrique et New York.",
   adresse: {
     rue: '67 rue Saint-Julien',

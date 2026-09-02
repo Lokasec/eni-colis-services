@@ -3,9 +3,10 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getLocale, getMessages } from 'next-intl/server'
 import { brandColors } from '@/design/tokens.generated'
 import { montserrat } from '@/lib/fonts'
+import { site } from '@/lib/site'
 import './globals.css'
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+const siteUrl = site.url
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
