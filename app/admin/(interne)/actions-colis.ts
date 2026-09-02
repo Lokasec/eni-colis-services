@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { exigerConnexionAction } from '@/lib/autorisation'
 import { db } from '@/lib/db'
-import { prochainNumero } from '@/lib/numerotation'
+import { prochainNumero, TRANSACTION } from '@/lib/numerotation'
 import type { StatutColis } from '@/lib/statuts'
 
 export type Reponse = { ok: true; message: string } | { ok: false; message: string }
@@ -81,7 +81,7 @@ export async function rattacherColis(
         session.utilisateur.id,
         `Rattaché à ${client.numeroClient}${poids !== null ? ` · pesé ${poids} kg` : ''}`,
       )
-    })
+    }, TRANSACTION)
   } catch (erreur) {
     console.error('[colis] rattachement impossible :', erreur)
     return { ok: false, message: 'Le rattachement a échoué. Réessayez.' }
@@ -152,7 +152,7 @@ export async function changerStatut(
         },
       })
       await journaliser(tx, colisId, statut, session.utilisateur.id, commentaire)
-    })
+    }, TRANSACTION)
   } catch (erreur) {
     console.error('[colis] changement de statut impossible :', erreur)
     return { ok: false, message: 'Le changement de statut a échoué.' }
@@ -275,7 +275,7 @@ export async function enregistrerColis(
         anonyme ? 'Reçu sans identifiant client' : undefined,
       )
       return colis.codeSuivi
-    })
+    }, TRANSACTION)
   } catch (erreur) {
     console.error('[colis] enregistrement impossible :', erreur)
     return { ok: false, message: 'L’enregistrement a échoué. Réessayez.' }

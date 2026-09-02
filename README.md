@@ -4,7 +4,7 @@ Site public et back-office d'exploitation d'**ENI Colis Services** — envoi de 
 
 Le brief permanent est dans [`CLAUDE.md`](CLAUDE.md), le cahier des charges dans [`docs/CDC-v1.3.md`](docs/CDC-v1.3.md), la maquette validée dans [`docs/maquette/`](docs/maquette/).
 
-> **État d'avancement : lot 7 — back-office.** Site public, formulaires et exploitation du back-office sont en place. Restent la facturation (lot 8), les PDF et notifications (lot 9), la recette (lot 10). Voir [`DEMARRER.md`](DEMARRER.md).
+> **État d'avancement : lot 8 — facturation.** Site public, formulaires, exploitation et facturation sont en place. Restent les PDF et la messagerie (lot 9), puis la recette (lot 10). Voir [`DEMARRER.md`](DEMARRER.md).
 
 ---
 
@@ -73,6 +73,18 @@ Accès sur `/admin`. Comptes de démonstration créés par le seed :
 Masquer une entrée de menu ne protège rien : l'URL reste tapable et la Server Action reste appelable. Vérifié : un compte `OPERATEUR` reçoit une redirection sur les six rubriques réservées — créances, factures, encaissements, tarifs, destinations, paramètres — **même en tapant l'URL directement**.
 
 Les mots de passe sont hachés par **`scrypt`**, de la bibliothèque standard de Node : pas de dépendance native à compiler au déploiement, ni de portage JavaScript plus lent. Les paramètres voyagent avec l'empreinte, pour pouvoir les durcir sans invalider les mots de passe existants.
+
+### Facturation
+
+**Devis** — le moteur de tarification propose un montant, la cliente le modifie librement. Un bouton remet la suggestion. Pour l'électronique, le moteur refuse explicitement de chiffrer plutôt que d'inventer un chiffre : la tarification se fait à l'unité, après examen.
+
+**Factures** — la numérotation est **continue et sans trou** : le compteur est incrémenté dans la même transaction que la facture, donc deux émissions simultanées ne peuvent pas obtenir le même numéro et un échec n'en consomme pas. La page signale visiblement tout trou dans la séquence.
+
+**Double devise** — proposée sur les colis payés à l'arrivée. Le taux du jour est **figé sur la facture** et le montant en devise stocké. Modifier un taux dans Tarifs n'affecte que les factures à venir : un client règle toujours le montant qu'on lui a annoncé.
+
+**Créances** — factures émises et non soldées, avec le total dû, l'ancienneté depuis le **départ effectif** (pas depuis l'émission) et une relance par e-mail.
+
+Le moteur de tarification est appelé depuis `lib/admin/facturation.ts`. Le chemin fait partie de la protection : `isolement.test.ts` n'autorise son import que depuis `app/admin`, `app/api/admin`, `lib/tarification` et `lib/admin`.
 
 ### Ergonomie
 

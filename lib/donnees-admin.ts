@@ -317,3 +317,166 @@ export async function departsOuverts() {
     orderBy: { dateDepart: 'asc' },
   })
 }
+
+// ===========================================================================
+// Facturation
+// ===========================================================================
+
+export async function demandesDevis(statut?: string) {
+  return db.demandeDevis.findMany({
+    where: statut ? { statut: statut as never } : {},
+    select: {
+      id: true,
+      reference: true,
+      statut: true,
+      nom: true,
+      email: true,
+      telephone: true,
+      villeDepart: true,
+      paysDepart: true,
+      villeArrivee: true,
+      paysArrivee: true,
+      poidsEstime: true,
+      valeurAchat: true,
+      creeLe: true,
+      categorie: { select: { code: true, libelle: true } },
+      _count: { select: { photos: true } },
+      documents: { select: { numero: true, montantEur: true } },
+    },
+    orderBy: { creeLe: 'asc' },
+    take: 100,
+  })
+}
+
+export async function demandeParReference(reference: string) {
+  return db.demandeDevis.findUnique({
+    where: { reference },
+    include: {
+      photos: { orderBy: { ordre: 'asc' } },
+      categorie: true,
+      documents: { orderBy: { dateEmission: 'desc' } },
+    },
+  })
+}
+
+/** Colis pesés et non encore facturés — la file d'émission. */
+export async function colisAFacturer() {
+  return db.colis.findMany({
+    where: { documents: { none: { type: 'FACTURE' } } },
+    select: {
+      id: true,
+      codeSuivi: true,
+      statut: true,
+      momentPaiement: true,
+      poidsReel: true,
+      valeurDeclaree: true,
+      destinataireNom: true,
+      categorie: { select: { code: true, libelle: true } },
+      villeArrivee: {
+        select: { nom: true, pays: { select: { nom: true, codeIso: true, monnaie: true } } },
+      },
+      client: { select: { numeroClient: true } },
+    },
+    orderBy: { creeLe: 'desc' },
+    take: 60,
+  })
+}
+
+export async function listeFactures() {
+  return db.document.findMany({
+    where: { type: 'FACTURE' },
+    select: {
+      id: true,
+      numero: true,
+      montantEur: true,
+      devise: true,
+      tauxApplique: true,
+      montantDevise: true,
+      dateEmission: true,
+      dateReglement: true,
+      detail: true,
+      mentionFiscale: true,
+      colis: { select: { codeSuivi: true, destinataireNom: true } },
+      encaissements: {
+        select: { montant: true, devise: true, dateEncaissement: true, lieu: true },
+      },
+    },
+    orderBy: { numero: 'desc' },
+    take: 200,
+  })
+}
+
+/**
+ * Créances : factures émises et non soldées, sur des colis déjà partis.
+ *
+ * C'est le module critique du mode A — l'entreprise avance le transport et
+ * n'est payée qu'à l'arrivée (CLAUDE.md §5.4).
+ */
+export async function creances() {
+  const factures = await db.document.findMany({
+    where: { type: 'FACTURE', dateReglement: null },
+    select: {
+      id: true,
+      numero: true,
+      montantEur: true,
+      devise: true,
+      montantDevise: true,
+      dateEmission: true,
+      colis: {
+        select: {
+          codeSuivi: true,
+          destinataireNom: true,
+          statut: true,
+          statutPaiement: true,
+          dateDepartEffectif: true,
+          dateDisponible: true,
+          client: { select: { numeroClient: true, email: true } },
+          villeArrivee: { select: { nom: true } },
+        },
+      },
+      encaissements: { select: { montant: true } },
+    },
+    orderBy: { dateEmission: 'asc' },
+  })
+
+  return factures.map((f) => {
+    const regle = f.encaissements.reduce((total, e) => total + Number(e.montant), 0)
+    const du = f.devise === 'EUR' ? Number(f.montantEur) : Number(f.montantDevise ?? f.montantEur)
+    return { ...f, dejaRegle: regle, resteDu: Math.max(0, du - regle) }
+  })
+}
+
+export async function listeEncaissements() {
+  return db.encaissement.findMany({
+    select: {
+      id: true,
+      montant: true,
+      devise: true,
+      lieu: true,
+      moyen: true,
+      reference: true,
+      dateEncaissement: true,
+      operateur: { select: { nom: true } },
+      document: { select: { numero: true, colis: { select: { codeSuivi: true } } } },
+    },
+    orderBy: { dateEncaissement: 'desc' },
+    take: 200,
+  })
+}
+
+/** Pays et leurs taux — parité fixe ou taux saisi. */
+export async function paysEtTaux() {
+  return db.pays.findMany({
+    where: { actif: true, NOT: { codeIso: 'FR' } },
+    select: {
+      id: true,
+      nom: true,
+      codeIso: true,
+      monnaie: true,
+      tauxFixe: true,
+      tauxManuel: true,
+      tauxManuelMajLe: true,
+    },
+    orderBy: { nom: 'asc' },
+  })
+}

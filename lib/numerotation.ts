@@ -16,6 +16,18 @@ import type { Prisma } from '@/lib/generated/prisma/client'
 
 export type TypeSequence = 'DEVIS' | 'FACTURE' | 'COLIS' | 'DEMANDE' | 'DEPART' | 'CLIENT'
 
+/**
+ * Options des transactions qui écrivent plusieurs lignes.
+ *
+ * Le défaut de Prisma est de 5 secondes. C'est court dès que la base est
+ * distante : sur Neon, une transaction à trois écritures peut le dépasser
+ * au premier appel d'une instance froide. Constaté en développement, et la
+ * latence réseau ne fera qu'aggraver le cas en production.
+ *
+ * `maxWait` couvre l'attente d'une connexion libre dans le pool.
+ */
+export const TRANSACTION = { maxWait: 10_000, timeout: 20_000 } as const
+
 /** Client Prisma ou client transactionnel — les deux conviennent. */
 type Executeur = Prisma.TransactionClient
 

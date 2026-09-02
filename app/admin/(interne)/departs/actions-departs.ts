@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { exigerConnexionAction } from '@/lib/autorisation'
 import { db } from '@/lib/db'
-import { prochainNumero } from '@/lib/numerotation'
+import { prochainNumero, TRANSACTION } from '@/lib/numerotation'
 import type { Reponse } from '../actions-colis'
 
 /** Crée un départ sur une liaison. La référence est attribuée en transaction. */
@@ -44,7 +44,7 @@ export async function creerDepart(_precedent: Reponse | null, donnees: FormData)
         },
       })
       return numero
-    })
+    }, TRANSACTION)
   } catch (erreur) {
     console.error('[depart] création impossible :', erreur)
     return { ok: false, message: 'La création du départ a échoué.' }
@@ -98,7 +98,7 @@ export async function changerStatutDepart(
           })
         }
       }
-    })
+    }, TRANSACTION)
   } catch (erreur) {
     console.error('[depart] changement de statut impossible :', erreur)
     return { ok: false, message: 'Le changement de statut a échoué.' }

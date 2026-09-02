@@ -2,7 +2,7 @@
 
 import { db } from '@/lib/db'
 import { adresseInterne, envoyer } from '@/lib/email'
-import { prochainNumero } from '@/lib/numerotation'
+import { prochainNumero, TRANSACTION } from '@/lib/numerotation'
 import { verifierLimite } from '@/lib/rate-limit'
 import { site } from '@/lib/site'
 import { deposerPhoto } from '@/lib/stockage'
@@ -170,7 +170,7 @@ export async function envoyerDemandeDevis(
         },
       })
       return numero
-    })
+    }, TRANSACTION)
   } catch (erreur) {
     console.error('[devis] enregistrement impossible :', erreur)
     return {

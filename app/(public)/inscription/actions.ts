@@ -2,7 +2,7 @@
 
 import { db } from '@/lib/db'
 import { adresseInterne, envoyer } from '@/lib/email'
-import { prochainIdentifiantClient } from '@/lib/numerotation'
+import { prochainIdentifiantClient, TRANSACTION } from '@/lib/numerotation'
 import { verifierLimite } from '@/lib/rate-limit'
 import { site } from '@/lib/site'
 import { schemaInscription } from '@/lib/validation'
@@ -117,7 +117,7 @@ export async function inscrire(
         },
       })
       return identifiant
-    })
+    }, TRANSACTION)
   } catch (erreur) {
     console.error('[inscription] création impossible :', erreur)
     return {
