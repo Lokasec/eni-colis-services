@@ -159,6 +159,26 @@ Prévoir la purge automatique des devis non convertis après douze mois.
 
 ---
 
+## Ce que le premier déploiement réel a appris
+
+Cinq pièges, aucun visible en relisant le code. Ils sont corrigés, mais ils se reproduiront sur un autre projet.
+
+**1. Vercel crée une variable vide pour chaque clé de `.env.example`.** À l'import du dépôt, treize variables sont apparues, toutes vides. Or `process.env.X ?? 'défaut'` ne se déclenche que sur une variable ABSENTE : une variable vide traverse le `??` et gagne. Le seed a reçu `TAUX_CFA=''`, Prisma a refusé (« Failed to parse empty string »), et la base de production est restée à moitié chargée. `lib/env.ts` traite désormais le vide comme l'absence, partout.
+
+Ces variables vides bloquent aussi la suite : l'intégration Neon refuse de créer `DATABASE_URL` s'il en existe déjà une, même vide, et le collage des secrets échoue en silence sur les doublons. **Supprimez les variables vides avant de configurer quoi que ce soit.**
+
+**2. La région Neon est Washington par défaut.** Le brief impose l'Union européenne pour la base — c'est du RGPD, pas une préférence. Frankfurt (`fra1`).
+
+**3. Les migrations ne passent pas par pgbouncer.** Neon expose `DATABASE_URL` (poolée) et `DATABASE_URL_UNPOOLED` (directe). Prisma s'appuie sur des verrous de SESSION pour ne pas appliquer deux fois une migration ; le pool ne les garantit pas en mode transaction. `prisma.config.ts` prend la connexion directe pour le CLI, l'application garde le pool.
+
+**4. Sans `postinstall`, le client Prisma n'existe pas.** `lib/generated/` est ignoré par git. Le premier build est mort sur `ERR_MODULE_NOT_FOUND` — et ce n'était pas qu'un script d'amorçage : l'application entière n'aurait pas démarré.
+
+**5. Un garde-fou mal choisi fige une base cassée.** L'amorçage sautait le seed dès qu'un pays existait. Le seed ayant échoué après la France et avant la Côte d'Ivoire, une seule ligne suffisait à faire passer la base pour peuplée : déploiement après déploiement, le site restait sans destinations. Le garde-fou compte maintenant les **colis, documents et clients** — la donnée irremplaçable. La donnée de référence, elle, se recharge.
+
+> **La leçon commune aux points 1 et 5** : attraper une erreur pour ne pas bloquer un déploiement produit une production incohérente que personne ne voit. Un déploiement qui échoue se voit. `scripts/amorcer-production.ts` sort désormais en code 1.
+
+---
+
 ## Récapitulatif des outils
 
 | Outil | Usage | Coût |
