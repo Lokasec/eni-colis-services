@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
 
+import { renseignee } from '@/lib/env'
 import { site } from '@/lib/site'
 
 const base = site.url
@@ -13,7 +14,7 @@ const base = site.url
  * colis et n'a aucune raison d'être exploré.
  */
 export default function robots(): MetadataRoute.Robots {
-  const ouvertAuPublic = process.env.NEXT_PUBLIC_INDEXATION === 'active'
+  const ouvertAuPublic = renseignee(process.env.NEXT_PUBLIC_INDEXATION) === 'active'
 
   return {
     rules: ouvertAuPublic

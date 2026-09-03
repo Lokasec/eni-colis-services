@@ -1,5 +1,6 @@
 import { Resend } from 'resend'
 import { brandColors } from '@/design/tokens.generated'
+import { renseignee } from '@/lib/env'
 import { site } from '@/lib/site'
 
 /**
@@ -15,11 +16,11 @@ import { site } from '@/lib/site'
  * ne fait jamais attendre l'utilisateur derrière un service tiers.
  */
 
-const cle = process.env.RESEND_API_KEY
+const cle = renseignee(process.env.RESEND_API_KEY)
 const resend = cle ? new Resend(cle) : null
 
-const expediteur = process.env.EMAIL_FROM ?? 'noreply@enicolisservices.com'
-const interne = process.env.EMAIL_INTERNAL ?? 'contact@enicolisservices.com'
+const expediteur = renseignee(process.env.EMAIL_FROM) ?? 'noreply@enicolisservices.com'
+const interne = renseignee(process.env.EMAIL_INTERNAL) ?? 'contact@enicolisservices.com'
 
 export type Courriel = {
   destinataire: string

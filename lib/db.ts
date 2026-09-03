@@ -1,5 +1,6 @@
 import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '@/lib/generated/prisma/client'
+import { renseignee } from '@/lib/env'
 
 /**
  * Client Prisma unique.
@@ -14,7 +15,7 @@ import { PrismaClient } from '@/lib/generated/prisma/client'
  * rechargements à chaud de Next.js.
  */
 const createPrismaClient = () => {
-  const connectionString = process.env.DATABASE_URL
+  const connectionString = renseignee(process.env.DATABASE_URL)
   if (!connectionString) {
     throw new Error(
       'DATABASE_URL est absent. Copiez .env.example en .env et renseignez la chaîne de connexion PostgreSQL.',

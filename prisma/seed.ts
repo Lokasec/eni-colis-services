@@ -439,6 +439,21 @@ async function main() {
   // ==========================================================================
   console.log('Utilisateurs du back-office…')
 
+  // Le repli sur un mot de passe connu est acceptable en développement.
+  // EN PRODUCTION, IL NE L'EST PAS : le compte administrateur aurait un
+  // mot de passe publié dans .env.example et dans le README. Le seed
+  // s'exécute au build sur Vercel — sans ce garde-fou, un déploiement
+  // livrerait un back-office ouvert à qui a lu le dépôt.
+  const enProduction =
+    process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production'
+  if (enProduction && !process.env.SEED_MOT_DE_PASSE) {
+    throw new Error(
+      'SEED_MOT_DE_PASSE est absent en production. Le seed refuse de créer un compte ' +
+        'administrateur avec le mot de passe de démonstration. Renseignez la variable ' +
+        'dans Vercel, puis relancez le déploiement.',
+    )
+  }
+
   const motDePasseDemo = process.env.SEED_MOT_DE_PASSE ?? 'eni-demo-2026'
 
   await db.utilisateur.create({

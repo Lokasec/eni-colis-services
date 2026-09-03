@@ -1,3 +1,5 @@
+import { renseignee } from '@/lib/env'
+
 /**
  * Constantes d'identité et de navigation.
  *
@@ -19,7 +21,7 @@ export const site = {
    * `localhost` dans un e-mail parti en production serait invisible ici et
    * inutilisable pour le destinataire. Une seule source, donc.
    */
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',
+  url: renseignee(process.env.NEXT_PUBLIC_SITE_URL) ?? 'http://localhost:3000',
   baseline: "Envoi de colis entre la France, l'Afrique et New York.",
   adresse: {
     rue: '67 rue Saint-Julien',
@@ -39,7 +41,7 @@ export const site = {
    */
   horaires: { plage: '9 h 30 – 18 h', jours: null as string | null },
   // Format international sans « + » ni espace, pour les liens wa.me
-  whatsapp: process.env.NEXT_PUBLIC_WHATSAPP ?? '33652707014',
+  whatsapp: renseignee(process.env.NEXT_PUBLIC_WHATSAPP) ?? '33652707014',
   concepteur: { nom: 'di-eureka', url: 'https://www.di-eureka.com' },
 } as const
 

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale, getMessages } from 'next-intl/server'
 import { brandColors } from '@/design/tokens.generated'
+import { renseignee } from '@/lib/env'
 import { montserrat } from '@/lib/fonts'
 import { site } from '@/lib/site'
 import './globals.css'
@@ -39,7 +40,7 @@ export const metadata: Metadata = {
    * légales vides est pire qu'un site non indexé.
    */
   robots:
-    process.env.NEXT_PUBLIC_INDEXATION === 'active'
+    renseignee(process.env.NEXT_PUBLIC_INDEXATION) === 'active'
       ? { index: true, follow: true }
       : { index: false, follow: false },
 }
