@@ -40,19 +40,38 @@ if (!connectionString) {
 const db = new PrismaClient({ adapter: new PrismaPg({ connectionString }) })
 
 try {
-  const [pays, colis, documents] = await Promise.all([
-    db.pays.count(),
+  // CE QU'IL FAUT PROTEGER, c'est la donnée d'exploitation : les colis
+  // reçus, les factures émises, les encaissements. Elle est irremplaçable.
+  //
+  // Les données de RÉFÉRENCE — pays, villes, liaisons, tarifs — ne le sont
+  // pas : elles se rechargent depuis le seed à l'identique. Le garde-fou
+  // porte donc sur les premières, pas sur les secondes.
+  //
+  // La première version testait `pays > 0`, et c'était faux. Le seed avait
+  // échoué APRÈS avoir créé la France et avant la Côte d'Ivoire : au
+  // déploiement suivant, une seule ligne suffisait à faire passer la base
+  // pour peuplée, le seed était sauté, et le site restait sans
+  // destinations. Une base à moitié chargée ressemblait à une base pleine.
+  const [colis, documents, clients, pays] = await Promise.all([
     db.colis.count(),
     db.document.count(),
+    db.client.count(),
+    db.pays.count(),
   ])
 
-  if (pays > 0) {
+  const donneesReelles = colis + documents + clients
+
+  if (donneesReelles > 0) {
     console.log(
-      `[amorçage] Base déjà peuplée — ${pays} pays, ${colis} colis, ${documents} documents. ` +
-        'Aucune écriture.',
+      `[amorçage] ${colis} colis, ${documents} documents, ${clients} clients en base. ` +
+        'Aucune écriture — le seed effacerait des données réelles.',
     )
   } else {
-    console.log('[amorçage] Base vide : chargement des données de référence…')
+    console.log(
+      pays > 0
+        ? `[amorçage] ${pays} pays mais aucune donnée d'exploitation : chargement de référence incomplet, on recharge.`
+        : '[amorçage] Base vide : chargement des données de référence…',
+    )
     execSync('npx prisma db seed', { stdio: 'inherit' })
     console.log('[amorçage] Terminé.')
   }
