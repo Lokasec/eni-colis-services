@@ -231,7 +231,7 @@ export default async function Tarifs() {
                   {!l.sousTraitee ? (
                     <span className="text-muted">opérée par ENI</span>
                   ) : l.prixAchat === null ? (
-                    <b className="text-orange-text">marge inconnue</b>
+                    <span className="text-muted">non suivi</span>
                   ) : (
                     <>
                       {Number(l.prixAchat).toFixed(2).replace('.', ',')} €/kg
@@ -257,12 +257,12 @@ export default async function Tarifs() {
             Les liaisons marquées « interne » n&apos;apparaissent ni sur le site, ni dans les
             sélecteurs du formulaire de devis, ni dans le plan du site.
           </p>
-          <Alert tone="warn" className="mt-3">
-            <b>Brazzaville et Kinshasa sont sous-traitées et leur marge est inconnue.</b> Le prix
-            payé au partenaire n&apos;a pas été communiqué : ces deux destinations peuvent être
-            vendues à perte sans que rien ici ne le montre. Renseigner ce prix d&apos;achat est le
-            seul moyen de le savoir — il n&apos;est pas estimé, il est laissé vide.
-          </Alert>
+          <p className="text-caption text-muted mt-2">
+            <b className="text-navy">Brazzaville et Kinshasa sont sous-traitées.</b> Le prix payé au
+            partenaire relève de la cliente et n&apos;est pas suivi ici : la marge sur ces deux
+            destinations n&apos;est donc pas calculable dans l&apos;outil. Le champ existe si elle
+            souhaite un jour la voir apparaître.
+          </p>
         </section>
       </div>
     </>

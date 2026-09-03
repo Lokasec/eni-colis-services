@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { PageHeader } from '@/components/ui/page-header'
 import { Section } from '@/components/ui/section'
 import { Todo } from '@/components/ui/todo'
+import { site } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: 'Questions fréquentes',
@@ -73,7 +74,8 @@ const groupes: Array<{ titre: string; questions: Question[] }> = [
         question: 'Où se trouve votre bureau ?',
         reponse: (
           <p>
-            67 rue Saint-Julien, 76100 Rouen. Horaires d&apos;ouverture : <Todo />
+            67 rue Saint-Julien, 76100 Rouen. Ouvert de {site.horaires.plage} — jours
+            d&apos;ouverture : <Todo />
           </p>
         ),
       },

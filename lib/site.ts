@@ -28,6 +28,16 @@ export const site = {
     pays: 'France',
   },
   telephone: '+33 6 52 70 70 14',
+  /**
+   * Horaires du bureau de Rouen, communiqués le 3 septembre 2026.
+   *
+   * `jours` est volontairement NUL : la cliente a donné la plage horaire,
+   * pas les jours d'ouverture. Écrire « du lundi au vendredi » serait une
+   * invention, et un horaire faux fait déplacer quelqu'un pour rien.
+   * C'est pour la même raison que les horaires ne figurent PAS dans les
+   * données structurées : schema.org exige un jour, nous ne l'avons pas.
+   */
+  horaires: { plage: '9 h 30 – 18 h', jours: null as string | null },
   // Format international sans « + » ni espace, pour les liens wa.me
   whatsapp: process.env.NEXT_PUBLIC_WHATSAPP ?? '33652707014',
   concepteur: { nom: 'di-eureka', url: 'https://www.di-eureka.com' },

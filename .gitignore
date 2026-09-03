@@ -24,3 +24,6 @@ lib/generated/
 public/uploads/
 
 .postgres-local/
+
+# Secrets generes pour la mise en ligne — a supprimer apres usage
+SECRETS-PRODUCTION.txt

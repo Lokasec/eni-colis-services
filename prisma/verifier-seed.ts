@@ -174,10 +174,11 @@ async function main() {
     `pas ${params?.pasArrondiPoidsKg} kg · tolérance ${params?.toleranceArrondiKg} kg · minimum ${params?.poidsMinimumFactureKg} kg`,
   )
 
-  // Le prix d'achat des liaisons sous-traitées n'a pas été communiqué et
-  // ne doit pas être inventé. Ce contrôle ne vérifie pas qu'il est REMPLI,
-  // il vérifie qu'il est resté NUL : si quelqu'un y met une valeur de
-  // confort, la marge affichée en back-office deviendrait fausse.
+  // Le prix d'achat des liaisons sous-traitées ne relève PAS du périmètre :
+  // la cliente communique ses prix de vente, ce qu'elle paie au partenaire
+  // lui appartient (décision du 3 septembre 2026). Ce contrôle ne vérifie
+  // donc pas qu'il est rempli, mais qu'il est resté NUL : une valeur de
+  // confort ferait afficher une marge inventée.
   const sousTraitees = await db.liaison.findMany({
     where: { sousTraitee: true, actif: true },
     select: { prixAchat: true, paysDestination: { select: { nom: true } } },
@@ -185,7 +186,7 @@ async function main() {
   verifier(
     "Liaisons sous-traitées : prix d'achat laissé vide, jamais inventé",
     sousTraitees.length > 0 && sousTraitees.every((l) => l.prixAchat === null),
-    `${sousTraitees.map((l) => l.paysDestination.nom).join(', ')} — marge inconnue tant que la cliente ne l'aura pas communiqué`,
+    `${sousTraitees.map((l) => l.paysDestination.nom).join(', ')} — prix d'achat hors périmètre, marge non calculée`,
   )
   verifier(
     'Poids volumétrique actif, diviseur 5000',

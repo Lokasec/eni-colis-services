@@ -376,24 +376,23 @@ Aucune de ces valeurs ne doit être inventée. Elles apparaissent comme telles d
 
 | #   | Point                                                                                                   | Impact                                                   | Criticité |
 | --- | ------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- | --------- |
-| 1   | **Prix d'achat auprès des sous-traitants** (Brazzaville, Kinshasa) — voir ci-dessous                    | Marge réelle sur deux destinations                       | 🔴        |
-| 2   | Seuil d'écart devis/facture déclenchant une alerte                                                      | Paramétrage back-office                                  | 🟠        |
-| 3   | Confirmation de la règle `GRANDE_MARQUE` (`max` ou remplacement pur)                                    | Facturation                                              | 🟠        |
-| 4   | Points de retrait de **Brazzaville** et **Kinshasa** (adresses, contacts)                               | Pages destination                                        | 🟠        |
-| 5   | Horaires, contacts et adresses précises des autres points de retrait                                    | Pages destination                                        | 🟠        |
-| 6   | Délais réels par destination, réacheminement inclus                                                     | Crédibilité, pages destination                           | 🟠        |
-| 7   | Statut réglementaire de l'activité de transport                                                         | Mentions légales                                         | 🟠        |
-| 8   | Horaires du bureau de Rouen                                                                             | Contact, e-mail « colis disponible »                     | 🟠        |
-| 9   | Mentions légales et CGS rédigées (SIREN, directeur de publication) — **à faire valider par un juriste** | Pages légales                                            | 🟠        |
-| 10  | Avis clients réels                                                                                      | Le bloc témoignages reste absent tant qu'il n'y en a pas | 🟢        |
-| 11  | Photos — 8 destinations + 5 photos d'activité (voir `docs/guide-images.md`)                             | Placeholders SVG en attendant                            | 🟢        |
-| 12  | Marchands acceptés ou refusés pour le mode A                                                            | FAQ                                                      | 🟢        |
+| 1   | Seuil d'écart devis/facture déclenchant une alerte                                                      | Paramétrage back-office                                  | 🟠        |
+| 2   | Confirmation de la règle `GRANDE_MARQUE` (`max` ou remplacement pur)                                    | Facturation                                              | 🟠        |
+| 3   | Points de retrait de **Brazzaville** et **Kinshasa** (adresses, contacts)                               | Pages destination                                        | 🟠        |
+| 4   | Horaires, contacts et adresses précises des autres points de retrait                                    | Pages destination                                        | 🟠        |
+| 5   | Délais réels par destination, réacheminement inclus                                                     | Crédibilité, pages destination                           | 🟠        |
+| 6   | Statut réglementaire de l'activité de transport                                                         | Mentions légales                                         | 🟠        |
+| 7   | **Jours** d'ouverture du bureau de Rouen — la plage 9 h 30 – 18 h est connue                            | Contact, FAQ                                             | 🟠        |
+| 8   | Mentions légales et CGS rédigées (SIREN, directeur de publication) — **à faire valider par un juriste** | Pages légales                                            | 🟠        |
+| 9   | Avis clients réels                                                                                      | Le bloc témoignages reste absent tant qu'il n'y en a pas | 🟢        |
+| 10  | Photos — 8 destinations + 5 photos d'activité (voir `docs/guide-images.md`)                             | Placeholders SVG en attendant                            | 🟢        |
+| 11  | Marchands acceptés ou refusés pour le mode A                                                            | FAQ                                                      | 🟢        |
 
-### Prix d'achat des sous-traitants — inconnu, et affiché comme tel
+### Prix d'achat des sous-traitants — hors périmètre
 
-ENI ne dessert pas Brazzaville et Kinshasa elle-même : le colis est remis à un partenaire. Les prix de vente sont connus (**20 €/kg** et **15 €/kg**), le prix payé au partenaire ne l'est pas — la cliente ne l'a pas communiqué.
+ENI ne dessert pas Brazzaville et Kinshasa elle-même : le colis est remis à un partenaire. Les prix de vente sont connus (**20 €/kg** et **15 €/kg**) ; ce que la cliente paie au partenaire lui appartient et n'entre pas dans le périmètre de l'outil — **décision du 3 septembre 2026**.
 
-`Liaison.prixAchat` reste donc **nul**, et un invariant vérifie qu'il le reste : une valeur de confort rendrait fausse toute marge affichée. `/admin/tarifs` porte la mention **« marge inconnue »** sur ces deux lignes, avec l'avertissement que ces destinations peuvent être vendues à perte sans que rien ne le montre.
+`Liaison.prixAchat` reste **nul**, et un invariant vérifie qu'il le reste : une valeur de confort ferait afficher une marge inventée. `/admin/tarifs` indique « non suivi ». Le champ existe si la cliente souhaite un jour voir sa marge.
 
 ### Politique commerciale — tranchée le 2 septembre 2026
 

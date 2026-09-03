@@ -63,7 +63,12 @@ export default function Contact() {
                   Horaires d&apos;ouverture
                 </dt>
                 <dd className="text-body text-ink m-0 mt-1">
-                  <Todo />
+                  {site.horaires.plage}
+                  {/* Les jours n'ont pas été communiqués. Les inventer
+                      ferait déplacer quelqu'un pour rien. */}
+                  <span className="text-caption text-muted mt-1 block">
+                    Jours d&apos;ouverture : <Todo />
+                  </span>
                 </dd>
               </div>
             </dl>

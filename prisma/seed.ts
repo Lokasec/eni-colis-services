@@ -280,7 +280,9 @@ async function main() {
         villeId: rouen.id,
         adresse: '67 rue Saint-Julien, 76100 Rouen',
         telephone: '+33 6 52 70 70 14',
-        horaires: 'À COMPLÉTER',
+        // Plage communiquée le 3 septembre 2026. Les JOURS d'ouverture
+        // n'ont pas été précisés — on ne les invente pas.
+        horaires: '9 h 30 – 18 h · jours d’ouverture à préciser',
       },
     ],
   })
