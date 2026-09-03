@@ -18,6 +18,7 @@
 import { execSync } from 'node:child_process'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '../lib/generated/prisma/client'
+import { renseignee } from '../lib/env'
 
 // Sur Vercel, les variables sont déjà dans l'environnement. En local, il
 // faut lire `.env` — sans quoi ce script ne serait testable qu'en
@@ -28,7 +29,8 @@ try {
   /* pas de .env : on prend l'environnement tel quel */
 }
 
-const connectionString = process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL
+const connectionString =
+  renseignee(process.env.DATABASE_URL_UNPOOLED) ?? renseignee(process.env.DATABASE_URL)
 
 if (!connectionString) {
   console.error('[amorçage] DATABASE_URL absent — impossible de vérifier la base.')
@@ -55,11 +57,20 @@ try {
     console.log('[amorçage] Terminé.')
   }
 } catch (erreur) {
-  // Un échec d'amorçage ne doit PAS faire échouer le déploiement : le code
-  // déployé est bon, c'est la donnée qui manque. Mieux vaut un site en
-  // ligne avec une base vide, et le message ci-dessous dans les journaux,
-  // qu'un déploiement bloqué.
-  console.error('[amorçage] Échec — la base restera en l’état :', erreur)
+  // J'AI EU TORT ICI, et le premier déploiement l'a prouvé.
+  //
+  // Ce bloc avalait l'erreur pour ne pas bloquer le déploiement. Résultat :
+  // le seed a échoué après avoir écrit les paramètres de tarification mais
+  // avant le premier pays, le build a réussi, et le site est parti en ligne
+  // sur une base À MOITIÉ PEUPLÉE — sans destinations, sans départs, avec
+  // des fiches en 404. Rien dans l'interface ne le signalait.
+  //
+  // Un déploiement qui échoue se voit. Une base incohérente en production,
+  // non. On échoue donc franchement.
+  console.error('[amorçage] Échec du chargement des données de référence.')
+  console.error(erreur)
+  await db.$disconnect()
+  process.exit(1)
 }
 
 await db.$disconnect()

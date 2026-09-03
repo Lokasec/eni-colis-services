@@ -22,6 +22,7 @@
 import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '../lib/generated/prisma/client'
 import { hacher } from '../lib/mot-de-passe'
+import { renseignee } from '../lib/env'
 
 // tsx n'ouvre pas .env : on le charge nous-memes. `loadEnvFile` est natif
 // a Node et n'ecrase pas les variables deja definies (CI, production).
@@ -31,13 +32,18 @@ try {
   // Pas de .env local : les variables viennent de l'environnement.
 }
 
-const connectionString = process.env.DATABASE_URL
+const connectionString = renseignee(process.env.DATABASE_URL)
 if (!connectionString) throw new Error('DATABASE_URL est absent.')
 
 const db = new PrismaClient({ adapter: new PrismaPg({ connectionString }) })
 
 /** Parité fixe euro / franc CFA. En variable d'environnement pour la traçabilité. */
-const TAUX_CFA = process.env.TAUX_CFA ?? '655.957'
+// `?? ` ne se declenche que sur une variable ABSENTE. Une variable VIDE
+// le traverse — et c'est ce qui est arrive au premier deploiement : Vercel
+// avait cree TAUX_CFA vide depuis .env.example, le seed a passe '' a
+// Prisma, qui a refuse (« Failed to parse empty string »), et la base de
+// production est restee a moitie peuplee.
+const TAUX_CFA = renseignee(process.env.TAUX_CFA) ?? '655.957'
 
 /** Les francs CFA ne se subdivisent pas : on arrondit à l'unité. */
 function convertirEnCfa(montantEur: number, taux: string): string {
@@ -446,7 +452,7 @@ async function main() {
   // livrerait un back-office ouvert à qui a lu le dépôt.
   const enProduction =
     process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production'
-  if (enProduction && !process.env.SEED_MOT_DE_PASSE) {
+  if (enProduction && !renseignee(process.env.SEED_MOT_DE_PASSE)) {
     throw new Error(
       'SEED_MOT_DE_PASSE est absent en production. Le seed refuse de créer un compte ' +
         'administrateur avec le mot de passe de démonstration. Renseignez la variable ' +
@@ -454,7 +460,7 @@ async function main() {
     )
   }
 
-  const motDePasseDemo = process.env.SEED_MOT_DE_PASSE ?? 'eni-demo-2026'
+  const motDePasseDemo = renseignee(process.env.SEED_MOT_DE_PASSE) ?? 'eni-demo-2026'
 
   await db.utilisateur.create({
     data: {
