@@ -126,10 +126,11 @@ export default async function Tarifs() {
         <section>
           <h2 className="text-h3 mb-3">Indemnisation, garde et abandon</h2>
           <Alert tone="warn" className="mb-4">
-            <b>Proposition en attente de confirmation.</b> Ces valeurs n&apos;avaient jamais été
-            fixées. Elles sont défendables, mais elles ne sont pas un avis juridique : la
-            disposition d&apos;un bien abandonné et le plafond d&apos;indemnisation doivent être
-            relus par un juriste avant de figurer dans les conditions générales.
+            <b>La vente aux enchères n&apos;est pas validée juridiquement.</b> Disposer du bien
+            d&apos;autrui obéit à une procédure — commissaire de justice, mise en demeure, parfois
+            autorisation judiciaire — et la vente aurait lieu à Abidjan, sous droit ivoirien. Les
+            délais et les montants ci-dessous sont la décision commerciale de la cliente ; ils
+            doivent être relus par un juriste avant de figurer dans les conditions générales.
           </Alert>
 
           <div className="border-line bg-line grid gap-px overflow-hidden rounded-lg border sm:grid-cols-2 lg:grid-cols-3">
@@ -155,13 +156,15 @@ export default async function Tarifs() {
                 'Frais de garde',
                 `${euros(parametres?.fraisGardeParJourEur)} /jour`,
                 parametres?.plafonnerFraisGardeAuTransport
-                  ? 'Plafonnés au montant du transport facturé. Sans ce plafond, un client qui doit plus de garde que de transport ne vient plus jamais : ENI perd tout.'
-                  : 'Sans plafond — un client peut devoir plus de garde que de transport.',
+                  ? 'Plafonnés au montant du transport facturé.'
+                  : 'Sans plafond. Un colis de 5 kg vers Dakar coûte 60 € de transport ; deux semaines de garde y ajoutent 42 €. Passé un seuil, le destinataire a intérêt à ne plus venir.',
               ],
               [
-                'Colis réputé abandonné',
+                'Colis non retiré',
                 `${parametres?.delaiAbandonJours ?? '—'} jours`,
-                'Après deux relances tracées. Le délai est long à dessein : les trois quarts des destinataires sont des entreprises qui retirent aussitôt.',
+                parametres?.sortColisNonRetire === 'VENTE_AUX_ENCHERES'
+                  ? 'Mise en vente aux enchères pour se rembourser les frais de stockage. Procédure à faire valider par un juriste avant application.'
+                  : 'Sort à définir.',
               ],
               [
                 'Remise du colis',

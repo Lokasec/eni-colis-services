@@ -2,7 +2,7 @@
 
 **Document de travail à porter à un juriste. Ce n'est pas un avis juridique et rien ici n'est publiable en l'état.**
 
-Rédigé par di-eureka le 2 septembre 2026, à partir de l'application développée. Son objet est de faire gagner du temps au juriste : il rassemble les faits, dit ce que l'application implémente déjà, et pose les questions dont la réponse conditionne du code ou du texte publié.
+Rédigé par di-eureka le 2 septembre 2026, mis à jour le 3 septembre, à partir de l'application développée. Son objet est de faire gagner du temps au juriste : il rassemble les faits, dit ce que l'application implémente déjà, et pose les questions dont la réponse conditionne du code ou du texte publié.
 
 Les valeurs marquées **« paramétrée »** existent en base (`ParametresTarification`) et se modifient en back-office sans redéploiement. Le juriste peut donc les corriger sans coût technique.
 
@@ -83,19 +83,36 @@ L'article 6 III de la LCEN impose des mentions sur tout site professionnel. Voic
 
 La page `/legal/cgs` existe avec ses neuf rubriques, **sans texte**. Voici, pour chacune, ce que l'application fait déjà et ce qui manque.
 
-### 4.1 Les trois arbitrages proposés — à valider ou corriger
+### 4.1 Les arbitrages — deux origines distinctes
 
-Ces points n'avaient jamais été fixés. Nous avons proposé des valeurs **défendables mais non validées**, retenues par la cliente à titre de base de discussion. Elles sont paramétrées, donc modifiables sans code.
+Ces points n'avaient jamais été fixés. Ils ont désormais deux origines qu'il faut ne pas confondre :
+
+- **L'indemnisation** reste **notre proposition**, défendable mais non validée, retenue par la cliente à titre de base de discussion.
+- **La garde et la vente** sont la **décision de la cliente**, arrêtée le 3 septembre 2026. Nous l'avons appliquée telle quelle, en maintenant nos réserves.
+
+Toutes ces valeurs sont paramétrées en base : le juriste peut les corriger sans coût technique.
 
 | Point | Valeur retenue | Notre raisonnement | À trancher |
 | --- | --- | --- | --- |
 | Indemnisation, colis ordinaire | **20 €/kg**, plafond **400 €** par colis | Le tarif le plus élevé de la grille, que nous croyons inférieur au plafond de la convention de Montréal pour le transport aérien | Le plafond conventionnel est-il applicable ici, et à quel montant ? Une limitation contractuelle est-elle opposable au client ? |
 | Indemnisation, article de valeur | **Valeur déclarée**, sur justificatif d'achat | Il est déjà facturé 15 % de sa valeur : le couvrir au barème au kilo serait incohérent | Une déclaration de valeur engage-t-elle ENI au-delà du plafond ? Faut-il une assurance dédiée ? |
-| Garde gratuite | **30 jours** après mise à disposition | — | — |
-| Frais de garde | **1 €/jour**, **plafonnés au montant du transport** | Sans plafond, un client qui doit plus de garde que de transport ne vient jamais : ENI perd tout | Des frais de garde sont-ils opposables sans acceptation préalable ? |
-| Colis réputé abandonné | **120 jours**, après deux relances tracées | Délai long à dessein : les trois quarts des destinataires sont des entreprises qui retirent aussitôt | **Voir ci-dessous — le point le plus incertain** |
+| Garde gratuite | **7 jours** après mise à disposition | Décision de la cliente | Un délai si court est-il opposable au destinataire ? |
+| Frais de garde | **3 €/jour**, **sans plafond** | Décision de la cliente. Nous avions proposé un plafond au montant du transport | Des frais de garde sont-ils opposables sans acceptation préalable ? Un montant non plafonné peut-il être jugé abusif ? |
+| Colis non retiré | **21 jours** → **mise en vente aux enchères** | Décision de la cliente, pour se rembourser les frais de stockage | **Voir ci-dessous — devenu la question n° 1** |
 
-> **Le sort d'un colis jamais retiré est notre plus grande incertitude.** Nous avons retenu 120 jours et deux relances, mais nous ignorons quelle procédure s'applique réellement : ENI peut-elle disposer du bien, le vendre, le détruire ? Faut-il une autorisation judiciaire, une mise en demeure formelle, un délai légal minimum ? **Nous n'avons pas voulu écrire une clause dont nous ne sommes pas sûrs.**
+> ### La vente aux enchères — question n° 1
+>
+> **La cliente a tranché le 3 septembre 2026** : une semaine pour retirer, puis 3 €/jour, et **mise en vente aux enchères au bout de trois semaines** pour se rembourser les frais de stockage. Nous avons enregistré cette décision et l'avons appliquée dans l'application ; elle n'est **pas validée juridiquement**, et nous ne pouvons pas la valider nous-mêmes.
+>
+> Ce qui nous inquiète, dans l'ordre :
+>
+> 1. **Vendre le bien d'autrui obéit à une procédure.** Faut-il un commissaire de justice, une mise en demeure formelle, une autorisation judiciaire, un délai légal minimum ? Une vente irrégulière expose ENI bien au-delà du montant en jeu.
+> 2. **La vente aurait lieu à Abidjan**, où se trouve le colis — donc sous **droit ivoirien**, pas français. Quel droit régit la disposition du bien : celui du lieu du contrat, du lieu de la chose, du domicile du destinataire ?
+> 3. **Vingt et un jours est court.** Le délai court à compter de la mise à disposition ; un destinataire en déplacement ou hospitalisé perd sa marchandise.
+> 4. **Sur le mode A, le destinataire n'a peut-être jamais rien signé.** C'est le client inscrit qui a accepté les conditions, et ce n'est pas toujours la même personne. Les frais de garde et la vente lui sont-ils opposables ?
+> 5. **Les frais dépassent vite le transport.** Un colis de 5 kg vers Dakar coûte 60 € ; du 8ᵉ au 21ᵉ jour, la garde ajoute 42 €. Un montant de garde disproportionné au service peut-il être contesté ?
+>
+> **Si la procédure décrite n'est pas praticable, dites-nous laquelle l'est.** Les délais et les montants sont paramétrés en base : les changer ne coûte rien.
 
 ### 4.2 Les autres rubriques
 
@@ -148,12 +165,13 @@ Deux questions en découlent :
 Par ordre d'urgence.
 
 1. **Quel est le statut réglementaire de l'activité ?** Rien ne peut être publié tant que ce point n'est pas tranché. *(§2)*
-2. **Le sort d'un colis jamais retiré** — quelle procédure, quel délai, quelles formalités ? *(§4.1)*
-3. **Le plafond d'indemnisation est-il opposable**, et à quel montant ? *(§4.1)*
-4. **Rédaction des mentions légales**, une fois le §3 complété par ENI.
-5. **Rédaction des CGS**, à partir du §4.
-6. **Encadrement du transfert de données** vers le sous-traitant hors UE. *(§5)*
-7. **Modèle de contrat de sous-traitance** au sens de l'article 28.
+2. **La vente aux enchères d'un colis non retiré** — procédure, formalités, droit applicable. La cliente veut l'appliquer à 21 jours. *(§4.1)*
+3. **Les frais de garde de 3 €/jour, sans plafond**, sont-ils opposables ? *(§4.1)*
+4. **Le plafond d'indemnisation est-il opposable**, et à quel montant ? *(§4.1)*
+5. **Rédaction des mentions légales**, une fois le §3 complété par ENI.
+6. **Rédaction des CGS**, à partir du §4.
+7. **Encadrement du transfert de données** vers le sous-traitant hors UE. *(§5)*
+8. **Modèle de contrat de sous-traitance** au sens de l'article 28.
 
 ---
 

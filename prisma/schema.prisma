@@ -323,20 +323,38 @@ model ParametresTarification {
   /// il est indemnisé à hauteur de la valeur déclarée ET justifiée.
   indemniserValeurDeclareeSiJustifiee Boolean @default(true)
 
+  // Politique de garde arrêtée par la cliente le 3 septembre 2026 :
+  // une semaine pour retirer, puis 3 €/jour, et mise en vente aux
+  // enchères au bout de trois semaines pour se rembourser le stockage.
+
   /// Garde gratuite à compter de la mise à disposition.
-  delaiGardeGratuiteJours Int @default(30)
+  delaiGardeGratuiteJours Int @default(7)
 
   /// Frais de garde par jour, au-delà du délai gratuit.
-  fraisGardeParJourEur Decimal @default("1.00") @db.Decimal(10, 2)
+  fraisGardeParJourEur Decimal @default("3.00") @db.Decimal(10, 2)
 
-  /// Les frais de garde sont plafonnés au montant du transport facturé.
-  /// Sans ce plafond, un client qui doit plus de garde que de transport
-  /// ne vient jamais chercher son colis : ENI perd tout.
-  plafonnerFraisGardeAuTransport Boolean @default(true)
+  /// Les frais de garde sont-ils plafonnés au montant du transport ?
+  ///
+  /// La cliente a tranché : NON. Nous avions proposé un plafond, pour une
+  /// raison qui reste vraie — un colis de 5 kg vers Dakar coûte 60 € de
+  /// transport, et 14 jours de garde y ajoutent 42 €. Passé un certain
+  /// point, le destinataire a intérêt à abandonner le colis, et ENI perd
+  /// à la fois le transport avancé et la marchandise. Le champ reste donc
+  /// en base : rétablir le plafond est un booléen, pas une migration.
+  plafonnerFraisGardeAuTransport Boolean @default(false)
 
-  /// Délai au terme duquel un colis est réputé abandonné. La disposition
-  /// d'un bien abandonné obéit à une procédure : à valider par un juriste.
-  delaiAbandonJours Int @default(120)
+  /// Délai au terme duquel le colis est mis en vente.
+  delaiAbandonJours Int @default(21)
+
+  /// Sort réservé à un colis non retiré au terme du délai.
+  ///
+  /// « Vente aux enchères pour se rembourser les frais de stockage »,
+  /// décision de la cliente. ATTENTION : disposer du bien d'autrui obéit
+  /// à une procédure — commissaire de justice, mise en demeure, parfois
+  /// autorisation judiciaire — et la vente aurait lieu à Abidjan, sous
+  /// droit ivoirien. Ce champ enregistre la décision commerciale ; il ne
+  /// vaut pas validation juridique. Voir docs/brief-juridique.md §04.
+  sortColisNonRetire String @default("VENTE_AUX_ENCHERES")
 
   modifieLe DateTime @updatedAt
 }

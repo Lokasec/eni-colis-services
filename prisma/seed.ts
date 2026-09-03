@@ -86,10 +86,16 @@ async function main() {
       plafondIndemnisationParKgEur: '20.00',
       plafondIndemnisationParColisEur: '400.00',
       indemniserValeurDeclareeSiJustifiee: true,
-      delaiGardeGratuiteJours: 30,
-      fraisGardeParJourEur: '1.00',
-      plafonnerFraisGardeAuTransport: true,
-      delaiAbandonJours: 120,
+
+      // Garde : politique arrêtée par la cliente le 3 septembre 2026.
+      // Une semaine pour retirer, 3 €/jour ensuite, vente aux enchères
+      // au bout de trois semaines. Le plafond que nous avions proposé
+      // est écarté — voir le commentaire du schéma.
+      delaiGardeGratuiteJours: 7,
+      fraisGardeParJourEur: '3.00',
+      plafonnerFraisGardeAuTransport: false,
+      delaiAbandonJours: 21,
+      sortColisNonRetire: 'VENTE_AUX_ENCHERES',
     },
   })
 

@@ -313,16 +313,16 @@ Deux manques corrigés au cours de la recette :
 
 Menée dans le navigateur, contre la vraie base, avec de vraies sessions.
 
-| Parcours (CLAUDE.md §17) | Vérification |
-| --- | --- |
-| 1. Devis avec photos → alerte | Chaîne vérifiée au navigateur ; **jamais depuis un vrai téléphone** |
-| 2. Chiffrage → envoi au demandeur | Suggestion du moteur, photos en grand, e-mail journalisé |
-| 3. Devis accepté → code de suivi → reçu PDF + QR | `DEM-2026-00002` → `ENI-2026-00109` → reçu PDF de 37 575 octets, Montserrat intégrée, QR 280×280 |
-| 4. Suivi public | « Nadia F. » — aucune trace de `villeTransit`, du hub, du statut interne ni de la valeur déclarée |
-| 5. Inscription → identifiant | Vérifié au lot 6 |
-| 6. Colis mode A pesé → devis estimatif | `ENI-2026-00106` → `DEV-2026-00005`, 72,00 € — « 6 kg (5,75 kg arrondis au kilo supérieur) × 12,00 €/kg » |
-| 7. Facture EUR + FCFA → encaissement → créance soldée | Vérifié au lot 8 |
-| 8. Départ → messagerie groupée | Campagne journalisée : 1 destinataire, envoyée, par `admin@eni.test` |
+| Parcours (CLAUDE.md §17)                              | Vérification                                                                                              |
+| ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| 1. Devis avec photos → alerte                         | Chaîne vérifiée au navigateur ; **jamais depuis un vrai téléphone**                                       |
+| 2. Chiffrage → envoi au demandeur                     | Suggestion du moteur, photos en grand, e-mail journalisé                                                  |
+| 3. Devis accepté → code de suivi → reçu PDF + QR      | `DEM-2026-00002` → `ENI-2026-00109` → reçu PDF de 37 575 octets, Montserrat intégrée, QR 280×280          |
+| 4. Suivi public                                       | « Nadia F. » — aucune trace de `villeTransit`, du hub, du statut interne ni de la valeur déclarée         |
+| 5. Inscription → identifiant                          | Vérifié au lot 6                                                                                          |
+| 6. Colis mode A pesé → devis estimatif                | `ENI-2026-00106` → `DEV-2026-00005`, 72,00 € — « 6 kg (5,75 kg arrondis au kilo supérieur) × 12,00 €/kg » |
+| 7. Facture EUR + FCFA → encaissement → créance soldée | Vérifié au lot 8                                                                                          |
+| 8. Départ → messagerie groupée                        | Campagne journalisée : 1 destinataire, envoyée, par `admin@eni.test`                                      |
 
 **Rôle `OPERATEUR`, vérifié avec une vraie session** : factures, encaissements, créances, tarifs et paramètres → redirection vers `/admin?acces=refuse` ; PDF d'une facture → **403** ; export comptable → **403** ; colis, réceptions, PDF de devis et reçu → accessibles. Le contrôle est refait dans chaque route, jamais seulement dans le menu.
 
@@ -403,11 +403,13 @@ Trois points de cette liste ont été retirés : **plafond d'indemnisation**, **
 | -------------------------------- | ------------------------------------ | --------------------------------------------------------------------------------- |
 | Indemnisation, colis ordinaire   | 20 €/kg, plafond 400 €               | Le tarif le plus élevé de la grille, sous le plafond de la convention de Montréal |
 | Indemnisation, article de valeur | Valeur déclarée, sur justificatif    | Il est déjà facturé 15 % de sa valeur                                             |
-| Garde gratuite                   | 30 jours après mise à disposition    | Reprend le CDC §5.4                                                               |
-| Frais de garde                   | 1 €/jour, **plafonnés au transport** | Sans plafond, le client ne vient plus : ENI perd tout                             |
-| Colis abandonné                  | 120 jours, après deux relances       | Les trois quarts des destinataires sont des entreprises qui retirent aussitôt     |
+| Garde gratuite                   | **7 jours** après mise à disposition | Arrêté par la cliente le 3 septembre 2026                                         |
+| Frais de garde                   | **3 €/jour, sans plafond**           | Décision de la cliente ; nous avions proposé un plafond                           |
+| Colis non retiré                 | **21 jours → vente aux enchères**    | Décision de la cliente, pour se rembourser le stockage                            |
 
-**Réserve** : la disposition d'un bien abandonné obéit à une procédure. Ce délai et ce plafond doivent être **relus par un juriste** avant de figurer dans les CGS.
+**Réserve maintenue, et devenue urgente** : la vente aux enchères du bien d'autrui obéit à une procédure — commissaire de justice, mise en demeure, parfois autorisation judiciaire — et la vente aurait lieu à **Abidjan, sous droit ivoirien**. C'est la question n° 1 de [`docs/brief-juridique.md`](docs/brief-juridique.md).
+
+**Seconde réserve, économique** : 3 €/jour sans plafond dépasse vite le transport. Un colis de 5 kg vers Dakar coûte 60 € ; du 8ᵉ au 21ᵉ jour, la garde y ajoute 42 €. Passé un seuil, le destinataire a intérêt à abandonner le colis — et ENI perd le transport avancé **et** la marchandise. `plafonnerFraisGardeAuTransport` reste en base : rétablir le plafond est un booléen, pas une migration.
 
 ### France ↔ USA — fermée
 

@@ -402,7 +402,7 @@ L'inscription au service de réception **est** dans le périmètre : elle est n�
 
 ## 16. Placeholders à laisser explicites
 
-Délais réels par destination · points de retrait de Brazzaville et Kinshasa · horaires du bureau · statut réglementaire de l'activité · mentions légales et CGS (juriste) · vrais avis clients · photos · **prix d'achat auprès des sous-traitants** (Brazzaville, Kinshasa).
+Délais réels par destination · **procédure de vente d'un colis non retiré (juriste)** · points de retrait de Brazzaville et Kinshasa · horaires du bureau · statut réglementaire de l'activité · mentions légales et CGS (juriste) · vrais avis clients · photos · **prix d'achat auprès des sous-traitants** (Brazzaville, Kinshasa).
 
 ### 16 bis. Politique commerciale — proposée le 2 septembre 2026
 
@@ -412,11 +412,17 @@ Trois points n'avaient jamais été tranchés. La cliente retient les propositio
 |---|---|---|
 | Indemnisation, colis ordinaire | **20 €/kg**, plafond **400 €** par colis | Le tarif le plus élevé de la grille, sous le plafond de la convention de Montréal (~26 €/kg) |
 | Indemnisation, article de valeur | **Valeur déclarée**, sur justificatif | Il est déjà facturé 15 % de sa valeur : le couvrir au barème au kilo serait incohérent |
-| Garde gratuite | **30 jours** à compter de la mise à disposition | Reprend le délai du CDC §5.4 |
-| Frais de garde | **1 €/jour**, **plafonnés au montant du transport** | Sans plafond, un client qui doit plus de garde que de transport ne vient jamais : ENI perd tout |
-| Colis réputé abandonné | **120 jours**, après deux relances tracées | Délai long à dessein : les trois quarts des destinataires sont des entreprises qui retirent aussitôt |
+| Garde gratuite | **7 jours** à compter de la mise à disposition | **Arrêté par la cliente le 3 septembre 2026** |
+| Frais de garde | **3 €/jour**, **sans plafond** | Décision de la cliente. Nous avions proposé un plafond au montant du transport — voir la réserve ci-dessous |
+| Colis non retiré | **21 jours** → **mise en vente aux enchères** | Décision de la cliente, pour se rembourser les frais de stockage |
 
-**Réserve à porter à la cliente** : la disposition d'un bien abandonné obéit à une procédure. Le délai de 120 jours et le plafond d'indemnisation doivent être **relus par un juriste** avant de figurer dans les conditions générales. Ce ne sont pas des avis juridiques.
+**Deux réserves, portées et maintenues.**
+
+**La vente aux enchères n'est pas validée juridiquement.** Disposer du bien d'autrui obéit à une procédure — commissaire de justice, mise en demeure, parfois autorisation judiciaire — et la vente aurait lieu à **Abidjan, sous droit ivoirien**. C'est aujourd'hui la question n° 1 de `docs/brief-juridique.md`.
+
+**Les 3 €/jour sans plafond peuvent se retourner contre ENI.** Un colis de 5 kg vers Dakar coûte 60 € de transport ; du 8ᵉ au 21ᵉ jour, la garde y ajoute 42 €. Passé un seuil, le destinataire a intérêt à abandonner le colis — et ENI perd le transport avancé **et** la marchandise. `plafonnerFraisGardeAuTransport` reste en base : rétablir le plafond est un booléen, pas une migration.
+
+Ce ne sont pas des avis juridiques.
 
 **Liste-les tous dans le README.**
 

@@ -16,7 +16,7 @@
  * refuse).
  */
 import EmbeddedPostgres from 'embedded-postgres'
-import { rmSync } from 'node:fs'
+import { existsSync, readdirSync, rmSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -40,7 +40,14 @@ const pg = new EmbeddedPostgres({
   onError: (erreur) => console.error('[postgres]', erreur),
 })
 
-await pg.initialise()
+// `initialise()` lance initdb, qui REFUSE un dossier non vide. L'appeler
+// systématiquement rendait ce script utilisable une seule fois : au second
+// démarrage il échouait sur « directory exists but is not empty ».
+const dejaInitialisee = existsSync(DONNEES) && readdirSync(DONNEES).length > 0
+if (!dejaInitialisee) {
+  await pg.initialise()
+  console.log('Instance initialisée.')
+}
 await pg.start()
 
 try {

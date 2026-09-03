@@ -197,12 +197,24 @@ async function main() {
   // ici parce qu'elle alimentera les conditions générales : une valeur à
   // zéro publierait « indemnisation : 0 € » sans que personne ne le voie.
   verifier(
-    'Politique commerciale renseignée (indemnisation, garde, abandon)',
+    'Politique commerciale renseignée (indemnisation, garde, vente)',
     Number(params?.plafondIndemnisationParKgEur) > 0 &&
       Number(params?.plafondIndemnisationParColisEur) > 0 &&
       (params?.delaiGardeGratuiteJours ?? 0) > 0 &&
       (params?.delaiAbandonJours ?? 0) > (params?.delaiGardeGratuiteJours ?? 0),
-    `${params?.plafondIndemnisationParKgEur} €/kg, plafond ${params?.plafondIndemnisationParColisEur} € · garde ${params?.delaiGardeGratuiteJours} j puis ${params?.fraisGardeParJourEur} €/j · abandon ${params?.delaiAbandonJours} j`,
+    `${params?.plafondIndemnisationParKgEur} €/kg, plafond ${params?.plafondIndemnisationParColisEur} € · garde ${params?.delaiGardeGratuiteJours} j puis ${params?.fraisGardeParJourEur} €/j · vente à ${params?.delaiAbandonJours} j`,
+  )
+
+  // Politique de garde arrêtée par la cliente le 3 septembre 2026. Ce
+  // contrôle fige SES valeurs, pas les nôtres : si quelqu'un remettait
+  // nos propositions initiales, la différence passerait inaperçue.
+  verifier(
+    'Garde : 7 jours gratuits, 3 €/jour, vente aux enchères à 21 jours',
+    params?.delaiGardeGratuiteJours === 7 &&
+      Number(params?.fraisGardeParJourEur) === 3 &&
+      params?.delaiAbandonJours === 21 &&
+      params?.sortColisNonRetire === 'VENTE_AUX_ENCHERES',
+    `${params?.delaiGardeGratuiteJours} j gratuits · ${params?.fraisGardeParJourEur} €/j · ${params?.delaiAbandonJours} j → ${params?.sortColisNonRetire}`,
   )
 
   // Un devis « converti » sans colis serait un libellé sans réalité : le
