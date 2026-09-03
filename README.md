@@ -409,6 +409,8 @@ Trois points de cette liste ont été retirés : **plafond d'indemnisation**, **
 
 **Réserve maintenue, et devenue urgente** : la vente aux enchères du bien d'autrui obéit à une procédure — commissaire de justice, mise en demeure, parfois autorisation judiciaire — et la vente aurait lieu à **Abidjan, sous droit ivoirien**. C'est la question n° 1 de [`docs/brief-juridique.md`](docs/brief-juridique.md).
 
+**Le calcul des frais est reporté, volontairement.** Les paramètres existent et la politique est écrite, mais **aucun écran ne dit « ce colis doit 27 € de garde »** : la cliente compte à la main au comptoir. Décision du 3 septembre 2026 — la règle vient d'être fixée, elle se peaufinera à l'usage, et le calcul s'ajoutera quand elle sera stabilisée. Tout ce qu'il faudra alors est en base : délai gratuit, tarif journalier, plafond, date de mise à disposition.
+
 **Seconde réserve, économique** : 3 €/jour sans plafond dépasse vite le transport. Un colis de 5 kg vers Dakar coûte 60 € ; du 8ᵉ au 21ᵉ jour, la garde y ajoute 42 €. Passé un seuil, le destinataire a intérêt à abandonner le colis — et ENI perd le transport avancé **et** la marchandise. `plafonnerFraisGardeAuTransport` reste en base : rétablir le plafond est un booléen, pas une migration.
 
 ### France ↔ USA — fermée
