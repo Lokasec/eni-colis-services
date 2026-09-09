@@ -157,14 +157,21 @@ export default async function Tarifs() {
                 `${euros(parametres?.fraisGardeParJourEur)} /jour`,
                 parametres?.plafonnerFraisGardeAuTransport
                   ? 'Plafonnés au montant du transport facturé.'
-                  : 'Sans plafond. Un colis de 5 kg vers Dakar coûte 60 € de transport ; deux semaines de garde y ajoutent 42 €. Passé un seuil, le destinataire a intérêt à ne plus venir.',
+                  : // Le montant est CALCULÉ, jamais écrit en dur : à 3 €/jour la
+                    // phrase annonçait 42 €, et elle serait restée fausse après le
+                    // passage à 5 €.
+                    `Sans plafond. Un colis de 5 kg vers Dakar coûte 60 € de transport ; les quatorze jours qui suivent la semaine gratuite y ajoutent ${euros(
+                      Number(parametres?.fraisGardeParJourEur ?? 0) * 14,
+                    )}. Passé ce seuil, le destinataire a intérêt à ne plus venir.`,
               ],
               [
                 'Colis non retiré',
                 `${parametres?.delaiAbandonJours ?? '—'} jours`,
-                parametres?.sortColisNonRetire === 'VENTE_AUX_ENCHERES'
-                  ? 'Mise en vente aux enchères pour se rembourser les frais de stockage. Procédure à faire valider par un juriste avant application.'
-                  : 'Sort à définir.',
+                parametres?.sortColisNonRetire === 'DESTRUCTION'
+                  ? 'Destruction du colis — décision du 9 septembre 2026, qui remplace la vente aux enchères. Irréversible, et elle éteint la créance de stockage au lieu de la rembourser. Mise en demeure préalable, délai opposable et preuve de la destruction à faire cadrer par un juriste avant application.'
+                  : parametres?.sortColisNonRetire === 'VENTE_AUX_ENCHERES'
+                    ? 'Mise en vente aux enchères pour se rembourser les frais de stockage. Procédure à faire valider par un juriste avant application.'
+                    : 'Sort à définir.',
               ],
               [
                 'Remise du colis',

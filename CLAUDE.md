@@ -162,8 +162,6 @@ Cotonou, Conakry, Bamako et Dakar transitent par Abidjan avant réacheminement.
 |---|---|---|
 | Abidjan · Cotonou · Conakry · Bamako | 15 €/kg | 12 €/kg |
 | Dakar | 12 €/kg | 12 €/kg |
-| Brazzaville | 20 €/kg | 20 €/kg |
-| Kinshasa | 15 €/kg | 15 €/kg |
 | New York ↔ Abidjan | 20 €/kg | 20 €/kg |
 
 Départs **hebdomadaires** partout.
@@ -171,6 +169,23 @@ Départs **hebdomadaires** partout.
 **France ↔ USA : FERMÉE** — décision de la cliente du 2 septembre 2026. New York n'est ouverte qu'avec Abidjan, dans les deux sens. Les deux lignes restent **en base, `actif = false`** : les rouvrir se fait d'un booléen en back-office, sans migration ni perte d'historique.
 
 > Cette fermeture a une conséquence sur le modèle. Le transit est porté par la **ville d'arrivée** (`Ville.villeTransit`), ce qui suppose que l'escale se déduise de la seule destination. C'était vrai partout **sauf** pour France → USA : New York n'est pas une ville d'escale, elle est la destination. La ligne fermée, l'invariant redevient exact pour 100 % des liaisons actives — le transit n'a pas besoin d'être déplacé sur `Liaison`. `verifier-seed.ts` contrôle ce point et échouera si quelqu'un rouvre la ligne sans porter le transit sur la liaison.
+
+**Brazzaville et Kinshasa : FERMÉES** — décision de la cliente du 9 septembre 2026. Les deux
+destinations sous-traitées sortent de l'offre. Traitement identique à celui de France ↔ USA :
+pays, villes, points de retrait et liaisons **restent en base**, `actif = false`, et la fiche
+rédigée reste dans `content/destinations.ts`. Rouvrir est un booléen, pas une migration ni une
+réécriture de contenu.
+
+> La fermeture se joue à **deux niveaux**, et l'un ne suffit pas. Les **liaisons** commandent les
+> pages destination, les départs et le sélecteur du devis ; **`Pays.actif`** commande le sélecteur
+> de ville de retrait à l'inscription, qui ne regarde pas les liaisons. `verifier-seed.ts`
+> contrôle les deux.
+>
+> Deux conséquences en cascade. **La sous-traitance disparaît** : c'étaient les deux seules
+> liaisons opérées par un tiers, donc plus de contrat article 28 à écrire et, surtout, **plus
+> aucune donnée de destinataire transmise hors de l'Union européenne** — le point le plus lourd
+> de `docs/brief-juridique.md` s'éteint. Et **le XAF sort des devises utilisées** : la zone CFA
+> se réduit au XOF.
 
 Valeurs de **seed uniquement** — jamais en dur dans la logique.
 
@@ -213,7 +228,6 @@ Moteur dans `lib/tarification/`, **testé unitairement**, appelé **uniquement**
 | Bamako | Bamako centre — nous contacter |
 | Dakar **et Thiès** | Deux points — nous contacter |
 | New York | 2738 Hone Ave, Bronx, NY 10469 |
-| Brazzaville · Kinshasa | `[À COMPLÉTER]` — sous-traités |
 
 Le Sénégal a **deux villes de retrait**. Le modèle `Pays → Villes[] → PointRetrait[]` doit le supporter nativement.
 
@@ -241,9 +255,9 @@ Le Sénégal a **deux villes de retrait**. Le modèle `Pays → Villes[] → Poi
 
 | Zone | Taux |
 |---|---|
-| Côte d'Ivoire, Bénin, Mali, Sénégal (XOF) · Congo-Brazzaville (XAF) | **1 € = 655,957** — parité fixe, conversion automatique |
-| Guinée, RD Congo (France → Afrique) | Payé en France, en euros |
-| RD Congo → France, New York | USD — **taux saisi en back-office** |
+| Côte d'Ivoire, Bénin, Mali, Sénégal (XOF) | **1 € = 655,957** — parité fixe, conversion automatique |
+| Guinée (France → Afrique) | Payé en France, en euros |
+| New York | USD — **taux saisi en back-office** |
 
 **Le site public affiche uniquement des euros.** La double devise n'apparaît que sur les documents émis à l'arrivée.
 
@@ -255,7 +269,7 @@ Sur le mode A, l'entreprise **avance le transport** et n'est payée qu'à l'arri
 
 Vue **« Colis partis, non payés »** : montant dû (EUR et devise locale), ancienneté depuis le départ, statut de retrait, total des créances.
 
-Garde-fous : remise **contre paiement uniquement** · délai de garde par défaut **30 jours** · au-delà, relance puis frais `[À COMPLÉTER]` · sort d'un colis jamais retiré `[À COMPLÉTER]`.
+Garde-fous : remise **contre paiement uniquement** · garde gratuite **7 jours** · au-delà, relance puis **5 €/jour** · colis jamais retiré au **21ᵉ jour** : **destruction**. Voir §16 bis — ces valeurs vivent dans `ParametresTarification`, jamais en dur.
 
 **Statuts de paiement** : `NON_DU` · `A_PAYER_DEPART` · `A_PAYER_ARRIVEE` · `PAYE` · `PARTIELLEMENT_PAYE` · `IMPAYE_RELANCE` · `ABANDONNE`
 
@@ -382,13 +396,16 @@ Emplacements définis dans la maquette. Fichiers attendus dans `public/images/` 
 
 ## 14. Cohabitation avec le partenaire co-localisé
 
-Local partagé, et sous-traitance sur Brazzaville et Kinshasa.
+Local partagé. **La sous-traitance a pris fin** avec la fermeture de Brazzaville et Kinshasa
+le 9 septembre 2026 : ENI opère désormais toutes ses liaisons.
 
 - Préfixes `ENI-` obligatoires partout
 - **Identifiant client obligatoire** dans l'adresse de livraison (mode A)
 - Bases, hébergements, domaines, comptes strictement distincts — aucun accès croisé
-- Transmission au sous-traitant **tracée et journalisée** — contrat art. 28 RGPD
-- Mention du recours à un sous-traitant dans les CGS
+- ~~Transmission au sous-traitant tracée et journalisée — contrat art. 28 RGPD~~ — **sans objet**
+  depuis le 9 septembre 2026. Le champ `Liaison.sousTraitee` reste au modèle : si une liaison
+  sous-traitée rouvre un jour, `verifier-seed.ts` échoue et rappelle que le transfert hors UE
+  doit être encadré **avant**, pas après.
 
 ---
 
@@ -402,7 +419,9 @@ L'inscription au service de réception **est** dans le périmètre : elle est n�
 
 ## 16. Placeholders à laisser explicites
 
-Délais réels par destination · **procédure de vente d'un colis non retiré (juriste)** · points de retrait de Brazzaville et Kinshasa · horaires du bureau · statut réglementaire de l'activité · mentions légales et CGS (juriste) · vrais avis clients · photos · **prix d'achat auprès des sous-traitants** (Brazzaville, Kinshasa).
+Délais réels par destination · **procédure de destruction d'un colis non retiré (juriste)** · **jours** d'ouverture du bureau · statut réglementaire de l'activité · raison sociale exacte · hébergeur · mentions légales et CGS (juriste) · vrais avis clients · photos.
+
+Levés le 9 septembre 2026 : **SIREN 934 133 729** et **directeur de la publication : Emmanuel Rachidatou**. Ils figurent dans `lib/site.ts` et s'affichent sur `/legal/mentions` ; le reste de la page attend toujours un juriste. Levés par disparition de l'objet : points de retrait de Brazzaville et Kinshasa, prix d'achat auprès des sous-traitants.
 
 ### 16 bis. Politique commerciale — proposée le 2 septembre 2026
 
@@ -413,20 +432,20 @@ Trois points n'avaient jamais été tranchés. La cliente retient les propositio
 | Indemnisation, colis ordinaire | **20 €/kg**, plafond **400 €** par colis | Le tarif le plus élevé de la grille, sous le plafond de la convention de Montréal (~26 €/kg) |
 | Indemnisation, article de valeur | **Valeur déclarée**, sur justificatif | Il est déjà facturé 15 % de sa valeur : le couvrir au barème au kilo serait incohérent |
 | Garde gratuite | **7 jours** à compter de la mise à disposition | **Arrêté par la cliente le 3 septembre 2026** |
-| Frais de garde | **3 €/jour**, **sans plafond** | Décision de la cliente. Nous avions proposé un plafond au montant du transport — voir la réserve ci-dessous |
-| Colis non retiré | **21 jours** → **mise en vente aux enchères** | Décision de la cliente, pour se rembourser les frais de stockage |
+| Frais de garde | **5 €/jour**, **sans plafond** | **Relevé de 3 à 5 € le 9 septembre 2026.** Nous avions proposé un plafond au montant du transport — voir la réserve ci-dessous |
+| Colis non retiré | **21 jours** → **destruction** | **Décision du 9 septembre 2026**, qui remplace la mise en vente aux enchères retenue le 3 septembre |
 
 **Deux réserves, portées et maintenues.**
 
-**La vente aux enchères n'est pas validée juridiquement.** Disposer du bien d'autrui obéit à une procédure — commissaire de justice, mise en demeure, parfois autorisation judiciaire — et la vente aurait lieu à **Abidjan, sous droit ivoirien**. C'est aujourd'hui la question n° 1 de `docs/brief-juridique.md`.
+**La destruction n'est pas validée juridiquement, et ne l'est pas davantage que la vente.** Détruire le bien d'autrui obéit à une procédure — mise en demeure, délai opposable, preuve de la destruction — et l'opération aurait lieu à **Abidjan, sous droit ivoirien**. C'est toujours la question n° 1 de `docs/brief-juridique.md`, avec deux différences par rapport à la vente : la destruction est **irréversible**, et elle **éteint** la créance de stockage au lieu de la rembourser. Nous la signalons ; la décision appartient à la cliente et au juriste.
 
-**Les 3 €/jour sans plafond peuvent se retourner contre ENI.** Un colis de 5 kg vers Dakar coûte 60 € de transport ; du 8ᵉ au 21ᵉ jour, la garde y ajoute 42 €. Passé un seuil, le destinataire a intérêt à abandonner le colis — et ENI perd le transport avancé **et** la marchandise. `plafonnerFraisGardeAuTransport` reste en base : rétablir le plafond est un booléen, pas une migration.
+**Les 5 €/jour sans plafond se retournent désormais franchement contre ENI.** Un colis de 5 kg vers Dakar coûte 60 € de transport ; du 8ᵉ au 21ᵉ jour, la garde y ajoute **70 €** — davantage que le transport lui-même. Le destinataire a alors intérêt à abandonner le colis, et ENI perd le transport avancé, la marchandise **et**, avec la destruction, toute perspective de se rembourser. `plafonnerFraisGardeAuTransport` reste en base : rétablir le plafond est un booléen, pas une migration.
 
 Ce ne sont pas des avis juridiques.
 
 **Liste-les tous dans le README.**
 
-**Seed réaliste** : 8 pays et leurs villes (Sénégal avec Dakar **et** Thiès), les liaisons de §4.2, les 4 catégories, France ↔ USA conservée mais `actif: false`, ~6 clients avec identifiants, ~4 départs hebdomadaires, ~8 colis à des statuts et modes de réception différents, ~4 devis, ~3 factures dont une payée à l'arrivée en FCFA. **Aucun faux témoignage, aucun nom de client réel.**
+**Seed réaliste** : 8 pays et leurs villes (Sénégal avec Dakar **et** Thiès), les liaisons de §4.2, les 4 catégories, France ↔ USA ainsi que Congo-Brazzaville et RD Congo conservés mais `actif: false`, ~6 clients avec identifiants, ~4 départs hebdomadaires, ~8 colis à des statuts et modes de réception différents, ~4 devis, ~3 factures dont une payée à l'arrivée en FCFA. **Aucun faux témoignage, aucun nom de client réel.**
 
 ---
 

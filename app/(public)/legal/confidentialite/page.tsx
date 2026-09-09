@@ -39,8 +39,14 @@ export default function Page() {
         },
         {
           titre: 'Sous-traitance',
+          // La rubrique reste listée — le juriste doit la traiter, ne
+          // serait-ce que pour dire qu'il n'y a pas de sous-traitant. Mais
+          // elle ne nomme plus Brazzaville ni Kinshasa : depuis la fermeture
+          // du 9 septembre 2026, aucune donnée ne sort de l'Union, et
+          // annoncer un transfert qui n'existe pas serait une déclaration
+          // fausse sur une page de confidentialité.
           detail:
-            'Transmission tracée vers le sous-traitant sur Brazzaville et Kinshasa, contrat article 28.',
+            "Aucun transfert hors de l'Union européenne à ce jour — les liaisons sous-traitées sont fermées. Rubrique à confirmer par le juriste.",
         },
         {
           titre: 'Vos droits',

@@ -12,13 +12,13 @@ Les valeurs marquées **« paramétrée »** existent en base (`ParametresTarifi
 
 | | |
 | --- | --- |
-| Activité | Expédition de colis entre la France, sept pays d'Afrique subsaharienne et New York |
+| Activité | Expédition de colis entre la France, cinq pays d'Afrique subsaharienne et New York |
 | Statut annoncé | Auto-entrepreneur, **en franchise de TVA** |
 | Bureau France | 67 rue Saint-Julien, 76100 Rouen — collecte et réception |
 | Magasin Abidjan | Angré, face à l'immeuble Konor 2 — retrait et encaissement |
 | Téléphone | +33 6 52 70 70 14 |
-| Destinations | Côte d'Ivoire, Bénin, Guinée, Mali, Sénégal (Dakar **et** Thiès), Congo-Brazzaville, RD Congo, New York (depuis Abidjan) |
-| Sous-traitance | **Brazzaville et Kinshasa** sont opérées par un partenaire tiers |
+| Destinations | Côte d'Ivoire, Bénin, Guinée, Mali, Sénégal (Dakar **et** Thiès), New York (depuis Abidjan) |
+| Sous-traitance | **Aucune.** Brazzaville et Kinshasa, les deux seules liaisons opérées par un tiers, ont été fermées le 9 septembre 2026 |
 | Départs | Hebdomadaires, par voie aérienne |
 
 ### Trois modes de réception, trois situations juridiques différentes
@@ -69,9 +69,9 @@ L'article 6 III de la LCEN impose des mentions sur tout site professionnel. Voic
 | Rubrique | À fournir par ENI | À valider par le juriste |
 | --- | --- | --- |
 | Dénomination et statut | Raison sociale exacte, forme juridique | Formulation du statut d'auto-entrepreneur |
-| Identification | **SIREN / SIRET** | Mention RCS ou dispense d'immatriculation |
+| Identification | ✅ **SIREN 934 133 729** — communiqué le 9 septembre 2026 | Mention RCS ou dispense d'immatriculation. Le SIRET complet (SIREN + NIC) doit-il figurer ? |
 | Siège | Le 67 rue Saint-Julien est-il le **siège** ou seulement un bureau ? | Adresse à publier |
-| Directeur de la publication | Nom et qualité | — |
+| Directeur de la publication | ✅ **Emmanuel Rachidatou** — communiqué le 9 septembre 2026 ; la qualité reste à préciser | — |
 | Hébergeur | Vercel — dénomination et adresse complètes | Formulation exacte |
 | TVA | Franchise, art. 293 B du CGI | ✅ Déjà porté sur tout devis et toute facture |
 | Statut réglementaire du transport | — | **Voir §2 — bloquant** |
@@ -88,7 +88,7 @@ La page `/legal/cgs` existe avec ses neuf rubriques, **sans texte**. Voici, pour
 Ces points n'avaient jamais été fixés. Ils ont désormais deux origines qu'il faut ne pas confondre :
 
 - **L'indemnisation** reste **notre proposition**, défendable mais non validée, retenue par la cliente à titre de base de discussion.
-- **La garde et la vente** sont la **décision de la cliente**, arrêtée le 3 septembre 2026. Nous l'avons appliquée telle quelle, en maintenant nos réserves.
+- **La garde et le sort du colis** sont la **décision de la cliente**, arrêtée le 3 septembre 2026 et **révisée le 9 septembre** : les frais passent de 3 à 5 €/jour, et la vente aux enchères est remplacée par la **destruction**. Nous avons appliqué les deux versions telles quelles, en maintenant nos réserves.
 
 Toutes ces valeurs sont paramétrées en base : le juriste peut les corriger sans coût technique.
 
@@ -97,22 +97,25 @@ Toutes ces valeurs sont paramétrées en base : le juriste peut les corriger san
 | Indemnisation, colis ordinaire | **20 €/kg**, plafond **400 €** par colis | Le tarif le plus élevé de la grille, que nous croyons inférieur au plafond de la convention de Montréal pour le transport aérien | Le plafond conventionnel est-il applicable ici, et à quel montant ? Une limitation contractuelle est-elle opposable au client ? |
 | Indemnisation, article de valeur | **Valeur déclarée**, sur justificatif d'achat | Il est déjà facturé 15 % de sa valeur : le couvrir au barème au kilo serait incohérent | Une déclaration de valeur engage-t-elle ENI au-delà du plafond ? Faut-il une assurance dédiée ? |
 | Garde gratuite | **7 jours** après mise à disposition | Décision de la cliente | Un délai si court est-il opposable au destinataire ? |
-| Frais de garde | **3 €/jour**, **sans plafond** | Décision de la cliente. Nous avions proposé un plafond au montant du transport | Des frais de garde sont-ils opposables sans acceptation préalable ? Un montant non plafonné peut-il être jugé abusif ? |
-| Colis non retiré | **21 jours** → **mise en vente aux enchères** | Décision de la cliente, pour se rembourser les frais de stockage | **Voir ci-dessous — devenu la question n° 1** |
+| Frais de garde | **5 €/jour**, **sans plafond** | Décision de la cliente, relevée de 3 à 5 € le 9 septembre 2026. Nous avions proposé un plafond au montant du transport | Des frais de garde sont-ils opposables sans acceptation préalable ? Un montant non plafonné peut-il être jugé abusif ? À 5 €/jour, la garde dépasse le transport dès la deuxième semaine |
+| Colis non retiré | **21 jours** → **destruction** | Décision de la cliente du 9 septembre 2026, qui remplace la mise en vente aux enchères | **Voir ci-dessous — reste la question n° 1** |
 
-> ### La vente aux enchères — question n° 1
+> ### La destruction du colis — question n° 1
 >
-> **La cliente a tranché le 3 septembre 2026** : une semaine pour retirer, puis 3 €/jour, et **mise en vente aux enchères au bout de trois semaines** pour se rembourser les frais de stockage. Nous avons enregistré cette décision et l'avons appliquée dans l'application ; elle n'est **pas validée juridiquement**, et nous ne pouvons pas la valider nous-mêmes.
+> **La cliente a tranché le 3 septembre 2026, puis révisé le 9 septembre.** Version en vigueur : une semaine pour retirer, puis **5 €/jour**, et **destruction du colis au bout de trois semaines**. La mise en vente aux enchères, retenue le 3 septembre, est abandonnée. Nous avons enregistré cette décision et l'avons appliquée ; elle n'est **pas validée juridiquement**, et nous ne pouvons pas la valider nous-mêmes.
+>
+> **Le changement n'allège pas la question, il la déplace.** Détruire le bien d'autrui n'est pas plus libre que le vendre, et c'est à deux égards moins favorable : la destruction est **irréversible** — un destinataire qui se présente au 35ᵉ jour ne peut plus être remis en nature, seulement indemnisé — et elle **éteint** la créance de frais de garde au lieu de la rembourser. ENI perd le transport avancé, la marchandise, et le moyen de se payer.
 >
 > Ce qui nous inquiète, dans l'ordre :
 >
-> 1. **Vendre le bien d'autrui obéit à une procédure.** Faut-il un commissaire de justice, une mise en demeure formelle, une autorisation judiciaire, un délai légal minimum ? Une vente irrégulière expose ENI bien au-delà du montant en jeu.
-> 2. **La vente aurait lieu à Abidjan**, où se trouve le colis — donc sous **droit ivoirien**, pas français. Quel droit régit la disposition du bien : celui du lieu du contrat, du lieu de la chose, du domicile du destinataire ?
-> 3. **Vingt et un jours est court.** Le délai court à compter de la mise à disposition ; un destinataire en déplacement ou hospitalisé perd sa marchandise.
-> 4. **Sur le mode A, le destinataire n'a peut-être jamais rien signé.** C'est le client inscrit qui a accepté les conditions, et ce n'est pas toujours la même personne. Les frais de garde et la vente lui sont-ils opposables ?
-> 5. **Les frais dépassent vite le transport.** Un colis de 5 kg vers Dakar coûte 60 € ; du 8ᵉ au 21ᵉ jour, la garde ajoute 42 €. Un montant de garde disproportionné au service peut-il être contesté ?
+> 1. **Détruire le bien d'autrui obéit à une procédure.** Faut-il une mise en demeure formelle, un délai légal minimum, un constat, une preuve conservée de la destruction ? Une destruction irrégulière expose ENI bien au-delà du montant en jeu — et, contrairement à une vente, elle ne laisse aucune contrepartie à restituer.
+> 2. **La destruction aurait lieu à Abidjan**, où se trouve le colis — donc sous **droit ivoirien**, pas français. Quel droit régit la disposition du bien : celui du lieu du contrat, du lieu de la chose, du domicile du destinataire ?
+> 3. **Vingt et un jours est court.** Le délai court à compter de la mise à disposition ; un destinataire en déplacement ou hospitalisé perd définitivement sa marchandise.
+> 4. **Sur le mode A, le destinataire n'a peut-être jamais rien signé.** C'est le client inscrit qui a accepté les conditions, et ce n'est pas toujours la même personne. Les frais de garde et la destruction lui sont-ils opposables ?
+> 5. **Les frais dépassent désormais le transport.** Un colis de 5 kg vers Dakar coûte 60 € ; du 8ᵉ au 21ᵉ jour, la garde ajoute **70 €**. Un montant de garde disproportionné au service peut-il être contesté ?
+> 6. **Y a-t-il une voie intermédiaire ?** Don à une association, remise à l'État, vente encadrée, allongement du délai : si la destruction n'est pas praticable, nous ne demandons pas seulement un « non ».
 >
-> **Si la procédure décrite n'est pas praticable, dites-nous laquelle l'est.** Les délais et les montants sont paramétrés en base : les changer ne coûte rien.
+> **Si la procédure décrite n'est pas praticable, dites-nous laquelle l'est.** Les délais, les montants et le sort du colis sont paramétrés en base : les changer ne coûte rien.
 
 ### 4.2 Les autres rubriques
 
@@ -121,7 +124,7 @@ Toutes ces valeurs sont paramétrées en base : le juriste peut les corriger san
 | Objets interdits et restreints | Aucune liste | Liste à établir : matières dangereuses, denrées, espèces, produits réglementés à l'export et à l'import dans neuf pays |
 | Remise contre paiement | ✅ Règle appliquée, non paramétrable | Formulation contractuelle |
 | Envois à distance (mode C) | ✅ Devis accepté avant départ, numéro collé sur le colis | Moment de formation du contrat, droit de rétractation éventuel |
-| Recours à un sous-traitant | ✅ Brazzaville et Kinshasa identifiés | Mention obligatoire dans les CGS, et régime de responsabilité d'ENI pour le fait de son sous-traitant |
+| Recours à un sous-traitant | **Sans objet** depuis le 9 septembre 2026 — les deux liaisons sous-traitées sont fermées | Rien à rédiger tant qu'aucune liaison sous-traitée ne rouvre. Le modèle conserve le champ ; un contrôle automatique échoue si l'une rouvre |
 | Réclamations | Aucun délai fixé | Délai de réclamation, forme, prescription |
 | Retard | Rien | ENI s'engage-t-elle sur un délai ? Les délais réels par destination ne nous ont jamais été communiqués |
 | Litiges | Rien | Droit applicable et juridiction, alors que le destinataire est **souvent hors de France** — point sensible |
@@ -153,8 +156,8 @@ Deux questions en découlent :
 ### Ce qui manque, et qui n'est pas du code
 
 1. **Le registre des traitements** — obligatoire, à rédiger.
-2. **Le contrat de sous-traitance (article 28)** avec le partenaire de Brazzaville et Kinshasa. Il n'existe pas.
-3. **Le transfert hors UE.** Point que nous voulons souligner : transmettre le nom, le téléphone et l'adresse d'un destinataire à un sous-traitant établi au Congo ou en RD Congo est un **transfert de données hors Espace économique européen**. Ces pays ne bénéficient pas, à notre connaissance, d'une décision d'adéquation. Un encadrement contractuel spécifique semble nécessaire — à confirmer et à rédiger.
+2. ~~Le contrat de sous-traitance (article 28)~~ — **sans objet** depuis le 9 septembre 2026.
+3. ~~Le transfert hors UE~~ — **éteint le 9 septembre 2026, et c'est la bonne nouvelle de ce document.** C'était le point le plus lourd : transmettre le nom, le téléphone et l'adresse d'un destinataire à un sous-traitant établi au Congo ou en RD Congo était un transfert hors Espace économique européen, vers des pays qui ne bénéficient pas, à notre connaissance, d'une décision d'adéquation. La fermeture de Brazzaville et Kinshasa supprime le transfert : plus aucune donnée personnelle ne sort de l'Union. Base et photos sont hébergées à Francfort. **Ce point redevient une question le jour où une liaison sous-traitée rouvre** — l'application est faite pour le signaler avant.
 4. **Les durées de conservation** annoncées sont notre proposition. Sont-elles justifiables ?
 5. **Les photos de colis**, conservées comme preuve en cas de litige. Quelle durée, sur quelle base légale ?
 
@@ -165,13 +168,13 @@ Deux questions en découlent :
 Par ordre d'urgence.
 
 1. **Quel est le statut réglementaire de l'activité ?** Rien ne peut être publié tant que ce point n'est pas tranché. *(§2)*
-2. **La vente aux enchères d'un colis non retiré** — procédure, formalités, droit applicable. La cliente veut l'appliquer à 21 jours. *(§4.1)*
-3. **Les frais de garde de 3 €/jour, sans plafond**, sont-ils opposables ? *(§4.1)*
+2. **La destruction d'un colis non retiré** — procédure, formalités, preuve, droit applicable. La cliente veut l'appliquer à 21 jours. Si elle n'est pas praticable, quelle voie l'est ? *(§4.1)*
+3. **Les frais de garde de 5 €/jour, sans plafond**, sont-ils opposables ? *(§4.1)*
 4. **Le plafond d'indemnisation est-il opposable**, et à quel montant ? *(§4.1)*
 5. **Rédaction des mentions légales**, une fois le §3 complété par ENI.
 6. **Rédaction des CGS**, à partir du §4.
-7. **Encadrement du transfert de données** vers le sous-traitant hors UE. *(§5)*
-8. **Modèle de contrat de sous-traitance** au sens de l'article 28.
+
+*Deux demandes ont disparu* — encadrement du transfert hors UE et contrat de sous-traitance article 28 — la sous-traitance ayant pris fin le 9 septembre 2026.
 
 ---
 
@@ -179,16 +182,14 @@ Par ordre d'urgence.
 
 Ces éléments ne demandent aucune analyse — seulement d'être communiqués.
 
-- [ ] SIREN / SIRET et raison sociale exacte
-- [ ] Nom du directeur de la publication
+- [x] ~~SIREN~~ — **934 133 729**, communiqué le 9 septembre 2026. Reste la **raison sociale exacte**
+- [x] ~~Nom du directeur de la publication~~ — **Emmanuel Rachidatou**, communiqué le 9 septembre 2026
 - [ ] Adresse du siège, si différente du bureau de Rouen
 - [ ] Attestation d'assurance professionnelle
-- [ ] Horaires d'ouverture du bureau de Rouen
+- [ ] **Jours** d'ouverture du bureau de Rouen — la plage 9 h 30 – 18 h est connue
 - [ ] Délais réels par destination, réacheminement inclus
-- [ ] Adresses et contacts des points de retrait de **Brazzaville et Kinshasa**
-- [ ] Coordonnées du sous-traitant, pour le contrat article 28
 - [ ] Liste des objets qu'ENI refuse de transporter
 
 ---
 
-*Document de travail — di-eureka, 2 septembre 2026. Aucune des analyses ci-dessus ne constitue un avis juridique.*
+*Document de travail — di-eureka, 2 septembre 2026, mis à jour le 9 septembre 2026. Aucune des analyses ci-dessus ne constitue un avis juridique.*

@@ -54,16 +54,11 @@ export function DonneesOrganisation() {
         // Horaires volontairement absents : non communiqués par la
         // cliente. Un horaire faux fait déplacer quelqu'un pour rien.
         currenciesAccepted: 'EUR',
-        areaServed: [
-          "Côte d'Ivoire",
-          'Bénin',
-          'Guinée',
-          'Mali',
-          'Sénégal',
-          'Congo-Brazzaville',
-          'RD Congo',
-          'États-Unis',
-        ],
+        // Liste alignée sur les pays ACTIFS en base. Brazzaville et Kinshasa
+        // en sont sorties le 9 septembre 2026 : annoncer à un moteur de
+        // recherche une zone qu'on ne dessert plus attire des demandes qu'il
+        // faudra refuser.
+        areaServed: ["Côte d'Ivoire", 'Bénin', 'Guinée', 'Mali', 'Sénégal', 'États-Unis'],
       },
     ],
   }

@@ -13,7 +13,22 @@ import { Todo } from '@/components/ui/todo'
  * pire que de laisser la page vide, parce que personne ne le relirait.
  *
  * Chaque page liste donc les rubriques attendues, marquées à compléter.
+ *
+ * Une rubrique peut porter une `valeur` : c'est une information FACTUELLE
+ * communiquée par la cliente — un SIREN, un nom de directeur de publication.
+ * Elle s'affiche telle quelle et perd sa marque « à compléter ». Ce n'est
+ * pas de la rédaction juridique, c'est une donnée d'identité : la distinction
+ * compte, et c'est pourquoi l'avertissement en tête de page reste affiché
+ * tant que le texte lui-même n'a pas été validé.
  */
+export type RubriqueLegale = {
+  titre: string
+  /** Ce qui reste attendu. Reste affiché même quand `valeur` est renseignée. */
+  detail: string
+  /** Information déjà connue, affichée sans marque « à compléter ». */
+  valeur?: string
+}
+
 export function PageLegale({
   titre,
   intitule,
@@ -22,7 +37,7 @@ export function PageLegale({
 }: {
   titre: string
   intitule: string
-  rubriques: Array<{ titre: string; detail: string }>
+  rubriques: RubriqueLegale[]
   complement?: ReactNode
 }) {
   return (
@@ -45,9 +60,18 @@ export function PageLegale({
           {rubriques.map((rubrique) => (
             <div key={rubrique.titre} className="border-line-strong border-l-4 pl-5">
               <dt className="text-h3">{rubrique.titre}</dt>
-              <dd className="text-body-sm text-ink-soft m-0 mt-1.5">
-                {rubrique.detail} <Todo />
-              </dd>
+              {rubrique.valeur ? (
+                <dd className="m-0 mt-1.5">
+                  <span className="text-navy block font-extrabold">{rubrique.valeur}</span>
+                  <span className="text-body-sm text-ink-soft mt-1 block">
+                    {rubrique.detail} <Todo />
+                  </span>
+                </dd>
+              ) : (
+                <dd className="text-body-sm text-ink-soft m-0 mt-1.5">
+                  {rubrique.detail} <Todo />
+                </dd>
+              )}
             </div>
           ))}
         </dl>

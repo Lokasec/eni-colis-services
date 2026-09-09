@@ -280,11 +280,11 @@ export default function StyleguidePage() {
             prixParKg={12}
           />
           <CountryChip
-            href="/destinations/brazzaville"
-            flag="🇨🇬"
-            ville="Brazzaville"
-            pays="Congo"
-            prixParKg={20}
+            href="/destinations/cotonou"
+            flag="🇧🇯"
+            ville="Cotonou"
+            pays="Bénin"
+            prixParKg={15}
           />
           <CountryChip
             href="/destinations/new-york"

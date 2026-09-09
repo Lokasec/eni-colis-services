@@ -131,6 +131,14 @@ export const fichesDestination: Record<string, FicheDestination> = {
     cta: 'Demander un devis pour Dakar',
   },
 
+  // FICHES INACTIVES — Brazzaville et Kinshasa ont été retirées des
+  // destinations le 9 septembre 2026 (décision de la cliente).
+  //
+  // Les textes restent ici, comme les liaisons restent en base. Une fiche
+  // n'est publiée que si son pays est actif ET desservi par une liaison
+  // publique : ces deux-là ne le sont plus, les pages répondent 404 et les
+  // URL sortent du plan du site. Rouvrir, c'est rebasculer deux booléens —
+  // pas réécrire deux pages de contenu validé.
   CG: {
     slug: 'congo-brazzaville',
     titreSeo: 'Envoi de colis France → Brazzaville, Congo',

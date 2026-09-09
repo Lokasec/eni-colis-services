@@ -5,7 +5,7 @@
 **Version** : 1.0 — 24 août 2026
 **Statut** : à valider par la cliente avant intégration
 
-> **Enjeu critique** : cinq des huit destinations sont également desservies par l'opérateur co-localisé. Ces pages sont le point de risque maximal en duplicate content. Chaque fiche a donc **son propre angle, sa propre structure de paragraphes et son propre vocabulaire**. Ne pas les uniformiser, ne pas les reformuler à partir d'un gabarit commun.
+> **Enjeu critique** : cinq des six destinations publiées sont également desservies par l'opérateur co-localisé. Ces pages sont le point de risque maximal en duplicate content. Chaque fiche a donc **son propre angle, sa propre structure de paragraphes et son propre vocabulaire**. Ne pas les uniformiser, ne pas les reformuler à partir d'un gabarit commun.
 
 ---
 
@@ -230,6 +230,8 @@ Demander un devis pour Dakar
 
 # 6. Congo-Brazzaville — Brazzaville
 
+> **FICHE NON PUBLIÉE.** Brazzaville a été retirée des destinations le 9 septembre 2026 (décision de la cliente). Le texte reste ici et dans `content/destinations.ts` : la page ne s'affiche plus, mais rouvrir la destination est un booléen en back-office, pas une réécriture.
+
 **Slug** : `/destinations/congo-brazzaville`
 **Title SEO** : Envoi de colis France → Brazzaville, Congo | ENI Colis Services
 **Meta description** : Expédiez vers Brazzaville par groupage aérien. Devis chiffré sous 24 h, acheminement assuré avec notre partenaire local.
@@ -269,6 +271,8 @@ Demander un devis pour Brazzaville
 ---
 
 # 7. RD Congo — Kinshasa
+
+> **FICHE NON PUBLIÉE.** Kinshasa a été retirée des destinations le 9 septembre 2026, comme Brazzaville. Même traitement : le texte est conservé, la page ne s'affiche plus.
 
 **Slug** : `/destinations/rd-congo`
 **Title SEO** : Envoi de colis France → Kinshasa, RD Congo | ENI Colis Services

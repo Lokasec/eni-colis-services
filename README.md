@@ -374,25 +374,34 @@ Aucun n'aurait été visible en relisant le code.
 
 Aucune de ces valeurs ne doit être inventée. Elles apparaissent comme telles dans l'interface et dans le code.
 
-| #   | Point                                                                                                   | Impact                                                   | Criticité |
-| --- | ------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- | --------- |
-| 1   | Seuil d'écart devis/facture déclenchant une alerte                                                      | Paramétrage back-office                                  | 🟠        |
-| 2   | Confirmation de la règle `GRANDE_MARQUE` (`max` ou remplacement pur)                                    | Facturation                                              | 🟠        |
-| 3   | Points de retrait de **Brazzaville** et **Kinshasa** (adresses, contacts)                               | Pages destination                                        | 🟠        |
-| 4   | Horaires, contacts et adresses précises des autres points de retrait                                    | Pages destination                                        | 🟠        |
-| 5   | Délais réels par destination, réacheminement inclus                                                     | Crédibilité, pages destination                           | 🟠        |
-| 6   | Statut réglementaire de l'activité de transport                                                         | Mentions légales                                         | 🟠        |
-| 7   | **Jours** d'ouverture du bureau de Rouen — la plage 9 h 30 – 18 h est connue                            | Contact, FAQ                                             | 🟠        |
-| 8   | Mentions légales et CGS rédigées (SIREN, directeur de publication) — **à faire valider par un juriste** | Pages légales                                            | 🟠        |
-| 9   | Avis clients réels                                                                                      | Le bloc témoignages reste absent tant qu'il n'y en a pas | 🟢        |
-| 10  | Photos — 8 destinations + 5 photos d'activité (voir `docs/guide-images.md`)                             | Placeholders SVG en attendant                            | 🟢        |
-| 11  | Marchands acceptés ou refusés pour le mode A                                                            | FAQ                                                      | 🟢        |
+| #   | Point                                                                                           | Impact                                                   | Criticité |
+| --- | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------- | --------- |
+| 1   | Seuil d'écart devis/facture déclenchant une alerte                                              | Paramétrage back-office                                  | 🟠        |
+| 2   | Confirmation de la règle `GRANDE_MARQUE` (`max` ou remplacement pur)                            | Facturation                                              | 🟠        |
+| 3   | Horaires, contacts et adresses précises des points de retrait                                   | Pages destination                                        | 🟠        |
+| 4   | Délais réels par destination, réacheminement inclus                                             | Crédibilité, pages destination                           | 🟠        |
+| 5   | Statut réglementaire de l'activité de transport                                                 | Mentions légales                                         | 🟠        |
+| 6   | **Jours** d'ouverture du bureau de Rouen — la plage 9 h 30 – 18 h est connue                    | Contact, FAQ                                             | 🟠        |
+| 7   | Mentions légales et CGS **rédigées par un juriste** — raison sociale exacte et hébergeur inclus | Pages légales                                            | 🔴        |
+| 8   | Avis clients réels                                                                              | Le bloc témoignages reste absent tant qu'il n'y en a pas | 🟢        |
+| 9   | Photos — 6 destinations + 5 photos d'activité (voir `docs/guide-images.md`)                     | Placeholders SVG en attendant                            | 🟢        |
+| 10  | Marchands acceptés ou refusés pour le mode A                                                    | FAQ                                                      | 🟢        |
 
-### Prix d'achat des sous-traitants — hors périmètre
+**Levés le 9 septembre 2026.** La cliente a communiqué son **SIREN — 934 133 729** et le nom du **directeur de la publication — Emmanuel Rachidatou**. Les deux vivent dans `lib/site.ts` et s'affichent sur `/legal/mentions` ; le reste de la page attend toujours un juriste.
 
-ENI ne dessert pas Brazzaville et Kinshasa elle-même : le colis est remis à un partenaire. Les prix de vente sont connus (**20 €/kg** et **15 €/kg**) ; ce que la cliente paie au partenaire lui appartient et n'entre pas dans le périmètre de l'outil — **décision du 3 septembre 2026**.
+> Le numéro annoncé comme « SIRET » en compte **neuf** : c'est un **SIREN**. Un SIRET en compte quatorze — le SIREN suivi du NIC à cinq chiffres qui identifie l'établissement. Le SIREN suffit à l'article 6 III de la LCEN ; demander le SIRET complet si la cliente souhaite le faire figurer.
 
-`Liaison.prixAchat` reste **nul**, et un invariant vérifie qu'il le reste : une valeur de confort ferait afficher une marge inventée. `/admin/tarifs` indique « non suivi ». Le champ existe si la cliente souhaite un jour voir sa marge.
+**Levés par disparition de l'objet** : les points de retrait de Brazzaville et Kinshasa, et le prix d'achat auprès des sous-traitants. Les deux destinations sont fermées depuis le 9 septembre 2026.
+
+### Brazzaville et Kinshasa — fermées
+
+Décision du 9 septembre 2026 : les deux destinations sous-traitées sortent de l'offre. Comme pour France ↔ USA, **rien n'est supprimé** — pays, villes, points de retrait, liaisons et fiches rédigées restent en place, `actif = false`. Le colis `ENI-2026-00107`, parti vers Brazzaville et facturé 200 €, garde son historique et sa facture.
+
+La fermeture se joue à **deux niveaux**, et l'un sans l'autre laisse une porte ouverte : les **liaisons** commandent les pages destination, les départs et le sélecteur du devis ; **`Pays.actif`** commande le sélecteur de ville de retrait à l'inscription, qui ne regarde pas les liaisons. `verifier-seed.ts` contrôle les deux.
+
+**Deux conséquences en cascade.** La **sous-traitance disparaît** — c'étaient les deux seules liaisons opérées par un tiers : plus de contrat article 28 à écrire, et surtout **plus aucune donnée de destinataire transmise hors de l'Union européenne**, qui était le point le plus lourd du brief juridique. Et le **XAF sort des devises utilisées** : la zone CFA se réduit au XOF.
+
+`Liaison.sousTraitee` et `Liaison.prixAchat` restent au modèle. Un invariant vérifie qu'aucune liaison sous-traitée n'est active et que le prix d'achat est resté nul : rouvrir une de ces lignes fera échouer `db:verify` et rappellera que le transfert hors UE doit être encadré **avant**.
 
 ### Politique commerciale — tranchée le 2 septembre 2026
 
@@ -403,14 +412,14 @@ Trois points de cette liste ont été retirés : **plafond d'indemnisation**, **
 | Indemnisation, colis ordinaire   | 20 €/kg, plafond 400 €               | Le tarif le plus élevé de la grille, sous le plafond de la convention de Montréal |
 | Indemnisation, article de valeur | Valeur déclarée, sur justificatif    | Il est déjà facturé 15 % de sa valeur                                             |
 | Garde gratuite                   | **7 jours** après mise à disposition | Arrêté par la cliente le 3 septembre 2026                                         |
-| Frais de garde                   | **3 €/jour, sans plafond**           | Décision de la cliente ; nous avions proposé un plafond                           |
-| Colis non retiré                 | **21 jours → vente aux enchères**    | Décision de la cliente, pour se rembourser le stockage                            |
+| Frais de garde                   | **5 €/jour, sans plafond**           | Relevé de 3 à 5 € le 9 septembre 2026 ; nous avions proposé un plafond            |
+| Colis non retiré                 | **21 jours → destruction**           | Décision du 9 septembre 2026, en remplacement de la vente aux enchères            |
 
-**Réserve maintenue, et devenue urgente** : la vente aux enchères du bien d'autrui obéit à une procédure — commissaire de justice, mise en demeure, parfois autorisation judiciaire — et la vente aurait lieu à **Abidjan, sous droit ivoirien**. C'est la question n° 1 de [`docs/brief-juridique.md`](docs/brief-juridique.md).
+**Réserve maintenue, et la destruction ne l'allège pas** : détruire le bien d'autrui n'est pas plus libre que le vendre. Il y faut une mise en demeure, un délai opposable et une preuve de la destruction, à **Abidjan, sous droit ivoirien**. Deux différences par rapport à la vente, toutes deux défavorables : la destruction est **irréversible** — un destinataire qui se présente au 35ᵉ jour ne peut plus être remis en nature — et elle **éteint** la créance de stockage au lieu de la rembourser. Cela reste la question n° 1 de [`docs/brief-juridique.md`](docs/brief-juridique.md).
 
 **Le calcul des frais est reporté, volontairement.** Les paramètres existent et la politique est écrite, mais **aucun écran ne dit « ce colis doit 27 € de garde »** : la cliente compte à la main au comptoir. Décision du 3 septembre 2026 — la règle vient d'être fixée, elle se peaufinera à l'usage, et le calcul s'ajoutera quand elle sera stabilisée. Tout ce qu'il faudra alors est en base : délai gratuit, tarif journalier, plafond, date de mise à disposition.
 
-**Seconde réserve, économique** : 3 €/jour sans plafond dépasse vite le transport. Un colis de 5 kg vers Dakar coûte 60 € ; du 8ᵉ au 21ᵉ jour, la garde y ajoute 42 €. Passé un seuil, le destinataire a intérêt à abandonner le colis — et ENI perd le transport avancé **et** la marchandise. `plafonnerFraisGardeAuTransport` reste en base : rétablir le plafond est un booléen, pas une migration.
+**Seconde réserve, économique, aggravée par le passage à 5 €** : la garde dépasse désormais le transport. Un colis de 5 kg vers Dakar coûte 60 € ; du 8ᵉ au 21ᵉ jour, la garde y ajoute **70 €**. Le destinataire a alors intérêt à abandonner le colis — et ENI perd le transport avancé, la marchandise, **et**, la destruction remplaçant la vente, toute perspective de se rembourser. `plafonnerFraisGardeAuTransport` reste en base : rétablir le plafond est un booléen, pas une migration.
 
 ### France ↔ USA — fermée
 

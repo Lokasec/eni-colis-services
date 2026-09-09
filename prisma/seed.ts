@@ -93,15 +93,17 @@ async function main() {
       plafondIndemnisationParColisEur: '400.00',
       indemniserValeurDeclareeSiJustifiee: true,
 
-      // Garde : politique arrêtée par la cliente le 3 septembre 2026.
-      // Une semaine pour retirer, 3 €/jour ensuite, vente aux enchères
-      // au bout de trois semaines. Le plafond que nous avions proposé
-      // est écarté — voir le commentaire du schéma.
+      // Garde : politique arrêtée par la cliente le 3 septembre 2026 et
+      // révisée le 9 septembre. Une semaine pour retirer, 5 €/jour
+      // ensuite, et DESTRUCTION du colis au bout de trois semaines — la
+      // vente aux enchères initialement retenue est abandonnée. Le
+      // plafond que nous avions proposé reste écarté ; les réserves
+      // juridiques sont dans le commentaire du schéma.
       delaiGardeGratuiteJours: 7,
-      fraisGardeParJourEur: '3.00',
+      fraisGardeParJourEur: '5.00',
       plafonnerFraisGardeAuTransport: false,
       delaiAbandonJours: 21,
-      sortColisNonRetire: 'VENTE_AUX_ENCHERES',
+      sortColisNonRetire: 'DESTRUCTION',
     },
   })
 
@@ -161,6 +163,11 @@ async function main() {
       drapeau: '🇨🇬',
       monnaie: 'XAF',
       tauxFixe: TAUX_CFA,
+      // Fermé le 9 septembre 2026 avec Kinshasa. Fermer les LIAISONS ne
+      // suffit pas : `villesDeRetrait()` — le sélecteur de l'inscription au
+      // service d'adresse — filtre sur `pays.actif`, pas sur les liaisons.
+      // Sans ce booléen, Brazzaville resterait proposée à l'inscription.
+      actif: false,
     },
   })
   // Guinée et RD Congo : les envois depuis la France sont réglés en France,
@@ -169,7 +176,14 @@ async function main() {
     data: { codeIso: 'GN', nom: 'Guinée', slug: 'guinee', drapeau: '🇬🇳', monnaie: 'GNF' },
   })
   const rdc = await db.pays.create({
-    data: { codeIso: 'CD', nom: 'RD Congo', slug: 'rd-congo', drapeau: '🇨🇩', monnaie: 'CDF' },
+    data: {
+      codeIso: 'CD',
+      nom: 'RD Congo',
+      slug: 'rd-congo',
+      drapeau: '🇨🇩',
+      monnaie: 'CDF',
+      actif: false, // fermé le 9 septembre 2026, comme le Congo-Brazzaville
+    },
   })
   const usa = await db.pays.create({
     data: {
@@ -316,16 +330,24 @@ async function main() {
     { o: france, d: guinee, prix: '15.00' },
     { o: france, d: mali, prix: '15.00' },
     { o: france, d: senegal, prix: '12.00' },
-    { o: france, d: congo, prix: '20.00', sousTraitee: true },
-    { o: france, d: rdc, prix: '15.00', sousTraitee: true },
-    // Retours vers la France, 12 €/kg (Congo 20, RDC 15, Sénégal 12)
+    // Brazzaville et Kinshasa : FERMÉES. Décision de la cliente du
+    // 9 septembre 2026 — les deux destinations sous-traitées sont retirées.
+    //
+    // Elles suivent le traitement de France ↔ USA : les lignes RESTENT en
+    // base, inactives et non publiées. Le colis ENI-2026-00107, parti vers
+    // Brazzaville et retiré en août, garde ainsi sa liaison, sa facture et
+    // son historique — une suppression les aurait fait disparaître de la
+    // comptabilité. Rouvrir est un booléen en back-office.
+    { o: france, d: congo, prix: '20.00', sousTraitee: true, publique: false, actif: false },
+    { o: france, d: rdc, prix: '15.00', sousTraitee: true, publique: false, actif: false },
+    // Retours vers la France, 12 €/kg (Sénégal 12 ; Congo et RDC fermés)
     { o: civ, d: france, prix: '12.00' },
     { o: benin, d: france, prix: '12.00' },
     { o: guinee, d: france, prix: '12.00' },
     { o: mali, d: france, prix: '12.00' },
     { o: senegal, d: france, prix: '12.00' },
-    { o: congo, d: france, prix: '20.00', sousTraitee: true },
-    { o: rdc, d: france, prix: '15.00', sousTraitee: true },
+    { o: congo, d: france, prix: '20.00', sousTraitee: true, publique: false, actif: false },
+    { o: rdc, d: france, prix: '15.00', sousTraitee: true, publique: false, actif: false },
     // New York ↔ Abidjan, 20 €/kg dans les deux sens
     { o: usa, d: civ, prix: '20.00' },
     { o: civ, d: usa, prix: '20.00' },

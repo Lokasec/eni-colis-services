@@ -30,6 +30,22 @@ export const site = {
     pays: 'France',
   },
   telephone: '+33 6 52 70 70 14',
+
+  /**
+   * Identité de l'éditeur du site, communiquée par la cliente le
+   * 9 septembre 2026. C'est ce que l'article 6 III de la LCEN impose
+   * d'afficher, et rien d'autre n'est inventé ici.
+   *
+   * `siren` : NEUF chiffres. La cliente l'a annoncé comme un « SIRET » ;
+   * un SIRET en compte quatorze — le SIREN suivi du NIC à cinq chiffres
+   * qui identifie l'établissement. Le numéro donné est donc le SIREN, et
+   * il est valide au sens de la clé de Luhn. Le SIRET complet reste à
+   * demander si elle souhaite le faire figurer.
+   */
+  editeur: {
+    siren: '934 133 729',
+    directeurPublication: 'Emmanuel Rachidatou',
+  },
   /**
    * Horaires du bureau de Rouen, communiqués le 3 septembre 2026.
    *

@@ -82,7 +82,7 @@ export default function Services() {
         crumb={[{ href: '/', label: 'Accueil' }, { label: 'Services' }]}
         eyebrow="Ce que nous expédions"
         titre="Nos services d’expédition"
-        lede="ENI Colis Services expédie par groupage aérien vers l’Afrique de l’Ouest, l’Afrique centrale et New York. Chaque type d’envoi a sa logique de tarification — voici comment nous fonctionnons."
+        lede="ENI Colis Services expédie par groupage aérien vers l’Afrique de l’Ouest et New York. Chaque type d’envoi a sa logique de tarification — voici comment nous fonctionnons."
       />
 
       <Section tone="white">

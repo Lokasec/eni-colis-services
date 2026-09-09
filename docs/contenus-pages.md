@@ -57,7 +57,7 @@ Voir les prochains départs
 |---|---|
 | **Prix ferme, pas d'estimation** | Vous connaissez le montant exact avant de vous déplacer. |
 | **Réponse sous 24 heures** | Un devis chiffré, envoyé par e-mail et WhatsApp. |
-| **Sept destinations, deux continents** | De Dakar à Kinshasa, et jusqu'à New York. |
+| **Six destinations, deux continents** | De Dakar à Abidjan, et jusqu'à New York. |
 | **Suivi en ligne** | Un code, une page, l'état réel de votre colis. |
 
 ---

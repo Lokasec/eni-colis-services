@@ -50,7 +50,7 @@ export default function APropos() {
                 {
                   titre: 'Nous allons plus loin que la plupart.',
                   texte:
-                    'Sept pays d’Afrique de l’Ouest et centrale, plus la liaison entre Abidjan et New York — une desserte que peu d’opérateurs proposent.',
+                    'Cinq pays d’Afrique de l’Ouest, plus la liaison entre Abidjan et New York — une desserte que peu d’opérateurs proposent.',
                 },
               ].map((point) => (
                 <div key={point.titre} className="border-orange border-l-4 pl-5">

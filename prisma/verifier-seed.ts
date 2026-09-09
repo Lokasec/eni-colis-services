@@ -104,6 +104,30 @@ async function main() {
     `${franceUsa.length} lignes conservées, ${franceUsa.filter((l) => l.actif).length} active`,
   )
 
+  // Décision de la cliente du 9 septembre 2026 : Brazzaville et Kinshasa
+  // sont retirées des destinations. Comme pour France ↔ USA, on ferme sans
+  // supprimer — le colis ENI-2026-00107 et sa facture doivent survivre.
+  //
+  // La fermeture se joue à DEUX niveaux, et c'est le point que ce contrôle
+  // protège. Les liaisons commandent les pages destination, les départs et
+  // le sélecteur du devis ; `Pays.actif` commande le sélecteur de ville de
+  // retrait à l'inscription, qui ne regarde pas les liaisons. Fermer les
+  // liaisons seules laisserait Brazzaville proposée à l'inscription.
+  const congoPublic = publiques.filter(
+    (l) =>
+      ['CG', 'CD'].includes(l.paysOrigine.codeIso) ||
+      ['CG', 'CD'].includes(l.paysDestination.codeIso),
+  )
+  const congoPays = await db.pays.findMany({
+    where: { codeIso: { in: ['CG', 'CD'] } },
+    select: { nom: true, actif: true },
+  })
+  verifier(
+    'Brazzaville et Kinshasa fermées : ni liaison publique, ni pays actif',
+    congoPublic.length === 0 && congoPays.length === 2 && congoPays.every((p) => !p.actif),
+    `${congoPays.map((p) => `${p.nom} ${p.actif ? 'ACTIF' : 'fermé'}`).join(', ')} · ${congoPublic.length} liaison publique`,
+  )
+
   // C'EST L'INVARIANT QUI JUSTIFIE LA FERMETURE. Le transit est porté par la
   // ville d'arrivée : l'escale doit donc se déduire de la seule destination.
   // New York n'a pas de ville de transit — elle EST la destination. Tant que
@@ -174,19 +198,39 @@ async function main() {
     `pas ${params?.pasArrondiPoidsKg} kg · tolérance ${params?.toleranceArrondiKg} kg · minimum ${params?.poidsMinimumFactureKg} kg`,
   )
 
-  // Le prix d'achat des liaisons sous-traitées ne relève PAS du périmètre :
-  // la cliente communique ses prix de vente, ce qu'elle paie au partenaire
-  // lui appartient (décision du 3 septembre 2026). Ce contrôle ne vérifie
-  // donc pas qu'il est rempli, mais qu'il est resté NUL : une valeur de
-  // confort ferait afficher une marge inventée.
+  // LA SOUS-TRAITANCE A DISPARU avec Brazzaville et Kinshasa, fermées le
+  // 9 septembre 2026. C'étaient les deux seules liaisons opérées par un
+  // tiers, et leur fermeture éteint d'elle-même le point le plus lourd du
+  // brief juridique : plus aucun nom, téléphone ni adresse de destinataire
+  // n'est transmis hors de l'Union européenne.
+  //
+  // Le prix d'achat reste NUL, et ce contrôle continue de le vérifier : la
+  // cliente communique ses prix de vente, ce qu'elle paie au partenaire lui
+  // appartient (décision du 3 septembre 2026). Rouvrir une de ces lignes
+  // fera échouer ce contrôle — c'est le but : la question du transfert hors
+  // UE devra être reprise avant, pas après.
   const sousTraitees = await db.liaison.findMany({
-    where: { sousTraitee: true, actif: true },
-    select: { prixAchat: true, paysDestination: { select: { nom: true } } },
+    where: { sousTraitee: true },
+    select: {
+      actif: true,
+      prixAchat: true,
+      paysOrigine: { select: { nom: true, codeIso: true } },
+      paysDestination: { select: { nom: true, codeIso: true } },
+    },
   })
+  // Les lignes vont dans les deux sens : on nomme le pays SOUS-TRAITÉ, pas
+  // la France qui apparaît comme destination sur les retours.
+  const zonesSousTraitees = [
+    ...new Set(
+      sousTraitees.map((l) =>
+        l.paysOrigine.codeIso === 'FR' ? l.paysDestination.nom : l.paysOrigine.nom,
+      ),
+    ),
+  ]
   verifier(
-    "Liaisons sous-traitées : prix d'achat laissé vide, jamais inventé",
-    sousTraitees.length > 0 && sousTraitees.every((l) => l.prixAchat === null),
-    `${sousTraitees.map((l) => l.paysDestination.nom).join(', ')} — prix d'achat hors périmètre, marge non calculée`,
+    'Aucune liaison sous-traitée active : plus de transfert de données hors UE',
+    sousTraitees.length > 0 && sousTraitees.every((l) => !l.actif && l.prixAchat === null),
+    `${sousTraitees.length} lignes conservées et fermées — ${zonesSousTraitees.join(', ')}`,
   )
   verifier(
     'Poids volumétrique actif, diviseur 5000',
@@ -198,23 +242,25 @@ async function main() {
   // ici parce qu'elle alimentera les conditions générales : une valeur à
   // zéro publierait « indemnisation : 0 € » sans que personne ne le voie.
   verifier(
-    'Politique commerciale renseignée (indemnisation, garde, vente)',
+    'Politique commerciale renseignée (indemnisation, garde, sort du colis)',
     Number(params?.plafondIndemnisationParKgEur) > 0 &&
       Number(params?.plafondIndemnisationParColisEur) > 0 &&
       (params?.delaiGardeGratuiteJours ?? 0) > 0 &&
       (params?.delaiAbandonJours ?? 0) > (params?.delaiGardeGratuiteJours ?? 0),
-    `${params?.plafondIndemnisationParKgEur} €/kg, plafond ${params?.plafondIndemnisationParColisEur} € · garde ${params?.delaiGardeGratuiteJours} j puis ${params?.fraisGardeParJourEur} €/j · vente à ${params?.delaiAbandonJours} j`,
+    `${params?.plafondIndemnisationParKgEur} €/kg, plafond ${params?.plafondIndemnisationParColisEur} € · garde ${params?.delaiGardeGratuiteJours} j puis ${params?.fraisGardeParJourEur} €/j · sort à ${params?.delaiAbandonJours} j`,
   )
 
-  // Politique de garde arrêtée par la cliente le 3 septembre 2026. Ce
-  // contrôle fige SES valeurs, pas les nôtres : si quelqu'un remettait
-  // nos propositions initiales, la différence passerait inaperçue.
+  // Politique de garde arrêtée par la cliente le 3 septembre 2026, RÉVISÉE
+  // le 9 septembre : 5 €/jour au lieu de 3, et destruction du colis au lieu
+  // de la vente aux enchères. Ce contrôle fige SES valeurs, pas les nôtres :
+  // si quelqu'un remettait nos propositions initiales — ou la décision
+  // précédente — la différence passerait inaperçue.
   verifier(
-    'Garde : 7 jours gratuits, 3 €/jour, vente aux enchères à 21 jours',
+    'Garde : 7 jours gratuits, 5 €/jour, destruction à 21 jours',
     params?.delaiGardeGratuiteJours === 7 &&
-      Number(params?.fraisGardeParJourEur) === 3 &&
+      Number(params?.fraisGardeParJourEur) === 5 &&
       params?.delaiAbandonJours === 21 &&
-      params?.sortColisNonRetire === 'VENTE_AUX_ENCHERES',
+      params?.sortColisNonRetire === 'DESTRUCTION',
     `${params?.delaiGardeGratuiteJours} j gratuits · ${params?.fraisGardeParJourEur} €/j · ${params?.delaiAbandonJours} j → ${params?.sortColisNonRetire}`,
   )
 

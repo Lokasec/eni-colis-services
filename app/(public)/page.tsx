@@ -116,8 +116,8 @@ export default async function Accueil() {
               texte: 'Un devis chiffré, envoyé par e-mail et WhatsApp.',
             },
             {
-              titre: 'Sept destinations, deux continents',
-              texte: 'De Dakar à Kinshasa, et jusqu’à New York.',
+              titre: 'Six destinations, deux continents',
+              texte: 'De Dakar à Abidjan, et jusqu’à New York.',
             },
             {
               titre: 'Suivi en ligne',

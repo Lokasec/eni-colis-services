@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { site } from '@/lib/site'
 import { PageLegale } from '../page-legale'
 
 export const metadata: Metadata = {
@@ -17,7 +18,10 @@ export default function Page() {
       rubriques={[
         {
           titre: 'Dénomination et statut',
-          detail: "Raison sociale, statut d'auto-entrepreneur, numéro SIREN.",
+          detail: "Raison sociale exacte et statut d'auto-entrepreneur.",
+          // Communiqué le 9 septembre 2026. Le SIREN suffit à l'article
+          // 6 III de la LCEN ; la raison sociale exacte manque encore.
+          valeur: `SIREN ${site.editeur.siren}`,
         },
         {
           titre: 'Adresse du siège',
@@ -25,7 +29,8 @@ export default function Page() {
         },
         {
           titre: 'Directeur de la publication',
-          detail: 'Nom et qualité du responsable de la publication.',
+          detail: 'Qualité du responsable de la publication à préciser.',
+          valeur: site.editeur.directeurPublication,
         },
         { titre: 'Hébergeur', detail: "Nom, adresse et téléphone de l'hébergeur du site." },
         {

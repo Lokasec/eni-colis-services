@@ -7,9 +7,9 @@ import { Section } from '@/components/ui/section'
 import { destinationsPubliques } from '@/lib/donnees-publiques'
 
 export const metadata: Metadata = {
-  title: "Nos destinations — Afrique de l'Ouest, Afrique centrale, New York",
+  title: "Nos destinations — Afrique de l'Ouest et New York",
   description:
-    "Sept pays d'Afrique et New York. Tarifs au kilo, départs réguliers, devis sous 24 h sur photos.",
+    "Cinq pays d'Afrique de l'Ouest et New York. Tarifs au kilo, départs réguliers, devis sous 24 h sur photos.",
   alternates: { canonical: '/destinations' },
 }
 
@@ -22,7 +22,7 @@ export default async function Destinations() {
         crumb={[{ href: '/', label: 'Accueil' }, { label: 'Destinations' }]}
         eyebrow="Où nous allons"
         titre="Nos destinations"
-        lede="Nous desservons sept pays d’Afrique de l’Ouest et centrale, ainsi que New York. Chaque destination a son tarif, son délai et son point de retrait. Tous nos envois fonctionnent dans les deux sens."
+        lede="Nous desservons cinq pays d’Afrique de l’Ouest, ainsi que New York. Chaque destination a son tarif, son délai et son point de retrait. Tous nos envois fonctionnent dans les deux sens."
       />
 
       <Section tone="white">
