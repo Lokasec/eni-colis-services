@@ -10,11 +10,10 @@ export default async function Page() {
   return (
     <ModuleAVenir
       titre={'Paramètres'}
-      lot={'lot 8'}
+      lot={'un lot ultérieur'}
       reserve={true}
       contenu={[
         "Coordonnées de l'entreprise, telles qu'elles figurent sur les documents.",
-        'Comptes utilisateurs et rôles.',
         "Délais de garde, frais et plafond d'indemnisation, une fois arbitrés.",
       ]}
     />

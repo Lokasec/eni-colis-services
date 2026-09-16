@@ -29,6 +29,8 @@ export const liensAdmin: AdminLien[] = [
   { href: '/admin/destinations', label: 'Destinations', adminSeulement: true },
   { href: '/admin/messagerie', label: 'Messagerie' },
   { href: '/admin/parametres', label: 'Paramètres', adminSeulement: true },
+  { href: '/admin/utilisateurs', label: 'Utilisateurs', adminSeulement: true },
+  { href: '/admin/mon-compte', label: 'Mon compte' },
 ]
 
 export function Sidebar({ role = 'ADMIN' }: { role?: 'ADMIN' | 'OPERATEUR' }) {

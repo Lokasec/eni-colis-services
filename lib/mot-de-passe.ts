@@ -59,6 +59,57 @@ export async function hacher(motDePasse: string): Promise<string> {
   ].join('$')
 }
 
+/** Longueur minimale exigée d'un mot de passe du back-office. */
+export const LONGUEUR_MINIMALE = 12
+
+/**
+ * Refuse un mot de passe trop faible. Renvoie le motif, ou `null` s'il
+ * convient.
+ *
+ * **La longueur prime sur la composition.** Exiger une majuscule, un
+ * chiffre et un caractère spécial produit surtout des `Bureau2026!` :
+ * l'utilisateur satisfait la règle par le chemin le plus court, et le
+ * résultat est plus prévisible qu'une phrase longue. Douze caractères
+ * sans autre contrainte est ce que recommande le NIST (SP 800-63B), et
+ * c'est ce qui est appliqué ici.
+ *
+ * Trois refus seulement, tous motivés par un risque réel :
+ *
+ * 1. **Le mot de passe de démonstration.** `prisma/seed.ts` crée les
+ *    comptes avec `SEED_MOT_DE_PASSE`. Sans ce contrôle, la cliente peut
+ *    garder indéfiniment un mot de passe écrit dans un fichier du dépôt.
+ * 2. **Le nom ou l'adresse du titulaire.** « aicha » pour `aicha@…` est
+ *    la première chose que tente quelqu'un qui connaît l'entreprise.
+ * 3. **La longueur.**
+ */
+export function refuserMotDePasse(
+  motDePasse: string,
+  titulaire: { email?: string; nom?: string } = {},
+): string | null {
+  const propre = motDePasse.normalize('NFKC')
+
+  if (propre.length < LONGUEUR_MINIMALE) {
+    return `Le mot de passe doit faire au moins ${LONGUEUR_MINIMALE} caractères. Une phrase dont vous vous souvenez vaut mieux qu’un mot compliqué.`
+  }
+
+  const demonstration = process.env.SEED_MOT_DE_PASSE?.trim()
+  if (demonstration && propre === demonstration.normalize('NFKC')) {
+    return 'Ce mot de passe est celui des comptes de démonstration : il figure en clair dans les fichiers du projet. Choisissez-en un autre.'
+  }
+
+  const minuscule = propre.toLowerCase()
+  const morceaux = [titulaire.nom, titulaire.email?.split('@')[0]]
+    .filter((v): v is string => typeof v === 'string')
+    .flatMap((v) => v.toLowerCase().split(/[^a-z0-9]+/))
+    .filter((morceau) => morceau.length >= 4)
+
+  if (morceaux.some((morceau) => minuscule.includes(morceau))) {
+    return 'Le mot de passe ne doit pas contenir votre nom ni votre adresse e-mail.'
+  }
+
+  return null
+}
+
 /**
  * Vérifie un mot de passe.
  *

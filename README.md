@@ -98,6 +98,26 @@ Masquer une entrée de menu ne protège rien : l'URL reste tapable et la Server 
 
 Les mots de passe sont hachés par **`scrypt`**, de la bibliothèque standard de Node : pas de dépendance native à compiler au déploiement, ni de portage JavaScript plus lent. Les paramètres voyagent avec l'empreinte, pour pouvoir les durcir sans invalider les mots de passe existants.
 
+### Comptes — `/admin/utilisateurs` et `/admin/mon-compte`
+
+Deux rubriques, deux niveaux d'accès. **Utilisateurs** est réservée aux administrateurs : créer un compte, corriger un nom ou une adresse, changer un rôle, désactiver, réinitialiser un mot de passe. **Mon compte** est ouverte à tout compte connecté, opérateur compris — un mot de passe qu'on ne peut pas changer soi-même finit par circuler.
+
+**Trois garde-fous, tous vérifiés côté serveur.** Ils protègent du même accident : se verrouiller dehors.
+
+| Tentative                                                     | Réponse                                                                      |
+| ------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| Retirer son **propre** rôle d'administrateur                  | Refusée — on perdrait l'accès à cette page dans le mouvement                 |
+| Désactiver son **propre** compte                              | Refusée — déconnexion immédiate, sans retour possible                        |
+| Rétrograder ou désactiver le **dernier** administrateur actif | Refusée — plus personne n'accéderait aux tarifs, aux factures ni aux comptes |
+
+Il n'existe aucune procédure de secours dans l'application : sans ces contrôles, réparer demanderait de repasser par la base de production.
+
+**Un compte ne se supprime pas, il se désactive.** `HistoriqueStatut.auteurId` et `Encaissement.operateurId` pointent vers l'utilisateur en `SetNull` : supprimer un compte effacerait, sans rien signaler, le nom de qui a changé un statut ou encaissé un règlement. La désactivation prend effet **à la requête suivante**, sans attendre l'expiration du jeton, parce que le rôle et l'état sont relus en base à chaque contrôle.
+
+**Politique de mot de passe** — douze caractères, sans règle de composition. Exiger une majuscule, un chiffre et un caractère spécial produit surtout des `Bureau2026!` : l'utilisateur satisfait la règle par le chemin le plus court. C'est la recommandation du NIST (SP 800-63B). Deux refus supplémentaires, motivés par un risque concret : le mot de passe de **démonstration** — il figure en clair dans le dépôt, et rien n'empêcherait sinon de le garder — et tout mot de passe contenant le **nom ou l'adresse** du titulaire. `lib/mot-de-passe.test.ts` épingle les trois règles.
+
+La page signale d'elle-même les comptes portant une **adresse fictive** (`@eni.test`, héritée des données de démonstration) : ces adresses ne reçoivent rien, donc ni relance ni réinitialisation ne leur parviendrait.
+
 ### Facturation
 
 **Devis** — le moteur de tarification propose un montant, la cliente le modifie librement. Un bouton remet la suggestion. Pour l'électronique, le moteur refuse explicitement de chiffrer plutôt que d'inventer un chiffre : la tarification se fait à l'unité, après examen.
