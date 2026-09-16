@@ -351,7 +351,7 @@ Aucun n'aurait été visible en relisant le code.
 
 - **Aucun e-mail réellement expédié** : sans `RESEND_API_KEY`, ils sont journalisés. Le code est là, le canal jamais éprouvé.
 - **Aucune soumission depuis un vrai téléphone**, avec photo prise en direct. `capture="environment"` ne se valide pas autrement.
-- **Aucune photo partie sur Vercel Blob** — magasin créé en région Francfort le 16 septembre 2026, envoi réel restant à éprouver.
+- ~~Aucune photo partie sur Vercel Blob~~ — **éprouvé en production le 16 septembre 2026**. Demande `DEM-2026-00005` envoyée depuis le formulaire en ligne avec une photo : compression navigateur (21 Ko), dépôt dans `devis/` avec suffixe aléatoire, magasin FRA1. **Toujours pas depuis un vrai téléphone**, en revanche : `capture="environment"` ne se valide pas au clavier.
 - **Lighthouse non exécuté** : pas d'outil disponible dans l'environnement de développement. À lancer avant la mise en ligne.
 - **Les PDF n'ont pas été regardés** — vérifiés par leur structure (format A4, police intégrée, QR présent), pas par l'œil.
 
