@@ -124,9 +124,23 @@ Ajouter ensuite les enregistrements DKIM fournis par Resend, sans quoi les e-mai
 
 ---
 
-## 6. Photos de devis
+## 6. Photos de devis — ✅ fait le 16 septembre 2026
 
-Stockage objet en **région Europe**. Les photos envoyées par les clients sont des données personnelles au sens du RGPD : elles ne doivent pas quitter l'Union européenne, au même titre que la base.
+Magasin **Vercel Blob `eni-colis-services-blob`**, région **Francfort (`fra1`)** — la même que la base Neon. Les photos envoyées par les clients sont des données personnelles au sens du RGPD : elles ne quittent pas l'Union européenne, au même titre que la base.
+
+**La région ne se change pas après création.** Vercel propose Washington par défaut, exactement comme Neon. C'est le même piège, au même endroit, pour la deuxième fois.
+
+**Le jeton n'est pas créé sans cocher une case.** « Add a read-write token env var to this connection », en bas du dialogue, décochée par défaut. Sans elle, le magasin existe et le site ne peut pas y écrire.
+
+**Et la variable vide de `.env.example` bloque encore.** Vercel refuse de créer `BLOB_READ_WRITE_TOKEN` s'il en existe déjà un — même vide — et propose à la place un préfixe (`MONPREFIXE_BLOB_READ_WRITE_TOKEN`). Accepter ce préfixe casse le code, qui lit le nom exact. Il faut **supprimer la variable vide d'abord**. Voir le piège n° 1 plus bas : il s'est reproduit ici.
+
+### Accès public, et pourquoi
+
+Le magasin est en accès **public à URL imprévisible** : chaque fichier reçoit un suffixe aléatoire (`addRandomSuffix: true`), les URL ne sont ni devinables ni énumérables, et elles ne vivent que dans notre base et dans le back-office authentifié.
+
+Vercel recommande l'accès **privé** pour des données sensibles, et il serait effectivement meilleur : `@vercel/blob` 2.8.0 sait le faire. Il demande en revanche une route d'administration qui relaie le flux après contrôle d'authentification — un chemin qui ne peut pas être vérifié de bout en bout sans manipuler le jeton en local. Mettre en production un chemin d'authentification non testé sur le formulaire de devis était le risque le plus lourd des deux.
+
+**C'est un arbitrage, pas un oubli.** Il se révise : le magasin actuel ne contient aucune photo réelle, et basculer consiste à créer un magasin privé et à ajouter une route de relais. À reprendre quand la charge le justifiera, ou si le juriste l'exige.
 
 Prévoir la purge automatique des devis non convertis après douze mois.
 
@@ -166,6 +180,8 @@ Cinq pièges, aucun visible en relisant le code. Ils sont corrigés, mais ils se
 **1. Vercel crée une variable vide pour chaque clé de `.env.example`.** À l'import du dépôt, treize variables sont apparues, toutes vides. Or `process.env.X ?? 'défaut'` ne se déclenche que sur une variable ABSENTE : une variable vide traverse le `??` et gagne. Le seed a reçu `TAUX_CFA=''`, Prisma a refusé (« Failed to parse empty string »), et la base de production est restée à moitié chargée. `lib/env.ts` traite désormais le vide comme l'absence, partout.
 
 Ces variables vides bloquent aussi la suite : l'intégration Neon refuse de créer `DATABASE_URL` s'il en existe déjà une, même vide, et le collage des secrets échoue en silence sur les doublons. **Supprimez les variables vides avant de configurer quoi que ce soit.**
+
+> Ce piège a resservi le 16 septembre 2026, à la création du magasin Blob : Vercel a refusé `BLOB_READ_WRITE_TOKEN` à cause de la variable vide du 3 septembre, et a proposé un préfixe qui aurait rendu le jeton invisible au code. Ce n'est donc pas une anecdote du premier déploiement : c'est le comportement normal de la plateforme, et il se reproduira à chaque nouvelle intégration.
 
 **2. La région Neon est Washington par défaut.** Le brief impose l'Union européenne pour la base — c'est du RGPD, pas une préférence. Frankfurt (`fra1`).
 

@@ -5,12 +5,18 @@ import { adresseInterne, envoyer } from '@/lib/email'
 import { prochainNumero, TRANSACTION } from '@/lib/numerotation'
 import { verifierLimite } from '@/lib/rate-limit'
 import { site } from '@/lib/site'
-import { deposerPhoto } from '@/lib/stockage'
+import { deposerPhoto, estEchec } from '@/lib/stockage'
 import { schemaDevis } from '@/lib/validation'
 
 export type EtatDevis =
   | { statut: 'initial' }
-  | { statut: 'succes'; reference: string }
+  /**
+   * `avertissement` : la demande est bien enregistrée, mais quelque chose
+   * d'accessoire a échoué — aujourd'hui, les photos. Ce n'est pas une
+   * erreur : le visiteur n'a rien à refaire, il a seulement quelque chose
+   * à savoir.
+   */
+  | { statut: 'succes'; reference: string; avertissement?: string }
   | { statut: 'erreur'; message: string; champs?: Record<string, string> }
 
 /** Correspondance entre la nature saisie et le code de catégorie en base. */
@@ -115,11 +121,21 @@ export async function envoyerDemandeDevis(
     }
   }
 
+  // Un fichier REFUSÉ bloque : le visiteur peut le corriger. Un stockage
+  // INDISPONIBLE ne bloque pas — la demande vaut bien plus que ses photos,
+  // et lui refuser l'envoi reviendrait à lui faire payer notre panne. On
+  // enregistre alors sans les photos, et on lui dit comment nous les
+  // transmettre.
   const photos: Array<{ url: string; nomOriginal: string; tailleOctets: number }> = []
+  let photosPerdues = 0
   for (const fichier of fichiers) {
     const depose = await deposerPhoto(fichier)
-    if ('erreur' in depose) {
-      return { statut: 'erreur', message: depose.erreur, champs: { photos: depose.erreur } }
+    if (estEchec(depose)) {
+      if (depose.echec === 'REFUS') {
+        return { statut: 'erreur', message: depose.message, champs: { photos: depose.message } }
+      }
+      photosPerdues += 1
+      continue
     }
     photos.push(depose)
   }
@@ -180,7 +196,18 @@ export async function envoyerDemandeDevis(
   }
 
   // 7. Notifications — sans faire attendre le visiteur derrière Resend.
-  void notifier(reference, { ...d, ...trajet }, photos.length)
+  void notifier(reference, { ...d, ...trajet }, photos.length, photosPerdues)
+
+  if (photosPerdues > 0) {
+    return {
+      statut: 'succes',
+      reference,
+      avertissement:
+        photosPerdues > 1
+          ? `Vos photos n’ont pas pu être jointes à cause d’un incident de notre côté. Votre demande, elle, est bien enregistrée : envoyez-les-nous sur WhatsApp au ${site.telephone} en indiquant la référence ${reference}, nous les rattacherons.`
+          : `Votre photo n’a pas pu être jointe à cause d’un incident de notre côté. Votre demande, elle, est bien enregistrée : envoyez-la-nous sur WhatsApp au ${site.telephone} en indiquant la référence ${reference}, nous la rattacherons.`,
+    }
+  }
 
   return { statut: 'succes', reference }
 }
@@ -247,7 +274,15 @@ async function notifier(
     modeRemise: string
   },
   nbPhotos: number,
+  photosPerdues: number,
 ) {
+  // L'exploitante doit savoir qu'il MANQUE des photos, pas seulement
+  // combien il y en a. Sans cette ligne, un devis arrivé sans photo se
+  // confond avec un devis envoyé sans photo, et personne ne relance.
+  const mentionPerdues =
+    photosPerdues > 0
+      ? `\n⚠️ ${photosPerdues} photo(s) envoyée(s) par le demandeur n'ont PAS pu être stockées. Il lui est demandé de les renvoyer par WhatsApp.`
+      : ''
   await Promise.allSettled([
     envoyer({
       destinataire: d.email,
@@ -279,7 +314,7 @@ E-mail : ${d.email}
 Destination : ${d.villeArrivee}, ${d.paysArrivee}
 Nature : ${d.nature}
 Mode de remise : ${d.modeRemise}
-Photos : ${nbPhotos}
+Photos : ${nbPhotos}${mentionPerdues}
 
 Description :
 ${d.description}

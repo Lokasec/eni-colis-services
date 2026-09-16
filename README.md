@@ -163,7 +163,20 @@ WhatsApp reste manuel : liens `wa.me` pré-remplis, un par destinataire. L'API B
 3. **Validation Zod rejouée côté serveur**, indépendamment du navigateur.
 4. **Vérification du trajet** — le couple pays/ville soumis doit correspondre à une liaison réellement publiée. Sans ce contrôle, un formulaire falsifié pourrait enregistrer une demande France ↔ USA.
 
-Les photos sont **compressées dans le navigateur** avant l'envoi (1 600 px, ~1 Mo), puis leur type et leur taille sont revérifiés côté serveur. En production elles vont sur Vercel Blob, **région Europe** ; en développement, dans `public/uploads/`, ignoré par Git.
+Les photos sont **compressées dans le navigateur** avant l'envoi (1 600 px, ~1 Mo), puis leur type et leur taille sont revérifiés côté serveur. En production elles vont sur **Vercel Blob, magasin `eni-colis-services-blob`, région Francfort** — la même que la base ; en développement, dans `public/uploads/`, ignoré par Git.
+
+**Le repli sur disque ne s'exécute jamais en production, et c'est une protection, pas un détail.** Le système de fichiers d'une fonction serverless est en lecture seule : `mkdir` y lève `EROFS`, l'exception remontait jusqu'à la Server Action, et le visiteur perdait sa **demande entière** parce qu'il avait joint une photo. `lib/stockage.ts` refuse désormais ce chemin explicitement.
+
+**Un échec de stockage ne fait plus perdre la demande.** Le dépôt distingue deux cas :
+
+|                                                                   | Ce qui se passe                                                                                                                                                                  |
+| ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Refus** — fichier vide, plus de 5 Mo, format non accepté        | L'envoi est bloqué et le visiteur voit pourquoi : il peut corriger                                                                                                               |
+| **Indisponible** — jeton manquant, quota atteint, incident réseau | **La demande est enregistrée sans les photos.** Le visiteur est invité à les envoyer par WhatsApp avec sa référence, et l'alerte interne signale à l'exploitante qu'il en manque |
+
+La distinction compte : bloquer sur une panne de notre côté ferait payer au visiteur un incident dont il n'est pas responsable, et une demande vaut beaucoup plus que ses photos. `lib/stockage.test.ts` épingle les deux comportements.
+
+**Accès public à URL imprévisible, et c'est un arbitrage.** Chaque fichier reçoit un suffixe aléatoire ; les URL ne sont ni devinables ni énumérables et ne vivent que dans la base et le back-office authentifié. L'accès **privé** serait meilleur et la bibliothèque le permet, mais il exige une route de relais authentifiée qu'on ne peut pas éprouver sans manipuler le jeton. Révisable à tout moment — voir [`DEPLOIEMENT.md`](DEPLOIEMENT.md) §6.
 
 Sans `RESEND_API_KEY`, les e-mails sont **journalisés au lieu d'être expédiés** et le formulaire aboutit quand même : une demande enregistrée en base ne doit pas échouer parce que la messagerie n'est pas configurée.
 
@@ -338,7 +351,7 @@ Aucun n'aurait été visible en relisant le code.
 
 - **Aucun e-mail réellement expédié** : sans `RESEND_API_KEY`, ils sont journalisés. Le code est là, le canal jamais éprouvé.
 - **Aucune soumission depuis un vrai téléphone**, avec photo prise en direct. `capture="environment"` ne se valide pas autrement.
-- **Aucune photo partie sur Vercel Blob** — seul le stockage local a servi.
+- **Aucune photo partie sur Vercel Blob** — magasin créé en région Francfort le 16 septembre 2026, envoi réel restant à éprouver.
 - **Lighthouse non exécuté** : pas d'outil disponible dans l'environnement de développement. À lancer avant la mise en ligne.
 - **Les PDF n'ont pas été regardés** — vérifiés par leur structure (format A4, police intégrée, QR présent), pas par l'œil.
 

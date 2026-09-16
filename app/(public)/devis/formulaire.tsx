@@ -99,6 +99,11 @@ export function FormulaireDevis({ options }: { options: OptionsTrajet }) {
           <strong className="text-navy">{etat.reference}</strong>. Vous recevrez votre devis sous 24
           heures par e-mail, et par WhatsApp si vous nous avez laissé votre numéro.
         </p>
+        {etat.avertissement ? (
+          <div className="mt-4">
+            <Alert tone="warn">{etat.avertissement}</Alert>
+          </div>
+        ) : null}
         <p className="text-body text-ink-soft mt-4">
           Une question en attendant ? Écrivez-nous sur WhatsApp.
         </p>
