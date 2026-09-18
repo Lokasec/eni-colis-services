@@ -175,7 +175,7 @@ Prévoir la purge automatique des devis non convertis après douze mois.
 
 ## Ce que le premier déploiement réel a appris
 
-Six pièges, aucun visible en relisant le code. Ils sont corrigés, mais ils se reproduiront sur un autre projet.
+Sept pièges, aucun visible en relisant le code. Ils sont corrigés, mais ils se reproduiront sur un autre projet.
 
 **1. Vercel crée une variable vide pour chaque clé de `.env.example`.** À l'import du dépôt, treize variables sont apparues, toutes vides. Or `process.env.X ?? 'défaut'` ne se déclenche que sur une variable ABSENTE : une variable vide traverse le `??` et gagne. Le seed a reçu `TAUX_CFA=''`, Prisma a refusé (« Failed to parse empty string »), et la base de production est restée à moitié chargée. `lib/env.ts` traite désormais le vide comme l'absence, partout.
 
@@ -196,6 +196,16 @@ Ces variables vides bloquent aussi la suite : l'intégration Neon refuse de cré
 Le correctif n'est pas de corriger la valeur, c'est de **supprimer la variable**. `auth.config.ts` pose `trustHost: true` : Auth.js v5 déduit l'URL de la requête, ce qui est précisément ce qu'il faut quand le site répond à la fois sur son domaine et sur l'adresse `.vercel.app`. Une URL figée en dur y était une gêne, pas une aide.
 
 > **La leçon du point 6** : quand on change de domaine, la page à tester en premier est `/admin/login`. Le site vitrine, lui, répondra 200 même si l'authentification est morte.
+
+**7. Une base légitimement vide n'est pas une base neuve — et l'amorçage les confondait.** Le 18 septembre 2026, les données de démonstration ont été purgées avant la remise à la cliente : plus un colis, plus un client, plus un document. Le déploiement suivant a relancé le seed, qui commence par `deleteMany()` sur toutes les tables, et a **ressuscité les six clients inventés, les huit colis et les trois fausses factures**. La purge avait tenu moins d'une heure.
+
+Le garde-fou testait « aucune donnée d'exploitation → charger ». Or zéro colis et zéro client, c'est aussi l'état **normal** d'une entreprise à son premier jour : chaque déploiement aurait effacé la base de la cliente.
+
+L'amorçage ne se déclenche désormais que si la **donnée de RÉFÉRENCE** manque — pays, liaisons, catégories, paramètres de tarification. C'est le seul indicateur fiable : le seed la crée toujours, et rien dans l'exploitation ne la supprime.
+
+> **La leçon du point 7** : un garde-fou doit se demander « cette base a-t-elle DÉJÀ été amorcée ? », jamais « cette base est-elle utilisée ? ». Les deux questions n'ont pas la même réponse le premier jour.
+>
+> Et une conséquence pratique : **purger, c'est purger puis vérifier APRÈS le déploiement suivant**, pas avant.
 
 > **La leçon commune aux points 1 et 5** : attraper une erreur pour ne pas bloquer un déploiement produit une production incohérente que personne ne voit. Un déploiement qui échoue se voit. `scripts/amorcer-production.ts` sort désormais en code 1.
 

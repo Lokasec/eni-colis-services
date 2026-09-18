@@ -47,30 +47,59 @@ try {
   // pas : elles se rechargent depuis le seed à l'identique. Le garde-fou
   // porte donc sur les premières, pas sur les secondes.
   //
-  // La première version testait `pays > 0`, et c'était faux. Le seed avait
-  // échoué APRÈS avoir créé la France et avant la Côte d'Ivoire : au
-  // déploiement suivant, une seule ligne suffisait à faire passer la base
-  // pour peuplée, le seed était sauté, et le site restait sans
-  // destinations. Une base à moitié chargée ressemblait à une base pleine.
-  const [colis, documents, clients, pays] = await Promise.all([
+  // DEUX VERSIONS ONT ÉTÉ FAUSSES ICI. La troisième tient compte des deux.
+  //
+  // v1 — « si un pays existe, ne rien faire ». Le seed avait échoué APRÈS
+  // la France et avant la Côte d'Ivoire : une seule ligne suffisait à faire
+  // passer la base pour peuplée, et le site restait sans destinations. Une
+  // base à moitié chargée ressemblait à une base pleine.
+  //
+  // v2 — « si aucune donnée d'exploitation, (re)charger ». Pire encore, et
+  // constaté le 18 septembre 2026 : après la purge des données de
+  // démonstration avant remise à la cliente, la base était LÉGITIMEMENT
+  // vide de colis, de documents et de clients. Le déploiement suivant a
+  // donc relancé le seed — qui commence par `deleteMany()` sur toutes les
+  // tables — et a ressuscité les six clients inventés, les huit colis et
+  // les trois fausses factures. La purge était annulée dans la minute.
+  //
+  // Le même piège attendait la cliente à son premier jour d'exploitation :
+  // zéro colis, zéro client, c'est l'état NORMAL d'une entreprise qui
+  // démarre. Chaque déploiement lui aurait effacé sa base.
+  //
+  // v3 — ON N'AMORCE QUE SI LA DONNÉE DE RÉFÉRENCE MANQUE. Elle est le
+  // seul indicateur fiable d'une base jamais amorcée : le seed la crée
+  // toujours, et rien dans l'exploitation ne la supprime. Une base vide de
+  // colis mais pourvue de ses pays, de ses tarifs et de ses catégories est
+  // une base PRÊTE, pas une base neuve.
+  const [colis, documents, clients, pays, categories, liaisons, parametres] = await Promise.all([
     db.colis.count(),
     db.document.count(),
     db.client.count(),
     db.pays.count(),
+    db.categorieArticle.count(),
+    db.liaison.count(),
+    db.parametresTarification.count(),
   ])
 
   const donneesReelles = colis + documents + clients
+  const referenceComplete = pays > 0 && categories > 0 && liaisons > 0 && parametres > 0
 
   if (donneesReelles > 0) {
     console.log(
       `[amorçage] ${colis} colis, ${documents} documents, ${clients} clients en base. ` +
         'Aucune écriture — le seed effacerait des données réelles.',
     )
+  } else if (referenceComplete) {
+    console.log(
+      `[amorçage] Aucune donnée d'exploitation, mais la référence est complète ` +
+        `(${pays} pays, ${liaisons} liaisons, ${categories} catégories, tarification renseignée). ` +
+        'Base prête, pas base neuve : aucune écriture.',
+    )
   } else {
     console.log(
-      pays > 0
-        ? `[amorçage] ${pays} pays mais aucune donnée d'exploitation : chargement de référence incomplet, on recharge.`
-        : '[amorçage] Base vide : chargement des données de référence…',
+      `[amorçage] Référence incomplète (${pays} pays, ${liaisons} liaisons, ` +
+        `${categories} catégories, ${parametres} ligne(s) de tarification) et aucune donnée ` +
+        "d'exploitation : chargement des données de référence…",
     )
     execSync('npx prisma db seed', { stdio: 'inherit' })
     console.log('[amorçage] Terminé.')
