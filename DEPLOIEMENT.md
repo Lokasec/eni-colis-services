@@ -52,7 +52,7 @@ Connexion GitHub → import du dépôt → détection automatique de Next.js.
 | Variable | Valeur |
 |---|---|
 | `NEXTAUTH_SECRET` | `openssl rand -base64 32` |
-| `NEXTAUTH_URL` | `https://enicolisservices.com` |
+| ~~`NEXTAUTH_URL`~~ | **Ne pas définir.** `trustHost: true` suffit — voir le piège n° 6 |
 | `DATABASE_URL` | URL Neon Postgres, région Europe |
 | `RESEND_API_KEY` | Clé API Resend |
 | `EMAIL_FROM` | `noreply@enicolisservices.com` |
@@ -175,7 +175,7 @@ Prévoir la purge automatique des devis non convertis après douze mois.
 
 ## Ce que le premier déploiement réel a appris
 
-Cinq pièges, aucun visible en relisant le code. Ils sont corrigés, mais ils se reproduiront sur un autre projet.
+Six pièges, aucun visible en relisant le code. Ils sont corrigés, mais ils se reproduiront sur un autre projet.
 
 **1. Vercel crée une variable vide pour chaque clé de `.env.example`.** À l'import du dépôt, treize variables sont apparues, toutes vides. Or `process.env.X ?? 'défaut'` ne se déclenche que sur une variable ABSENTE : une variable vide traverse le `??` et gagne. Le seed a reçu `TAUX_CFA=''`, Prisma a refusé (« Failed to parse empty string »), et la base de production est restée à moitié chargée. `lib/env.ts` traite désormais le vide comme l'absence, partout.
 
@@ -190,6 +190,12 @@ Ces variables vides bloquent aussi la suite : l'intégration Neon refuse de cré
 **4. Sans `postinstall`, le client Prisma n'existe pas.** `lib/generated/` est ignoré par git. Le premier build est mort sur `ERR_MODULE_NOT_FOUND` — et ce n'était pas qu'un script d'amorçage : l'application entière n'aurait pas démarré.
 
 **5. Un garde-fou mal choisi fige une base cassée.** L'amorçage sautait le seed dès qu'un pays existait. Le seed ayant échoué après la France et avant la Côte d'Ivoire, une seule ligne suffisait à faire passer la base pour peuplée : déploiement après déploiement, le site restait sans destinations. Le garde-fou compte maintenant les **colis, documents et clients** — la donnée irremplaçable. La donnée de référence, elle, se recharge.
+
+**6. `NEXTAUTH_URL` peut mettre le back-office hors service, sans que le site vitrine bronche.** Le 18 septembre 2026, au moment de basculer sur le domaine propre, cette variable a été réécrite avec une valeur qu'Auth.js n'a pas su analyser. L'initialisation du middleware échouait, et **toute URL sous `/admin` répondait 500** — `MIDDLEWARE_INVOCATION_FAILED`, page de connexion comprise. Les pages publiques, hors du matcher du middleware, restaient à 200 : rien ne se voyait depuis le site.
+
+Le correctif n'est pas de corriger la valeur, c'est de **supprimer la variable**. `auth.config.ts` pose `trustHost: true` : Auth.js v5 déduit l'URL de la requête, ce qui est précisément ce qu'il faut quand le site répond à la fois sur son domaine et sur l'adresse `.vercel.app`. Une URL figée en dur y était une gêne, pas une aide.
+
+> **La leçon du point 6** : quand on change de domaine, la page à tester en premier est `/admin/login`. Le site vitrine, lui, répondra 200 même si l'authentification est morte.
 
 > **La leçon commune aux points 1 et 5** : attraper une erreur pour ne pas bloquer un déploiement produit une production incohérente que personne ne voit. Un déploiement qui échoue se voit. `scripts/amorcer-production.ts` sort désormais en code 1.
 
