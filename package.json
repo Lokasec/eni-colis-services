@@ -25,7 +25,8 @@
     "db:push": "prisma db push",
     "db:seed": "prisma db seed",
     "db:verify": "tsx prisma/verifier-seed.ts",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "db:purger-demo": "tsx scripts/purger-demonstration.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
